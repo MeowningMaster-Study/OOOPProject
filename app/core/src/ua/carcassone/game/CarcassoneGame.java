@@ -10,7 +10,7 @@ import ua.carcassone.game.screens.MainMenuScreen;
 public class CarcassoneGame extends Game {
 	public SpriteBatch batch;
 	public BitmapFont font;
-	private Screen mainMenuScreen;
+	public Screen mainMenuScreen, joinGameScreen, gameScreen;
 
 	public void create () {
 		batch = new SpriteBatch();
