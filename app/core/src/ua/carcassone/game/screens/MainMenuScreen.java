@@ -9,13 +9,11 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.*;
 import ua.carcassone.game.CarcassoneGame;
+import ua.carcassone.game.Utils;
 
 public class MainMenuScreen implements Screen {
 
@@ -28,6 +26,12 @@ public class MainMenuScreen implements Screen {
     public MainMenuScreen(final CarcassoneGame game) {
         this.game = game;
 
+        int scalingCoefficient = 12;
+        int row_height = Gdx.graphics.getWidth() / scalingCoefficient;
+        int col_width = Gdx.graphics.getWidth() / scalingCoefficient;
+
+
+                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
         viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height, camera);
@@ -35,32 +39,50 @@ public class MainMenuScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
-        Button button = new TextButton("Text Button", mySkin);
-        button.setSize(100,50);
-        button.setPosition(400,400);
+        Label carcassoneLabel = new Label("Carcassone Game", mySkin, "big");
+        carcassoneLabel.setSize(col_width, row_height);
+        carcassoneLabel.setPosition(col_width*2, Utils.fromTop(row_height*2));
+        stage.addActor(carcassoneLabel);
 
-        button.addListener(new InputListener(){
-            @Override
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-//                dispose();
-//                Gdx.app.exit();
-                str = x+":"+y;
-            }
+        Button joinButton = new TextButton("Join game", mySkin);
+        joinButton.setSize(col_width*5,row_height);
+        joinButton.setPosition(col_width*2, Utils.fromTop(row_height*4));
+        joinButton.addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println(123214);
-
-
                 return true;
             }
+
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                str = x+":"+y;
+            }
         });
-        stage.addActor(button);
+        stage.addActor(joinButton);
+
+        Button exitButton = new TextButton("Exit", mySkin);
+        exitButton.setSize(col_width*5,row_height);
+        exitButton.setPosition(col_width*2, Utils.fromTop(row_height*6));
+        exitButton.addListener(new InputListener(){
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                return true;
+            }
+
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                dispose();
+                Gdx.app.exit();
+            }
+        });
+        stage.addActor(exitButton);
+
     }
 
     @Override
     public void render(float delta) {
 
-        ScreenUtils.clear(0, 0, 0.2f, 1);
+        ScreenUtils.clear(250f/255, 224f/255, 145f/255, 1);
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
@@ -68,23 +90,11 @@ public class MainMenuScreen implements Screen {
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
 
-
-        game.batch.begin();
-        game.font.draw(game.batch, Gdx.input.getX()+", "+Gdx.input.getY(), 100, 150);
-        game.font.draw(game.batch, this.str, 100, 100);
-        game.batch.end();
-
-        if (Gdx.input.isTouched()) {
-//            Gdx.graphics.setWindowedMode(100,100);
-            //game.setScreen(new GameScreen(game));
-//            dispose();
-//            Gdx.app.exit();
-        }
     }
 
     @Override
     public void resize(int width, int height) {
-        //viewport.update(width, height);
+        viewport.update(width, height);
     }
 
     @Override

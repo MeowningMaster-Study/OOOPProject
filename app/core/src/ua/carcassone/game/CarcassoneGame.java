@@ -17,7 +17,6 @@ public class CarcassoneGame extends Game {
 		font = new BitmapFont();
 
 		mainMenuScreen = new MainMenuScreen(this);
-		Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 		this.setScreen(mainMenuScreen);
 
 	}
