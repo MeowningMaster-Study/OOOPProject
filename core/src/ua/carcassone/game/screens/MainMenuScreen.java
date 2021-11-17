@@ -14,6 +14,10 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.*;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.networking.GameWebSocketClient;
+
+import java.util.Observable;
+import java.util.Observer;
 
 public class MainMenuScreen implements Screen {
 
@@ -43,6 +47,11 @@ public class MainMenuScreen implements Screen {
         carcassoneLabel.setSize(col_width, row_height);
         carcassoneLabel.setPosition(col_width*2, Utils.fromTop(row_height*2));
         stage.addActor(carcassoneLabel);
+
+        Label connectionLabel = new Label("NOT Connected", mySkin, "default");
+        connectionLabel.setSize(col_width, row_height);
+        connectionLabel.setPosition(col_width*12, Utils.fromTop(row_height*2));
+        stage.addActor(connectionLabel);
 
         Button joinButton = new TextButton("Join game", mySkin);
         joinButton.setSize(col_width*5,row_height);
@@ -77,6 +86,11 @@ public class MainMenuScreen implements Screen {
             }
         });
         stage.addActor(exitButton);
+
+        GameWebSocketClient.onStateChangedObserver observer = new GameWebSocketClient.onStateChangedObserver(()->{
+            connectionLabel.setText("Connected to server!");
+        });
+        game.socketClient.addStateObserver(observer);
 
     }
 

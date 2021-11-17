@@ -1,6 +1,9 @@
-sourceCompatibility = 1.7
+sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = [ "src/" ]
 
 eclipse.project.name = appName + "-core"
+dependencies {
+    implementation 'org.java-websocket:Java-WebSocket:1.5.2'
+}
