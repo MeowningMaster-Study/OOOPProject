@@ -21,7 +21,6 @@ public class MainMenuScreen implements Screen {
     private OrthographicCamera camera;
     private Viewport viewport;
     private Stage stage;
-    private String str = "Bottom text";
 
     public MainMenuScreen(final CarcassoneGame game) {
         this.game = game;
