@@ -21,6 +21,8 @@ public class JoinGameScreen implements Screen {
     private Viewport viewport;
     private Stage stage;
 
+    private Skin mySkin;
+
     public JoinGameScreen(final CarcassoneGame game) {
         this.game = game;
 
@@ -30,19 +32,47 @@ public class JoinGameScreen implements Screen {
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
 
-        Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
+        mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
         Label carcassoneLabel = new Label("Join game", mySkin, "big");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
 
-        TextField joinCodeField = new TextField("Connection code...", mySkin);
-        joinCodeField.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
-        joinCodeField.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 4));
+        final TextField joinCodeField = makeJoinCodeField("Connection code...");
         stage.addActor(joinCodeField);
 
-        Button joinButton = new TextButton("Join", mySkin);
+        Button joinButton = makeJoinButton("Join");
+        stage.addActor(joinButton);
+
+        Button backButton = makeBackButton("Back");
+        stage.addActor(backButton);
+    }
+
+    private TextField makeJoinCodeField(final String text){
+        final TextField joinCodeField = new TextField(text, mySkin);
+        joinCodeField.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
+        joinCodeField.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 4));
+        joinCodeField.addListener(new InputListener(){
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                joinCodeField.setText("");
+                return true;
+            }
+
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                if(joinCodeField.isTouchFocusListener() && joinCodeField.getText().trim().isEmpty()){
+                    joinCodeField.setText(text);
+                }
+            }
+        });
+
+        return joinCodeField;
+    }
+
+    private Button makeJoinButton(String name){
+        Button joinButton = new TextButton(name, mySkin);
         joinButton.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
         joinButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 6));
         joinButton.addListener(new InputListener(){
@@ -57,9 +87,12 @@ public class JoinGameScreen implements Screen {
                 game.setScreen(new GameScreen(game));
             }
         });
-        stage.addActor(joinButton);
 
-        Button backButton = new TextButton("Back", mySkin);
+        return joinButton;
+    }
+
+    private Button makeBackButton(String name){
+        Button backButton = new TextButton(name, mySkin);
         backButton.setSize(ELEMENT_WIDTH_UNIT * 3,ELEMENT_HEIGHT_UNIT);
         backButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 8));
         backButton.addListener(new InputListener(){
@@ -73,9 +106,9 @@ public class JoinGameScreen implements Screen {
                 game.setScreen(new MainMenuScreen(game));
             }
         });
-        stage.addActor(backButton);
-    }
 
+        return backButton;
+    }
 
     @Override
     public void render(float delta) {
@@ -84,6 +117,8 @@ public class JoinGameScreen implements Screen {
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
+
+
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();

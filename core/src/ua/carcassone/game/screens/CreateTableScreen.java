@@ -8,13 +8,13 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.*;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
 import static ua.carcassone.game.Utils.*;
 
-public class MainMenuScreen implements Screen {
-
+public class CreateTableScreen implements Screen {
     private final CarcassoneGame game;
     private OrthographicCamera camera;
     private Viewport viewport;
@@ -22,10 +22,9 @@ public class MainMenuScreen implements Screen {
 
     private Skin mySkin;
 
-    public MainMenuScreen(final CarcassoneGame game) {
+    public CreateTableScreen(final CarcassoneGame game) {
         this.game = game;
 
-        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
         viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height, camera);
@@ -34,27 +33,68 @@ public class MainMenuScreen implements Screen {
 
         mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
-        Label carcassoneLabel = new Label("Carcassone Game", mySkin, "big");
+        Label carcassoneLabel = new Label("Create Table", mySkin, "big");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
 
-        Button createTableButton = makeCreateTableButton("Create table");
-        stage.addActor(createTableButton);
+        final TextField createTableField = makeCreateTableField("Table name...");
+        stage.addActor(createTableField);
 
-        Button joinButton = makeJoinButton("Join game");
-        stage.addActor(joinButton);
+        Button createButton = makeCreateButton("Create");
+        stage.addActor(createButton);
 
-        Button exitButton = makeExitButton("Exit");
-        stage.addActor(exitButton);
-
+        Button backButton = makeBackButton("Back");
+        stage.addActor(backButton);
     }
 
-    private Button makeCreateTableButton(String name){
-        Button createTableButton = new TextButton(name, mySkin);
-        createTableButton.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
-        createTableButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 4));
-        createTableButton.addListener(new InputListener(){
+    private TextField makeCreateTableField(final String text){
+        final TextField createTableField = new TextField(text, mySkin);
+        createTableField.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
+        createTableField.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 4));
+        createTableField.addListener(new InputListener(){
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                createTableField.setText("");
+                return true;
+            }
+
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                if(createTableField.isTouchFocusListener() && createTableField.getText().trim().isEmpty()){
+                    createTableField.setText(text);
+                }
+            }
+        });
+
+        return createTableField;
+    }
+
+    private Button makeCreateButton(String name){
+        Button createButton = new TextButton(name, mySkin);
+        createButton.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
+        createButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 6));
+        createButton.addListener(new InputListener(){
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                return true;
+            }
+
+
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                // TODO event handling
+            }
+        });
+
+        return createButton;
+    }
+
+    private Button makeBackButton(String name){
+        Button backButton = new TextButton(name, mySkin);
+        backButton.setSize(ELEMENT_WIDTH_UNIT * 3,ELEMENT_HEIGHT_UNIT);
+        backButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 8));
+        backButton.addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                 return true;
@@ -62,54 +102,16 @@ public class MainMenuScreen implements Screen {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                game.setScreen(new CreateTableScreen(game));
+                game.setScreen(new MainMenuScreen(game));
             }
         });
 
-        return createTableButton;
-    }
-
-    private Button makeJoinButton(String name){
-        Button joinButton = new TextButton(name, mySkin);
-        joinButton.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
-        joinButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 6));
-        joinButton.addListener(new InputListener(){
-            @Override
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                return true;
-            }
-
-            @Override
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                game.setScreen(new JoinGameScreen(game));
-            }
-        });
-
-        return joinButton;
-    }
-
-    private Button makeExitButton(String name){
-        Button exitButton = new TextButton(name, mySkin);
-        exitButton.setSize(ELEMENT_WIDTH_UNIT * 3,ELEMENT_HEIGHT_UNIT);
-        exitButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 8));
-        exitButton.addListener(new InputListener(){
-            @Override
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                return true;
-            }
-
-            @Override
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                dispose();
-                Gdx.app.exit();
-            }
-        });
-
-        return exitButton;
+        return backButton;
     }
 
     @Override
     public void render(float delta) {
+
         ScreenUtils.clear(250f/255, 224f/255, 145f/255, 1);
 
         camera.update();
