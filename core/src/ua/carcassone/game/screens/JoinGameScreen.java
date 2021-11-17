@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
+import static ua.carcassone.game.Utils.*;
 
 public class JoinGameScreen implements Screen {
 
@@ -24,10 +25,6 @@ public class JoinGameScreen implements Screen {
     public JoinGameScreen(final CarcassoneGame game) {
         this.game = game;
 
-        int scalingCoefficient = 12;
-        int row_height = Gdx.graphics.getWidth() / scalingCoefficient;
-        int col_width = Gdx.graphics.getWidth() / scalingCoefficient;
-
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
         viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height, camera);
@@ -37,18 +34,18 @@ public class JoinGameScreen implements Screen {
         Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
         Label carcassoneLabel = new Label("Join game", mySkin, "big");
-        carcassoneLabel.setSize(col_width, row_height);
-        carcassoneLabel.setPosition(col_width*2, Utils.fromTop(row_height*2));
+        carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
 
-        TextField joinCodeField = new TextField("", mySkin);
-        joinCodeField.setSize(col_width*2,row_height);
-        joinCodeField.setPosition(col_width*2, Utils.fromTop(row_height*4));
+        TextField joinCodeField = new TextField("Connection code...", mySkin);
+        joinCodeField.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
+        joinCodeField.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 4));
         stage.addActor(joinCodeField);
 
         Button joinButton = new TextButton("Join", mySkin);
-        joinButton.setSize(col_width*3,row_height);
-        joinButton.setPosition(col_width*2, Utils.fromTop(row_height*6));
+        joinButton.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
+        joinButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 6));
         joinButton.addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -65,8 +62,8 @@ public class JoinGameScreen implements Screen {
         stage.addActor(joinButton);
 
         Button backButton = new TextButton("Back", mySkin);
-        backButton.setSize(col_width*5,row_height);
-        backButton.setPosition(col_width*2, Utils.fromTop(row_height*8));
+        backButton.setSize(ELEMENT_WIDTH_UNIT * 3,ELEMENT_HEIGHT_UNIT);
+        backButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 8));
         backButton.addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
