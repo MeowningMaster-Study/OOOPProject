@@ -20,7 +20,6 @@ public class JoinGameScreen implements Screen {
     private OrthographicCamera camera;
     private Viewport viewport;
     private Stage stage;
-    private String str = "Bottom text";
 
     public JoinGameScreen(final CarcassoneGame game) {
         this.game = game;
@@ -55,8 +54,7 @@ public class JoinGameScreen implements Screen {
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
                 /* code to connect */
-                game.gameScreen = new GameScreen(game);
-                game.setScreen(game.gameScreen);
+                game.setScreen(new GameScreen(game));
             }
         });
         stage.addActor(joinButton);
@@ -72,7 +70,7 @@ public class JoinGameScreen implements Screen {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                game.setScreen(game.mainMenuScreen);
+                game.setScreen(new MainMenuScreen(game));
             }
         });
         stage.addActor(backButton);
@@ -115,5 +113,6 @@ public class JoinGameScreen implements Screen {
 
     @Override
     public void dispose() {
+        stage.dispose();
     }
 }

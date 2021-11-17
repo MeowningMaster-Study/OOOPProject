@@ -20,6 +20,8 @@ public class MainMenuScreen implements Screen {
     private Viewport viewport;
     private Stage stage;
 
+
+
     public MainMenuScreen(final CarcassoneGame game) {
         this.game = game;
 
@@ -47,8 +49,7 @@ public class MainMenuScreen implements Screen {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                game.joinGameScreen = new JoinGameScreen(game);
-                game.setScreen(game.joinGameScreen);
+                game.setScreen(new JoinGameScreen(game));
             }
         });
         stage.addActor(joinButton);
@@ -108,5 +109,6 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void dispose() {
+        stage.dispose();
     }
 }

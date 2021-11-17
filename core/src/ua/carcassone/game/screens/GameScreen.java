@@ -23,7 +23,6 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     private Viewport viewport;
     private Stage stage;
-    private String str = "Bottom text";
 
     public GameScreen(final CarcassoneGame game) {
         this.game = game;
@@ -78,5 +77,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        stage.dispose();
     }
 }
