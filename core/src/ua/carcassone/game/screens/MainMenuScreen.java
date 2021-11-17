@@ -2,10 +2,7 @@ package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -14,6 +11,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.*;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
+import static ua.carcassone.game.Utils.*;
 
 public class MainMenuScreen implements Screen {
 
@@ -25,12 +23,7 @@ public class MainMenuScreen implements Screen {
     public MainMenuScreen(final CarcassoneGame game) {
         this.game = game;
 
-        int scalingCoefficient = 12;
-        int row_height = Gdx.graphics.getWidth() / scalingCoefficient;
-        int col_width = Gdx.graphics.getWidth() / scalingCoefficient;
-
-
-                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
         viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height, camera);
@@ -39,13 +32,13 @@ public class MainMenuScreen implements Screen {
         Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
         Label carcassoneLabel = new Label("Carcassone Game", mySkin, "big");
-        carcassoneLabel.setSize(col_width, row_height);
-        carcassoneLabel.setPosition(col_width*2, Utils.fromTop(row_height*2));
+        carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
 
         Button joinButton = new TextButton("Join game", mySkin);
-        joinButton.setSize(col_width*5,row_height);
-        joinButton.setPosition(col_width*2, Utils.fromTop(row_height*4));
+        joinButton.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
+        joinButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 4));
         joinButton.addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -61,8 +54,8 @@ public class MainMenuScreen implements Screen {
         stage.addActor(joinButton);
 
         Button exitButton = new TextButton("Exit", mySkin);
-        exitButton.setSize(col_width*5,row_height);
-        exitButton.setPosition(col_width*2, Utils.fromTop(row_height*6));
+        exitButton.setSize(ELEMENT_WIDTH_UNIT * 3,ELEMENT_HEIGHT_UNIT);
+        exitButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 6));
         exitButton.addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
