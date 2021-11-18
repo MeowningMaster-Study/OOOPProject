@@ -2,6 +2,7 @@ package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -48,24 +49,13 @@ public class CreateTableScreen implements Screen {
         stage.addActor(backButton);
     }
 
+    // TODO find new font
     private TextField makeCreateTableField(final String text){
-        final TextField createTableField = new TextField(text, mySkin);
+
+        final TextField createTableField = new TextField("", mySkin);
+        createTableField.setMessageText(text);
         createTableField.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
         createTableField.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 4));
-        createTableField.addListener(new InputListener(){
-            @Override
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                createTableField.setText("");
-                return true;
-            }
-
-            @Override
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                if(createTableField.isTouchFocusListener() && createTableField.getText().trim().isEmpty()){
-                    createTableField.setText(text);
-                }
-            }
-        });
 
         return createTableField;
     }

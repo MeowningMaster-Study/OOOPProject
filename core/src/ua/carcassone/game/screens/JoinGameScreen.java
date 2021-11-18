@@ -49,24 +49,12 @@ public class JoinGameScreen implements Screen {
         stage.addActor(backButton);
     }
 
+    // TODO find new font
     private TextField makeJoinCodeField(final String text){
-        final TextField joinCodeField = new TextField(text, mySkin);
+        final TextField joinCodeField = new TextField("", mySkin);
         joinCodeField.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
         joinCodeField.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 4));
-        joinCodeField.addListener(new InputListener(){
-            @Override
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                joinCodeField.setText("");
-                return true;
-            }
-
-            @Override
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                if(joinCodeField.isTouchFocusListener() && joinCodeField.getText().trim().isEmpty()){
-                    joinCodeField.setText(text);
-                }
-            }
-        });
+        joinCodeField.setMessageText(text);
 
         return joinCodeField;
     }
