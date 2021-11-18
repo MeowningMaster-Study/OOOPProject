@@ -44,7 +44,7 @@ public class MainMenuScreen implements Screen {
 
         Label connectionLabel = new Label("NOT Connected", mySkin, "default");
         connectionLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
-        connectionLabel.setPosition(ELEMENT_WIDTH_UNIT * 12, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
+        connectionLabel.setPosition(ELEMENT_WIDTH_UNIT * 6, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(connectionLabel);
       
         GameWebSocketClient.onStateChangedObserver observer = new GameWebSocketClient.onStateChangedObserver(()->{

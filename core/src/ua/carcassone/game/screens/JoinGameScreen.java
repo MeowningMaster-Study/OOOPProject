@@ -46,7 +46,7 @@ public class JoinGameScreen implements Screen {
         final TextField joinCodeField = makeJoinCodeField("Connection code...");
         stage.addActor(joinCodeField);
 
-        Button joinButton = makeJoinButton("Join");
+        Button joinButton = makeJoinButton("Join", joinCodeField);
         stage.addActor(joinButton);
 
         Button backButton = makeBackButton("Back");
@@ -63,7 +63,7 @@ public class JoinGameScreen implements Screen {
         return joinCodeField;
     }
 
-    private Button makeJoinButton(String name){
+    private Button makeJoinButton(String name, TextField joinCodeField){
         Button joinButton = new TextButton(name, mySkin);
         joinButton.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
         joinButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 6));

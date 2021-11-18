@@ -102,7 +102,7 @@ public class GameWebSocketClient extends WebSocketClient {
 
     public void connectToTable(String table_id) throws IncorrectClientActionException {
         if (!this.state.is(ClientStateEnum.CONNECTED_TO_SERVER))
-            throw new IncorrectClientActionException("can not connect to a table as client state is "+this.state.string());
+            throw new IncorrectClientActionException("can not connect to a table as client state is " + this.state.string());
 
         this.send(jsonConverter.toJson(new ClientQueries.JOIN_TABLE(table_id)));
 
