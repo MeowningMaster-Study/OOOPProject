@@ -15,6 +15,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
+import static ua.carcassone.game.Utils.*;
 
 public class GameScreen implements Screen {
 
@@ -22,14 +23,9 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     private Viewport viewport;
     private Stage stage;
-    private String str = "Bottom text";
 
     public GameScreen(final CarcassoneGame game) {
         this.game = game;
-
-        int scalingCoefficient = 12;
-        int row_height = Gdx.graphics.getWidth() / scalingCoefficient;
-        int col_width = Gdx.graphics.getWidth() / scalingCoefficient;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
@@ -39,8 +35,8 @@ public class GameScreen implements Screen {
         Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
         Label carcassoneLabel = new Label("Game", mySkin, "big");
-        carcassoneLabel.setSize(col_width, row_height);
-        carcassoneLabel.setPosition(col_width*2, Utils.fromTop(row_height*2));
+        carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
 
     }
@@ -81,5 +77,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        stage.dispose();
     }
 }

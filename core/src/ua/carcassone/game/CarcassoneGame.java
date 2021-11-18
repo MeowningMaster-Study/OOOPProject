@@ -16,9 +16,9 @@ import java.util.Observer;
 public class CarcassoneGame extends Game {
 	public SpriteBatch batch;
 	public BitmapFont font;
-	public Screen mainMenuScreen, joinGameScreen, gameScreen;
 	public GameWebSocketClient socketClient = new GameWebSocketClient();
 
+	@Override
 	public void create () {
 		batch = new SpriteBatch();
 		font = new BitmapFont();
@@ -29,8 +29,7 @@ public class CarcassoneGame extends Game {
 			e.printStackTrace();
 		}
 
-		mainMenuScreen = new MainMenuScreen(this);
-		this.setScreen(mainMenuScreen);
+		this.setScreen(new MainMenuScreen(this));
 
 	}
 
@@ -40,7 +39,6 @@ public class CarcassoneGame extends Game {
 
 	public void dispose () {
 		batch.dispose();
-		mainMenuScreen.dispose();
 	}
 
 

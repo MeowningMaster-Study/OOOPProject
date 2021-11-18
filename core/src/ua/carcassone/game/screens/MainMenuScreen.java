@@ -2,10 +2,7 @@ package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -15,9 +12,9 @@ import com.badlogic.gdx.utils.viewport.*;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.networking.GameWebSocketClient;
-
 import java.util.Observable;
 import java.util.Observer;
+import static ua.carcassone.game.Utils.*;
 
 public class MainMenuScreen implements Screen {
 
@@ -25,37 +22,70 @@ public class MainMenuScreen implements Screen {
     private OrthographicCamera camera;
     private Viewport viewport;
     private Stage stage;
-    private String str = "Bottom text";
+
+    private Skin mySkin;
 
     public MainMenuScreen(final CarcassoneGame game) {
         this.game = game;
 
-        int scalingCoefficient = 12;
-        int row_height = Gdx.graphics.getWidth() / scalingCoefficient;
-        int col_width = Gdx.graphics.getWidth() / scalingCoefficient;
-
-
-                Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
         viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height, camera);
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
-        Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
+
+        mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
         Label carcassoneLabel = new Label("Carcassone Game", mySkin, "big");
-        carcassoneLabel.setSize(col_width, row_height);
-        carcassoneLabel.setPosition(col_width*2, Utils.fromTop(row_height*2));
+        carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
 
         Label connectionLabel = new Label("NOT Connected", mySkin, "default");
-        connectionLabel.setSize(col_width, row_height);
-        connectionLabel.setPosition(col_width*12, Utils.fromTop(row_height*2));
+        connectionLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        connectionLabel.setPosition(ELEMENT_WIDTH_UNIT * 12, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(connectionLabel);
+      
+        GameWebSocketClient.onStateChangedObserver observer = new GameWebSocketClient.onStateChangedObserver(()->{
+            connectionLabel.setText("Connected to server!");
+        });
+        game.socketClient.addStateObserver(observer);
+      
+        Button createTableButton = makeCreateTableButton("Create table");
+        stage.addActor(createTableButton);
 
-        Button joinButton = new TextButton("Join game", mySkin);
-        joinButton.setSize(col_width*5,row_height);
-        joinButton.setPosition(col_width*2, Utils.fromTop(row_height*4));
+        Button joinButton = makeJoinButton("Join game");
+        stage.addActor(joinButton);
+
+        Button exitButton = makeExitButton("Exit");
+        stage.addActor(exitButton);
+
+    }
+
+    private Button makeCreateTableButton(String name){
+        Button createTableButton = new TextButton(name, mySkin);
+        createTableButton.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
+        createTableButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 4));
+        createTableButton.addListener(new InputListener(){
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                return true;
+            }
+
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                game.setScreen(new CreateTableScreen(game));
+            }
+        });
+
+        return createTableButton;
+    }
+
+    private Button makeJoinButton(String name){
+        Button joinButton = new TextButton(name, mySkin);
+        joinButton.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
+        joinButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 6));
         joinButton.addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -64,15 +94,17 @@ public class MainMenuScreen implements Screen {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                game.joinGameScreen = new JoinGameScreen(game);
-                game.setScreen(game.joinGameScreen);
+                game.setScreen(new JoinGameScreen(game));
             }
         });
-        stage.addActor(joinButton);
 
-        Button exitButton = new TextButton("Exit", mySkin);
-        exitButton.setSize(col_width*5,row_height);
-        exitButton.setPosition(col_width*2, Utils.fromTop(row_height*6));
+        return joinButton;
+    }
+
+    private Button makeExitButton(String name){
+        Button exitButton = new TextButton(name, mySkin);
+        exitButton.setSize(ELEMENT_WIDTH_UNIT * 3,ELEMENT_HEIGHT_UNIT);
+        exitButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 8));
         exitButton.addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -85,18 +117,11 @@ public class MainMenuScreen implements Screen {
                 Gdx.app.exit();
             }
         });
-        stage.addActor(exitButton);
-
-        GameWebSocketClient.onStateChangedObserver observer = new GameWebSocketClient.onStateChangedObserver(()->{
-            connectionLabel.setText("Connected to server!");
-        });
-        game.socketClient.addStateObserver(observer);
-
+        return exitButton;
     }
 
     @Override
     public void render(float delta) {
-
         ScreenUtils.clear(250f/255, 224f/255, 145f/255, 1);
 
         camera.update();
@@ -130,5 +155,6 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void dispose() {
+        stage.dispose();
     }
 }
