@@ -77,8 +77,8 @@ public class GameWebSocketClient extends WebSocketClient {
             return;
         }
 
-        if (Objects.equals(action, CONNECT_TO_TABLE_SUCCESS.class.getSimpleName())){
-            CONNECT_TO_TABLE_SUCCESS response = jsonConverter.fromJson(CONNECT_TO_TABLE_SUCCESS.class, message);
+        if (Objects.equals(action, JOIN_TABLE_SUCCESS.class.getSimpleName())){
+            JOIN_TABLE_SUCCESS response = jsonConverter.fromJson(JOIN_TABLE_SUCCESS.class, message);
             this.state.set(ClientStateEnum.CONNECTED_TO_TABLE);
         }
     }
@@ -97,18 +97,14 @@ public class GameWebSocketClient extends WebSocketClient {
         if (!this.state.is(ClientStateEnum.NOT_CONNECTED))
             throw new IncorrectClientActionException("client is already connected to a server");
         this.connect();
-        this.state.set(ClientStateEnum.CONNECTED_TO_SERVER);
-        System.out.println("Connecting to server: "+this.isOpen());
-
+        this.state.set(ClientStateEnum.CONNECTING_TO_SERVER);
     }
 
     public void connectToTable(String table_id) throws IncorrectClientActionException {
-        if (this.state.is(ClientStateEnum.NOT_CONNECTED))
-            throw new IncorrectClientActionException("can not connect to a table as client is not connected to a server");
         if (!this.state.is(ClientStateEnum.CONNECTED_TO_SERVER))
             throw new IncorrectClientActionException("can not connect to a table as client state is "+this.state.string());
 
-        this.send(jsonConverter.toJson(new ClientQueries.CONNECT_TO_TABLE(table_id)));
+        this.send(jsonConverter.toJson(new ClientQueries.JOIN_TABLE(table_id)));
 
         this.state.set(ClientStateEnum.CONNECTING_TO_TABLE);
     }
