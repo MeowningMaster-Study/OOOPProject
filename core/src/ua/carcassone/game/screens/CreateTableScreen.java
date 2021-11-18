@@ -13,6 +13,9 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.networking.GameWebSocketClient;
+import ua.carcassone.game.networking.IncorrectClientActionException;
+
 import static ua.carcassone.game.Utils.*;
 
 public class CreateTableScreen implements Screen {
@@ -73,7 +76,21 @@ public class CreateTableScreen implements Screen {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                // TODO event handling
+                System.out.println("creating asgfasgdhas");
+                // TODO table names concept
+                try {
+                    game.socketClient.createTable("someTableName");
+                } catch (IncorrectClientActionException e) {
+                    e.printStackTrace();
+                }
+                Screen gameScreen = new GameScreen(game);
+                GameWebSocketClient.onStateChangedObserver changeObserver = new GameWebSocketClient.onStateChangedObserver((state)->{
+                    if ( state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE)
+                        game.setScreen(gameScreen);
+                });
+                // TODO delete observers
+                game.socketClient.addStateObserver(changeObserver);
+
             }
         });
 

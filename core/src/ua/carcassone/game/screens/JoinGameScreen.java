@@ -81,11 +81,18 @@ public class JoinGameScreen implements Screen {
                     e.printStackTrace();
                 }
 
-                //game.gameScreen = new GameScreen(game);
-                GameWebSocketClient.onStateChangedObserver changeObserver = new GameWebSocketClient.onStateChangedObserver(()->{
-                    System.out.println("SETTING THE SCREEN!!");
-                    //game.setScreen(game.gameScreen);
-                    game.setScreen(new GameScreen(game));
+                Screen gameScreen = new GameScreen(game);
+                GameWebSocketClient.onStateChangedObserver changeObserver = new GameWebSocketClient.onStateChangedObserver((state)->{
+                    if ( state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE)
+                        game.setScreen(gameScreen);
+                    else{
+                        joinCodeField.setText("Couldn't connect");
+                        try {
+                            game.socketClient.restoreServerConnection();
+                        } catch (IncorrectClientActionException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 });
                 game.socketClient.addStateObserver(changeObserver);
             }

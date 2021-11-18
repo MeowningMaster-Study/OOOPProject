@@ -14,6 +14,8 @@ import ua.carcassone.game.Utils;
 import ua.carcassone.game.networking.GameWebSocketClient;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.function.Consumer;
+
 import static ua.carcassone.game.Utils.*;
 
 public class MainMenuScreen implements Screen {
@@ -46,9 +48,12 @@ public class MainMenuScreen implements Screen {
         connectionLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         connectionLabel.setPosition(ELEMENT_WIDTH_UNIT * 6, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(connectionLabel);
-      
-        GameWebSocketClient.onStateChangedObserver observer = new GameWebSocketClient.onStateChangedObserver(()->{
-            connectionLabel.setText("Connected to server!");
+
+        GameWebSocketClient.onStateChangedObserver observer = new GameWebSocketClient.onStateChangedObserver((state)->{
+            if (state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_SERVER)
+                connectionLabel.setText("Connected to server!");
+            else
+                connectionLabel.setText("Not connected to server! " + state);
         });
         game.socketClient.addStateObserver(observer);
       

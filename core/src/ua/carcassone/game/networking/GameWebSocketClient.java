@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.function.Consumer;
 
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
@@ -21,6 +22,7 @@ public class GameWebSocketClient extends WebSocketClient {
 
         public void set(ClientStateEnum state){
             this.state = state;
+            System.out.println("State changing to "+state);
             setChanged();
             notifyObservers(state);
         }
@@ -33,14 +35,21 @@ public class GameWebSocketClient extends WebSocketClient {
             return this.state.name();
         }
 
+        public ClientStateEnum state(){
+            return this.state;
+        }
+
     }
 
-    enum ClientStateEnum {
+    public enum ClientStateEnum {
         NOT_CONNECTED,
         CONNECTING_TO_SERVER,
         CONNECTED_TO_SERVER,
         CONNECTING_TO_TABLE,
         CONNECTED_TO_TABLE,
+        FAILED_TO_CONNECT_TO_TABLE,
+        CREATING_TABLE,
+
     }
 
     private final ClientState state = new ClientState();
@@ -78,9 +87,37 @@ public class GameWebSocketClient extends WebSocketClient {
         }
 
         if (Objects.equals(action, JOIN_TABLE_SUCCESS.class.getSimpleName())){
+            if(!this.state.is(ClientStateEnum.CONNECTING_TO_TABLE)){
+                System.out.println("! Server sent wrong response: \n\tstate is "+this.state.string()+"\n\tserver sent: "+message);
+            }
             JOIN_TABLE_SUCCESS response = jsonConverter.fromJson(JOIN_TABLE_SUCCESS.class, message);
             this.state.set(ClientStateEnum.CONNECTED_TO_TABLE);
         }
+
+        else if (Objects.equals(action, JOIN_TABLE_FAILURE.class.getSimpleName())){
+            if(!this.state.is(ClientStateEnum.CONNECTING_TO_TABLE)){
+                System.out.println("! Server sent wrong response: \n\tstate is "+this.state.string()+"\n\tserver sent: "+message);
+            }
+
+            // TODO: uncomment when JOIN_TABLE_FAILURE is created
+            // JOIN_TABLE_FAILURE response = jsonConverter.fromJson(JOIN_TABLE_FAILURE.class, message);
+            this.state.set(ClientStateEnum.FAILED_TO_CONNECT_TO_TABLE);
+        }
+
+        else if (Objects.equals(action, CREATE_TABLE_SUCCESS.class.getSimpleName())){
+            if(!this.state.is(ClientStateEnum.CREATING_TABLE)){
+                System.out.println("! Server sent wrong response: \n\tstate is "+this.state.string()+"\n\tserver sent: "+message);
+            }
+
+            CREATE_TABLE_SUCCESS response = jsonConverter.fromJson(CREATE_TABLE_SUCCESS.class, message);
+            try {
+                connectToTable(response.tableId);
+            } catch (IncorrectClientActionException e) {
+                e.printStackTrace();
+            }
+        }
+
+
     }
 
     @Override
@@ -101,7 +138,7 @@ public class GameWebSocketClient extends WebSocketClient {
     }
 
     public void connectToTable(String table_id) throws IncorrectClientActionException {
-        if (!this.state.is(ClientStateEnum.CONNECTED_TO_SERVER))
+        if (!(this.state.is(ClientStateEnum.CONNECTED_TO_SERVER) || this.state.is(ClientStateEnum.CREATING_TABLE)))
             throw new IncorrectClientActionException("can not connect to a table as client state is " + this.state.string());
 
         this.send(jsonConverter.toJson(new ClientQueries.JOIN_TABLE(table_id)));
@@ -109,19 +146,47 @@ public class GameWebSocketClient extends WebSocketClient {
         this.state.set(ClientStateEnum.CONNECTING_TO_TABLE);
     }
 
+    public void createTable(String tableName) throws IncorrectClientActionException {
+        if (!this.state.is(ClientStateEnum.CONNECTED_TO_SERVER))
+            throw new IncorrectClientActionException("can not connect to a table as client state is " + this.state.string());
+
+        this.send(jsonConverter.toJson(new ClientQueries.CREATE_TABLE(tableName)));
+
+        this.state.set(ClientStateEnum.CREATING_TABLE);
+    }
+
+    public void restoreServerConnection() throws IncorrectClientActionException {
+
+        switch (this.state.state()){
+            case NOT_CONNECTED:
+            case CONNECTING_TO_SERVER:
+                throw new IncorrectClientActionException("can not restore as client state is " + this.state.string());
+            case CONNECTED_TO_SERVER:
+                return;
+            case CONNECTED_TO_TABLE:
+                // TODO disconnectFromTable()
+            case CONNECTING_TO_TABLE:
+                this.state.set(ClientStateEnum.CONNECTED_TO_SERVER);
+            case FAILED_TO_CONNECT_TO_TABLE:
+                this.state.set(ClientStateEnum.CONNECTED_TO_SERVER);
+        }
+
+    }
+
     public void addStateObserver(Observer observer){
         state.addObserver(observer);
     }
 
     public static class onStateChangedObserver implements Observer {
-        Runnable runnable;
+        Consumer<ClientStateEnum> consumer;
+
         @Override
         public void update(Observable o, Object state) {
-            runnable.run();
+            consumer.accept((ClientStateEnum) state);
         }
 
-        public onStateChangedObserver(Runnable runnable){
-            this.runnable = runnable;
+        public onStateChangedObserver(Consumer<ClientStateEnum> consumer){
+            this.consumer = consumer;
         }
     }
 }

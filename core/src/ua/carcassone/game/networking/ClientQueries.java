@@ -14,9 +14,12 @@ public class ClientQueries {
     }
 
     public static class CREATE_TABLE {
-        final String action = "CREATE_TABLE";
+        String action;
+        String tableName;
 
-        public CREATE_TABLE(){
+        public CREATE_TABLE(String tableName){
+            this.tableName = tableName;
+            this.action = "CREATE_TABLE";
         }
     }
 
