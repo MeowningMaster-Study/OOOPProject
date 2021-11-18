@@ -12,6 +12,10 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.networking.GameWebSocketClient;
+import ua.carcassone.game.networking.IncorrectClientActionException;
+import java.util.Observable;
+import java.util.Observer;
 import static ua.carcassone.game.Utils.*;
 
 public class JoinGameScreen implements Screen {
@@ -25,7 +29,7 @@ public class JoinGameScreen implements Screen {
 
     public JoinGameScreen(final CarcassoneGame game) {
         this.game = game;
-
+      
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
         viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height, camera);
@@ -71,8 +75,19 @@ public class JoinGameScreen implements Screen {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                /* code to connect */
-                game.setScreen(new GameScreen(game));
+                try {
+                    game.socketClient.connectToTable(joinCodeField.getText());
+                } catch (IncorrectClientActionException e) {
+                    e.printStackTrace();
+                }
+
+                //game.gameScreen = new GameScreen(game);
+                GameWebSocketClient.onStateChangedObserver changeObserver = new GameWebSocketClient.onStateChangedObserver(()->{
+                    System.out.println("SETTING THE SCREEN!!");
+                    //game.setScreen(game.gameScreen);
+                    game.setScreen(new GameScreen(game));
+                });
+                game.socketClient.addStateObserver(changeObserver);
             }
         });
 
@@ -138,4 +153,5 @@ public class JoinGameScreen implements Screen {
     public void dispose() {
         stage.dispose();
     }
+
 }
