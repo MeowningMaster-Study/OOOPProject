@@ -25,7 +25,7 @@ public class GameWebSocketClient extends WebSocketClient {
             notifyObservers(state);
         }
 
-        public boolean is(ClientStateEnum state){
+        public boolean  is(ClientStateEnum state){
             return this.state == state;
         }
 
