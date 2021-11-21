@@ -1,0 +1,2 @@
+ua/carcassone/game/desktop/DesktopLauncher.java
+ ua.carcassone.game.desktop.DesktopLauncher
