@@ -15,6 +15,7 @@ import ua.carcassone.game.Utils;
 import ua.carcassone.game.networking.GameWebSocketClient;
 import ua.carcassone.game.networking.IncorrectClientActionException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -82,7 +83,7 @@ public class CreateTableScreen implements Screen {
                 // TODO table names concept
                 GameWebSocketClient.stateAcceptableObserver changeObserver = new GameWebSocketClient.stateAcceptableObserver(
                         GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE,
-                        Collections.singletonList(GameWebSocketClient.ClientStateEnum.CREATING_TABLE),
+                        Arrays.asList(new GameWebSocketClient.ClientStateEnum[]{GameWebSocketClient.ClientStateEnum.CREATING_TABLE}),
                         (state)->{
                             if ( state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE)
                                 Gdx.app.postRunnable(() -> {

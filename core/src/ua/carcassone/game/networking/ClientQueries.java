@@ -23,6 +23,20 @@ public class ClientQueries {
         }
     }
 
+    public static class LEAVE_TABLE {
+        final String action = "LEAVE_TABLE";
+    }
+
+    public static class START_GAME {
+        final String action = "START_GAME";
+        public String someInfo;
+
+        // TODO узнать почему не создается норм класс если без аргументов
+        public START_GAME(String someInfo){
+            this.someInfo = someInfo;
+        }
+    }
+
     public static class PUT_TILE {
         final String action = "PUT_TILE";
 
