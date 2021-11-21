@@ -2,7 +2,6 @@ package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -13,6 +12,14 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.networking.GameWebSocketClient;
+import ua.carcassone.game.networking.IncorrectClientActionException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static ua.carcassone.game.Utils.*;
 
 public class CreateTableScreen implements Screen {
@@ -73,7 +80,26 @@ public class CreateTableScreen implements Screen {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                // TODO event handling
+                // TODO table names concept
+                GameWebSocketClient.stateAcceptableObserver changeObserver = new GameWebSocketClient.stateAcceptableObserver(
+                        GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE,
+                        Arrays.asList(new GameWebSocketClient.ClientStateEnum[]{GameWebSocketClient.ClientStateEnum.CREATING_TABLE}),
+                        (state)->{
+                            if ( state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE)
+                                Gdx.app.postRunnable(() -> {
+                                    System.out.println("CHANGING TO A GAME SCREEN");
+                                    game.setScreen(new GameScreen(game));
+                                });
+                        }
+                );
+                game.socketClient.addStateObserver(changeObserver);
+
+                try {
+                    game.socketClient.createTable("someTableName");
+                } catch (IncorrectClientActionException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
 

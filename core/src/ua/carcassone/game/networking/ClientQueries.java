@@ -14,9 +14,26 @@ public class ClientQueries {
     }
 
     public static class CREATE_TABLE {
-        final String action = "CREATE_TABLE";
+        String action;
+        String tableName;
 
-        public CREATE_TABLE(){
+        public CREATE_TABLE(String tableName){
+            this.tableName = tableName;
+            this.action = "CREATE_TABLE";
+        }
+    }
+
+    public static class LEAVE_TABLE {
+        final String action = "LEAVE_TABLE";
+    }
+
+    public static class START_GAME {
+        final String action = "START_GAME";
+        public String someInfo;
+
+        // TODO узнать почему не создается норм класс если без аргументов
+        public START_GAME(String someInfo){
+            this.someInfo = someInfo;
         }
     }
 

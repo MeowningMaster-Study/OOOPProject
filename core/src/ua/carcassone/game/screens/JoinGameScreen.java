@@ -14,8 +14,7 @@ import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.networking.GameWebSocketClient;
 import ua.carcassone.game.networking.IncorrectClientActionException;
-import java.util.Observable;
-import java.util.Observer;
+
 import static ua.carcassone.game.Utils.*;
 
 public class JoinGameScreen implements Screen {
@@ -81,12 +80,25 @@ public class JoinGameScreen implements Screen {
                     e.printStackTrace();
                 }
 
-                //game.gameScreen = new GameScreen(game);
-                GameWebSocketClient.onStateChangedObserver changeObserver = new GameWebSocketClient.onStateChangedObserver(()->{
-                    System.out.println("SETTING THE SCREEN!!");
-                    //game.setScreen(game.gameScreen);
-                    game.setScreen(new GameScreen(game));
-                });
+
+                GameWebSocketClient.stateSingleObserver changeObserver = new GameWebSocketClient.stateSingleObserver(
+                        (state)->{
+                            if ( state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE) {
+                                Gdx.app.postRunnable(() -> {
+                                    System.out.println("CHANGING TO A GAME SCREEN");
+                                    game.setScreen(new GameScreen(game));
+                                });
+                            }
+                            else {
+                                joinCodeField.setText("Couldn't connect");
+                                try {
+                                    game.socketClient.restoreServerConnection();
+                                } catch (IncorrectClientActionException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                );
                 game.socketClient.addStateObserver(changeObserver);
             }
         });
@@ -106,7 +118,9 @@ public class JoinGameScreen implements Screen {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                game.setScreen(new MainMenuScreen(game));
+                Gdx.app.postRunnable(() -> {
+                    game.setScreen(new MainMenuScreen(game));
+                });
             }
         });
 
@@ -125,7 +139,6 @@ public class JoinGameScreen implements Screen {
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
-
     }
 
     @Override
