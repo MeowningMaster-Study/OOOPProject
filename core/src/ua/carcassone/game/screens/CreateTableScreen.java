@@ -2,7 +2,6 @@ package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -15,6 +14,10 @@ import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.networking.GameWebSocketClient;
 import ua.carcassone.game.networking.IncorrectClientActionException;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static ua.carcassone.game.Utils.*;
 
@@ -76,20 +79,25 @@ public class CreateTableScreen implements Screen {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("creating asgfasgdhas");
                 // TODO table names concept
+                GameWebSocketClient.stateAcceptableObserver changeObserver = new GameWebSocketClient.stateAcceptableObserver(
+                        GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE,
+                        Collections.singletonList(GameWebSocketClient.ClientStateEnum.CREATING_TABLE),
+                        (state)->{
+                            if ( state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE)
+                                Gdx.app.postRunnable(() -> {
+                                    System.out.println("CHANGING TO A GAME SCREEN");
+                                    game.setScreen(new GameScreen(game));
+                                });
+                        }
+                );
+                game.socketClient.addStateObserver(changeObserver);
+
                 try {
                     game.socketClient.createTable("someTableName");
                 } catch (IncorrectClientActionException e) {
                     e.printStackTrace();
                 }
-                Screen gameScreen = new GameScreen(game);
-                GameWebSocketClient.onStateChangedObserver changeObserver = new GameWebSocketClient.onStateChangedObserver((state)->{
-                    if ( state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE)
-                        game.setScreen(gameScreen);
-                });
-                // TODO delete observers
-                game.socketClient.addStateObserver(changeObserver);
 
             }
         });
