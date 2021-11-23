@@ -21,6 +21,7 @@ import ua.carcassone.game.game.Player;
 import ua.carcassone.game.game.Tile;
 
 import java.util.ArrayList;
+import java.util.Observable;
 
 import static ua.carcassone.game.Utils.*;
 
@@ -32,15 +33,14 @@ public class GameScreen implements Screen {
     private Stage stage;
     private GameHud hud;
 
-    public Tile currentTile;
     private final Tile[][] map;
-    private ArrayList<Player> players;
+    public CurrentTileObservable currentTile;
+    public PlayersObservable players;
 
     public GameScreen(final CarcassoneGame game) {
         this.game = game;
         hud = new GameHud(this);
         map = new Tile[143][143];
-        players = new ArrayList<>();
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
@@ -103,5 +103,42 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
+    }
+
+    class PlayersObservable extends Observable {
+        private ArrayList<Player> players;
+
+        public PlayersObservable() {
+            players = new ArrayList<>();
+        }
+
+        public void set(ArrayList<Player> players){
+            this.players = players;
+            setChanged();
+            notifyObservers(this.players);
+        }
+
+
+        public ArrayList<Player> getPlayers() {
+            return players;
+        }
+
+    }
+
+    class CurrentTileObservable extends Observable {
+        private Tile currentTile;
+
+        public CurrentTileObservable() {
+        }
+
+        public void set(Tile currentTile){
+            this.currentTile = currentTile;
+            setChanged();
+            notifyObservers(this.currentTile);
+        }
+
+        public Tile getCurrentTile() {
+            return currentTile;
+        }
     }
 }
