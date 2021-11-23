@@ -118,9 +118,7 @@ public class JoinGameScreen implements Screen {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.app.postRunnable(() -> {
-                    game.setScreen(new MainMenuScreen(game));
-                });
+                Gdx.app.postRunnable(() -> game.setScreen(new MainMenuScreen(game)));
             }
         });
 
@@ -139,6 +137,7 @@ public class JoinGameScreen implements Screen {
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
+
     }
 
     @Override

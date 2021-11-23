@@ -1,7 +1,5 @@
 package ua.carcassone.game.networking;
 
-import ua.carcassone.game.game.MeeplePosition;
-
 public class ClientQueries {
 
     public static class JOIN_TABLE {
@@ -47,14 +45,14 @@ public class ClientQueries {
 
         public Position position;
         public int rotation;
-        public MeeplePosition meeple;
+        public int meeple;
 
-        public PUT_TILE(int x, int y, int rotation, MeeplePosition meeplePosition){
+        public PUT_TILE(int x, int y, int rotation, int meeple){
             this.position = new Position();
             this.position.x = x;
             this.position.y = y;
             this.rotation = rotation;
-            this.meeple = meeplePosition;
+            this.meeple = meeple;
         }
     }
 

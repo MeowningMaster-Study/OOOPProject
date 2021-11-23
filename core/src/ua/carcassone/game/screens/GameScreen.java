@@ -11,11 +11,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.game.Player;
+import ua.carcassone.game.game.Tile;
+
+import java.util.ArrayList;
+
 import static ua.carcassone.game.Utils.*;
 
 public class GameScreen implements Screen {
@@ -24,15 +30,21 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     private Viewport viewport;
     private Stage stage;
-    private SpriteBatch hudBatch;
+    private GameHud hud;
+
+    public Tile currentTile;
+    private final Tile[][] map;
+    private ArrayList<Player> players;
 
     public GameScreen(final CarcassoneGame game) {
         this.game = game;
+        hud = new GameHud(this);
+        map = new Tile[143][143];
+        players = new ArrayList<>();
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
         viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height, camera);
-        hudBatch = new SpriteBatch();
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
         Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
@@ -56,13 +68,15 @@ public class GameScreen implements Screen {
         // Draw using game.batch
         game.batch.end();
 
-        hudBatch.begin();
+/*        hud.batch.begin();
         // Draw using hudBatch
-        hudBatch.end();
+        hud.batch.end();*/
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
 
+        hud.stage.act(Gdx.graphics.getDeltaTime());
+        hud.stage.draw();
     }
 
     @Override

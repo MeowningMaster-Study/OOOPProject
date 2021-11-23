@@ -6,4 +6,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 public class GameHud {
     public Stage stage;
     public SpriteBatch spriteBatch;
+    private GameScreen gameScreen;
+
+    public GameHud(GameScreen gameScreen){
+        this.gameScreen = gameScreen;
+    }
 }
