@@ -25,6 +25,8 @@ public class GameHud {
     private GameScreen gameScreen;
     private Skin mySkin;
 
+    Button menuButton;
+
     TileTextureManager textureManager;
     CurrentTileObserver currentTileObserver;
     PlayersObserver players;
@@ -42,7 +44,7 @@ public class GameHud {
         players = new PlayersObserver();
 
 
-        Button menuButton = new TextButton("Menu", mySkin);
+        menuButton = new TextButton("Menu", mySkin);
         menuButton.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         menuButton.setPosition(Gdx.graphics.getWidth() - (float)(ELEMENT_WIDTH_UNIT * 1.5), Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(menuButton);
@@ -56,10 +58,13 @@ public class GameHud {
     private void updateStage(){
         stage.clear();
 
+        stage.addActor(menuButton);
+
         Image tileImage = currentTileObserver.tileImage;
-        tileImage.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT));
-        tileImage.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        tileImage.setSize(170, 170);
+        tileImage.setPosition(Gdx.graphics.getWidth() - (float)(ELEMENT_WIDTH_UNIT * 1.5), (float)(ELEMENT_HEIGHT_UNIT * 1.5));
         stage.addActor(tileImage);
+
     }
 
     class PlayersObserver implements PropertyChangeListener{
@@ -78,7 +83,6 @@ public class GameHud {
         public void propertyChange(PropertyChangeEvent evt){
             this.tile = (Tile) evt.getNewValue();
             tileImage = new Image(textureManager.getTexture(this.tile));
-            System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa");
             updateStage();
         }
     }

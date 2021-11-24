@@ -71,7 +71,7 @@ public class GameScreen implements Screen {
                 new Player("thirdPlayer", "333", Color.YELLOW)
         };
         players.setPlayers(new ArrayList<Player>(Arrays.asList(testPlayers)));
-        currentTile.setTile(new Tile(TileTypes.tiles.get(1), 1));
+        currentTile.setTile(new Tile(TileTypes.tiles.get(1), 0));
         // ------------
 
     }
@@ -163,7 +163,6 @@ public class GameScreen implements Screen {
 
         public void addPCLListener(PropertyChangeListener pcl){
             support.addPropertyChangeListener(pcl);
-            System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCcccc");
         }
 
         public void removePCLListener(PropertyChangeListener pcl){
@@ -173,8 +172,6 @@ public class GameScreen implements Screen {
         public void setTile(Tile newTile){
             support.firePropertyChange("currentTile", this.currentTile, newTile);
             this.currentTile = newTile;
-
-            System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
         }
 
     }
