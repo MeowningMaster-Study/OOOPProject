@@ -3,14 +3,12 @@ package ua.carcassone.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -19,28 +17,31 @@ import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.Player;
 import ua.carcassone.game.game.Tile;
+import ua.carcassone.game.game.TileTypes;
 
 import java.util.ArrayList;
 import java.util.Observable;
+import java.util.Random;
 
 import static ua.carcassone.game.Utils.*;
 
 public class GameScreen implements Screen {
 
-    private final CarcassoneGame game;
+    public final CarcassoneGame game;
     private OrthographicCamera camera;
-    private Viewport viewport;
+    public Viewport viewport;
     private Stage stage;
     private GameHud hud;
+    private GameField field;
 
-    private final Tile[][] map;
-    public CurrentTileObservable currentTile;
+    public final Tile[][] map;
     public PlayersObservable players;
+    public CurrentTileObservable currentTile;
 
     public GameScreen(final CarcassoneGame game) {
         this.game = game;
-        hud = new GameHud(this);
         map = new Tile[143][143];
+        players = new ArrayList<>();
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
@@ -49,17 +50,24 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
-        Label carcassoneLabel = new Label("Game", mySkin, "big");
-        carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
-        carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
-        stage.addActor(carcassoneLabel);
+        // --- Test ---
+        Random random = new Random();
+        for (int i = 0; i < 143; i++) {
+            for (int j = 0; j < 143; j++) {
+                map[i][j] = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
+            }
+        }
 
+        // ------------
+
+        hud = new GameHud(this);
+        field = new GameField(this);
     }
 
     @Override
     public void render(float delta) {
 
-        ScreenUtils.clear(250f/255, 224f/255, 145f/255, 1);
+        ScreenUtils.clear(1, 1, 1, 1);
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
@@ -75,8 +83,13 @@ public class GameScreen implements Screen {
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
 
-        hud.stage.act(Gdx.graphics.getDeltaTime());
-        hud.stage.draw();
+        field.stage.act(Gdx.graphics.getDeltaTime());
+        field.stage.draw();
+
+//        hud.stage.act(Gdx.graphics.getDeltaTime());
+//        hud.stage.draw();
+
+
     }
 
     @Override
