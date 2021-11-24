@@ -17,4 +17,7 @@ public class Tile {
         this.rotation = rotation;
     }
 
+    public void canBePut(){
+
+    }
 }

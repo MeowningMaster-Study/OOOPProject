@@ -3,6 +3,7 @@ package ua.carcassone.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -66,9 +67,10 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        handleInput(delta);
+        field.handleInput(delta);
 
         ScreenUtils.clear(1, 1, 1, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
@@ -87,8 +89,8 @@ public class GameScreen implements Screen {
         field.stage.act(Gdx.graphics.getDeltaTime());
         field.stage.draw();
 
-//        hud.stage.act(Gdx.graphics.getDeltaTime());
-//        hud.stage.draw();
+        hud.stage.act(Gdx.graphics.getDeltaTime());
+        hud.stage.draw();
 
 
     }
@@ -117,31 +119,5 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
-    }
-
-    private void handleInput(float delta) {
-        delta *= 20;
-        if(Gdx.input.isKeyPressed(Input.Keys.E)) {
-            camera.zoom += 0.1 * delta;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            camera.zoom -= 0.1 * delta;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            if (camera.position.x > 0)
-                camera.translate(-15 * delta, 0, 0);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            if (camera.position.x < 1024)
-                camera.translate(15 * delta, 0, 0);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.S)) {
-            if (camera.position.y > 0)
-                camera.translate(0, -15 * delta, 0);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.W)) {
-            if (camera.position.y < 1024)
-                camera.translate(0, 15 * delta, 0);
-        }
     }
 }

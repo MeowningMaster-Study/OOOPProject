@@ -7,6 +7,9 @@ import ua.carcassone.game.game.TileTypes;
 public class Utils {
 
     private static final int SCALING_COEFFICIENT = 12;
+    public enum SpacialRelation{
+
+    }
 
     /**
      * standard unit for interactive elements on the screen (buttons, labels, etc.).
