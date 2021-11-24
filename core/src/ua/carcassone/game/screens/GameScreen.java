@@ -60,7 +60,7 @@ public class GameScreen implements Screen {
         field = new GameField(this);
 
         players = new PCLPlayers();
-        players.addPCLListener(hud.players);
+        players.addPCLListener(hud.playersObserver);
         currentTile = new PCLCurrentTile();
         currentTile.addPCLListener(hud.currentTileObserver);
 
@@ -68,10 +68,12 @@ public class GameScreen implements Screen {
         Player[] testPlayers = {
                 new Player("firstPlayer", "111", Color.BLUE),
                 new Player("secondPlayer", "222", Color.RED),
-                new Player("thirdPlayer", "333", Color.YELLOW)
+                new Player("thirdPlayer", "333", Color.YELLOW),
+                new Player("fourthPlayer", "444", Color.GREEN),
+                new Player("fifthPlayer", "555", Color.PINK)
         };
-        players.setPlayers(new ArrayList<Player>(Arrays.asList(testPlayers)));
         currentTile.setTile(new Tile(TileTypes.tiles.get(1), 0));
+        players.setPlayers(new ArrayList<>(Arrays.asList(testPlayers)));
         // ------------
 
     }
@@ -147,8 +149,8 @@ public class GameScreen implements Screen {
         }
 
         public void setPlayers(ArrayList<Player> newPlayers){
-            this.players = newPlayers;
             support.firePropertyChange("players", this.players, newPlayers);
+            this.players = newPlayers;
         }
 
     }

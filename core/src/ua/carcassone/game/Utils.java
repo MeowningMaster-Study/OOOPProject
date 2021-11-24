@@ -23,6 +23,10 @@ public class Utils {
         return Gdx.graphics.getDisplayMode().height-y;
     }
 
+    public static float fromTop(float y){
+        return (Gdx.graphics.getDisplayMode().height-y);
+    }
+
     public static int getTileTypeId(TileType tileType){
         return TileTypes.tiles.indexOf(tileType);
     }
