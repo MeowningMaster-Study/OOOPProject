@@ -171,8 +171,9 @@ public class GameScreen implements Screen {
         }
 
         public void setTile(Tile newTile){
-            this.currentTile = newTile;
             support.firePropertyChange("currentTile", this.currentTile, newTile);
+            this.currentTile = newTile;
+
             System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
         }
 
