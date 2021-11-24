@@ -2,25 +2,22 @@ package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
-import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.Player;
 import ua.carcassone.game.game.Tile;
 import ua.carcassone.game.game.TileTypes;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
-import java.util.Observable;
+import java.util.Arrays;
 import java.util.Random;
 
 import static ua.carcassone.game.Utils.*;
@@ -35,13 +32,12 @@ public class GameScreen implements Screen {
     private GameField field;
 
     public final Tile[][] map;
-    public PlayersObservable players;
-    public CurrentTileObservable currentTile;
+    public PCLPlayers players;
+    public PCLCurrentTile currentTile;
 
     public GameScreen(final CarcassoneGame game) {
         this.game = game;
         map = new Tile[143][143];
-        players = new ArrayList<>();
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
@@ -62,6 +58,22 @@ public class GameScreen implements Screen {
 
         hud = new GameHud(this);
         field = new GameField(this);
+
+        players = new PCLPlayers();
+        players.addPCLListener(hud.players);
+        currentTile = new PCLCurrentTile();
+        currentTile.addPCLListener(hud.currentTileObserver);
+
+        // ------------
+        Player[] testPlayers = {
+                new Player("firstPlayer", "111", Color.BLUE),
+                new Player("secondPlayer", "222", Color.RED),
+                new Player("thirdPlayer", "333", Color.YELLOW)
+        };
+        players.setPlayers(new ArrayList<Player>(Arrays.asList(testPlayers)));
+        currentTile.setTile(new Tile(TileTypes.tiles.get(1), 1));
+        // ------------
+
     }
 
     @Override
@@ -86,8 +98,8 @@ public class GameScreen implements Screen {
         field.stage.act(Gdx.graphics.getDeltaTime());
         field.stage.draw();
 
-//        hud.stage.act(Gdx.graphics.getDeltaTime());
-//        hud.stage.draw();
+        hud.stage.act(Gdx.graphics.getDeltaTime());
+        hud.stage.draw();
 
 
     }
@@ -118,40 +130,51 @@ public class GameScreen implements Screen {
         stage.dispose();
     }
 
-    class PlayersObservable extends Observable {
+    class PCLPlayers{
         private ArrayList<Player> players;
+        private PropertyChangeSupport support;
 
-        public PlayersObservable() {
-            players = new ArrayList<>();
+        public PCLPlayers(){
+            support = new PropertyChangeSupport(this);
         }
 
-        public void set(ArrayList<Player> players){
-            this.players = players;
-            setChanged();
-            notifyObservers(this.players);
+        public void addPCLListener(PropertyChangeListener pcl){
+            support.addPropertyChangeListener(pcl);
         }
 
+        public void removePCLListener(PropertyChangeListener pcl){
+            support.removePropertyChangeListener(pcl);
+        }
 
-        public ArrayList<Player> getPlayers() {
-            return players;
+        public void setPlayers(ArrayList<Player> newPlayers){
+            this.players = newPlayers;
+            support.firePropertyChange("players", this.players, newPlayers);
         }
 
     }
 
-    class CurrentTileObservable extends Observable {
+    class PCLCurrentTile{
         private Tile currentTile;
+        private PropertyChangeSupport support;
 
-        public CurrentTileObservable() {
+        public PCLCurrentTile(){
+            support = new PropertyChangeSupport(this);
         }
 
-        public void set(Tile currentTile){
-            this.currentTile = currentTile;
-            setChanged();
-            notifyObservers(this.currentTile);
+        public void addPCLListener(PropertyChangeListener pcl){
+            support.addPropertyChangeListener(pcl);
+            System.out.println("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCcccc");
         }
 
-        public Tile getCurrentTile() {
-            return currentTile;
+        public void removePCLListener(PropertyChangeListener pcl){
+            support.removePropertyChangeListener(pcl);
         }
+
+        public void setTile(Tile newTile){
+            this.currentTile = newTile;
+            support.firePropertyChange("currentTile", this.currentTile, newTile);
+            System.out.println("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+        }
+
     }
 }

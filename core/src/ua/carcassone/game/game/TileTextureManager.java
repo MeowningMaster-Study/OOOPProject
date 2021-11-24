@@ -33,4 +33,8 @@ public class TileTextureManager {
     public Texture getTexture(TileType tileType, int rotation){
         return getTexture(Utils.getTileTypeId(tileType), rotation);
     }
+
+    public Texture getTexture(Tile tile){
+        return getTexture(tile.type, tile.rotation);
+    }
 }
