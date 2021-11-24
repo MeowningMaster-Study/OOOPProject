@@ -7,8 +7,9 @@ import ua.carcassone.game.game.TileTypes;
 public class Utils {
 
     private static final int SCALING_COEFFICIENT = 12;
-    public enum SpacialRelation{
 
+    public enum SpacialRelation{
+        LEFT, ABOVE, RIGHT, BELOW
     }
 
     /**
@@ -28,5 +29,9 @@ public class Utils {
 
     public static int getTileTypeId(TileType tileType){
         return TileTypes.tiles.indexOf(tileType);
+    }
+
+    public static boolean numberInRange(int number, int min, int upperBound){
+        return (min <= number) && (number < upperBound);
     }
 }

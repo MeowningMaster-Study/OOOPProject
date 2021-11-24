@@ -43,7 +43,7 @@ public class GameField {
             for (int j = 0; j < 143; j++){
                 if (gameScreen.map[i][j] != null){
                     Image image = new Image(textureManager.getTexture(gameScreen.map[i][j].type, gameScreen.map[i][j].rotation));
-                    image.setPosition((i-from)*tileSize,(j-from)*tileSize);
+                    image.setPosition((j-from)*tileSize,Utils.fromTop ((i-from)*tileSize));
                     image.setSize(tileSize, tileSize);
                     stage.addActor(image);
                 }

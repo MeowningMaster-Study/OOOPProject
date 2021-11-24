@@ -24,10 +24,12 @@ public class TileTextureManager {
     }
 
     public Texture getTexture(int tileTypeId, int rotation){
+        System.out.println("getting texture for tileType ID#"+tileTypeId+", rotation "+rotation);
         return textures.get(tileTypeId).get(rotation);
     }
 
     public Texture getTexture(TileType tileType, int rotation){
+        System.out.println("getting texture for "+tileType+", rotation "+rotation);
         return getTexture(Utils.getTileTypeId(tileType), rotation);
     }
 }

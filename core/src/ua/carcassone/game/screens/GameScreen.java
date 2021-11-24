@@ -53,13 +53,36 @@ public class GameScreen implements Screen {
 
         // --- Test ---
         Random random = new Random();
-        for (int i = 0; i < 143; i++) {
-            for (int j = 0; j < 143; j++) {
-                map[i][j] = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
+        for (int i = 1; i < 142; i++) {
+            for (int j = 1; j < 142; j++) {
+                int tries = 0;
+                while (tries < 25){
+                    Tile tile = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
+                    if (tile.canBePutBetween(map[i-1][j], map[i][j+1], map[i+1][j], map[i][j-1])) {
+                        System.out.println("Match, put "+tile+" on "+i+", "+j);
+                        map[i][j] = tile;
+                        break;
+                    }
+                    tries++;
+                }
+                System.out.println("---- ");
+
             }
         }
 
         // ------------
+
+//        map[1][1] = new Tile(TileTypes.tiles.get(1), 0);
+//        map[1][2] = new Tile(TileTypes.tiles.get(2), 0);
+//        map[1][3] = new Tile(TileTypes.tiles.get(3), 0);
+//        map[2][1] = new Tile(TileTypes.tiles.get(4), 1);
+//        map[2][2] = new Tile(TileTypes.tiles.get(4), 2);
+//        map[2][3] = new Tile(TileTypes.tiles.get(4), 3);
+//        map[3][1] = new Tile(TileTypes.tiles.get(5), 2);
+//        map[3][2] = new Tile(TileTypes.tiles.get(6), 2);
+//        map[3][3] = new Tile(TileTypes.tiles.get(7), 2);
+
+
 
         hud = new GameHud(this);
         field = new GameField(this);
