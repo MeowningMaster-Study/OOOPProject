@@ -3,6 +3,10 @@ package ua.carcassone.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -16,12 +20,14 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
-import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.Player;
 import ua.carcassone.game.game.Tile;
 import ua.carcassone.game.game.TileTypes;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 import static ua.carcassone.game.Utils.*;
@@ -35,14 +41,13 @@ public class GameScreen implements Screen {
     private GameHud hud;
     private GameField field;
 
-    public Tile currentTile;
     public final Tile[][] map;
-    private ArrayList<Player> players;
+    public PCLPlayers players;
+    public PCLCurrentTile currentTile;
 
     public GameScreen(final CarcassoneGame game) {
         this.game = game;
         map = new Tile[143][143];
-        players = new ArrayList<>();
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
@@ -59,33 +64,34 @@ public class GameScreen implements Screen {
                 while (tries < 25){
                     Tile tile = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
                     if (tile.canBePutBetween(map[i-1][j], map[i][j+1], map[i+1][j], map[i][j-1])) {
-                        System.out.println("Match, put "+tile+" on "+i+", "+j);
                         map[i][j] = tile;
                         break;
                     }
                     tries++;
                 }
-                System.out.println("---- ");
-
             }
         }
 
         // ------------
-
-//        map[1][1] = new Tile(TileTypes.tiles.get(1), 0);
-//        map[1][2] = new Tile(TileTypes.tiles.get(2), 0);
-//        map[1][3] = new Tile(TileTypes.tiles.get(3), 0);
-//        map[2][1] = new Tile(TileTypes.tiles.get(4), 1);
-//        map[2][2] = new Tile(TileTypes.tiles.get(4), 2);
-//        map[2][3] = new Tile(TileTypes.tiles.get(4), 3);
-//        map[3][1] = new Tile(TileTypes.tiles.get(5), 2);
-//        map[3][2] = new Tile(TileTypes.tiles.get(6), 2);
-//        map[3][3] = new Tile(TileTypes.tiles.get(7), 2);
-
-
-
         hud = new GameHud(this);
         field = new GameField(this);
+
+        players = new PCLPlayers();
+        players.addPCLListener(hud.playersObserver);
+        currentTile = new PCLCurrentTile();
+        currentTile.addPCLListener(hud.currentTileObserver);
+
+        // ------------
+        Player[] testPlayers = {
+                new Player("firstPlayer", "111", Color.BLUE),
+                new Player("secondPlayer", "222", Color.RED),
+                new Player("thirdPlayer", "333", Color.YELLOW),
+                new Player("fourthPlayer", "444", Color.GREEN),
+                new Player("fifthPlayer", "555", Color.PINK)
+        };
+        currentTile.setTile(new Tile(TileTypes.tiles.get(1), 0));
+        players.setPlayers(new ArrayList<>(Arrays.asList(testPlayers)));
+        // ------------
     }
 
     @Override
@@ -142,5 +148,51 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
+    }
+
+    class PCLPlayers{
+        private ArrayList<Player> players;
+        private PropertyChangeSupport support;
+
+        public PCLPlayers(){
+            support = new PropertyChangeSupport(this);
+        }
+
+        public void addPCLListener(PropertyChangeListener pcl){
+            support.addPropertyChangeListener(pcl);
+        }
+
+        public void removePCLListener(PropertyChangeListener pcl){
+            support.removePropertyChangeListener(pcl);
+        }
+
+        public void setPlayers(ArrayList<Player> newPlayers){
+            support.firePropertyChange("players", this.players, newPlayers);
+            this.players = newPlayers;
+        }
+
+    }
+
+    class PCLCurrentTile{
+        private Tile currentTile;
+        private PropertyChangeSupport support;
+
+        public PCLCurrentTile(){
+            support = new PropertyChangeSupport(this);
+        }
+
+        public void addPCLListener(PropertyChangeListener pcl){
+            support.addPropertyChangeListener(pcl);
+        }
+
+        public void removePCLListener(PropertyChangeListener pcl){
+            support.removePropertyChangeListener(pcl);
+        }
+
+        public void setTile(Tile newTile){
+            support.firePropertyChange("currentTile", this.currentTile, newTile);
+            this.currentTile = newTile;
+        }
+
     }
 }

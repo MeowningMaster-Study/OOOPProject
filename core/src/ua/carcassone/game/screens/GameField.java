@@ -30,7 +30,6 @@ public class GameField {
         this.viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), this.camera);
         this.stage = new Stage(viewport, gameScreen.game.batch);
         this.translationSpeed = new Vector2(0f, 0f);
-
         updateStage();
     }
 

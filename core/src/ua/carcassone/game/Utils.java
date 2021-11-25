@@ -27,6 +27,10 @@ public class Utils {
         return Gdx.graphics.getDisplayMode().height-y;
     }
 
+    public static float fromTop(float y){
+        return (Gdx.graphics.getDisplayMode().height-y);
+    }
+
     public static int getTileTypeId(TileType tileType){
         return TileTypes.tiles.indexOf(tileType);
     }
@@ -34,4 +38,5 @@ public class Utils {
     public static boolean numberInRange(int number, int min, int upperBound){
         return (min <= number) && (number < upperBound);
     }
+
 }

@@ -15,6 +15,14 @@ public class Player {
     }
 
 
+    public String getName() {
+        return name;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
     public Color getColor() {
         return color;
     }
