@@ -8,6 +8,10 @@ public class Utils {
 
     private static final int SCALING_COEFFICIENT = 12;
 
+    public enum SpacialRelation{
+        LEFT, ABOVE, RIGHT, BELOW
+    }
+
     /**
      * standard unit for interactive elements on the screen (buttons, labels, etc.).
      * */
@@ -30,4 +34,9 @@ public class Utils {
     public static int getTileTypeId(TileType tileType){
         return TileTypes.tiles.indexOf(tileType);
     }
+
+    public static boolean numberInRange(int number, int min, int upperBound){
+        return (min <= number) && (number < upperBound);
+    }
+
 }

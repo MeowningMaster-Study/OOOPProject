@@ -15,12 +15,9 @@ public class TileTextureManager {
         for (int i = 0; i <= 24; i++){
             List<Texture> tileTextures = new LinkedList<>();
             for (int j = 0; j <= 3; j++){
-                try {
-                    tileTextures.add(j, new Texture(Gdx.files.internal("skin/classic-tiles/"+i+"-"+j+".jpg")));
-                } catch (GdxRuntimeException ex){
-                    tileTextures.add(j, new Texture(Gdx.files.internal("skin/classic-tiles/"+i+"-"+j+".png")));
-                }
-
+                Texture texture = new Texture(Gdx.files.internal("skin/classic-tiles/"+i+"-"+j+".png"));
+                texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+                tileTextures.add(j, texture);
             }
             textures.add(i, tileTextures);
         }
@@ -37,4 +34,5 @@ public class TileTextureManager {
     public Texture getTexture(Tile tile){
         return getTexture(tile.type, tile.rotation);
     }
+
 }

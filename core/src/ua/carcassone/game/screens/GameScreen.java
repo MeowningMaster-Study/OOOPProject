@@ -1,11 +1,21 @@
 package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -48,14 +58,21 @@ public class GameScreen implements Screen {
 
         // --- Test ---
         Random random = new Random();
-        for (int i = 0; i < 143; i++) {
-            for (int j = 0; j < 143; j++) {
-                map[i][j] = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
+        for (int i = 1; i < 142; i++) {
+            for (int j = 1; j < 142; j++) {
+                int tries = 0;
+                while (tries < 25){
+                    Tile tile = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
+                    if (tile.canBePutBetween(map[i-1][j], map[i][j+1], map[i+1][j], map[i][j-1])) {
+                        map[i][j] = tile;
+                        break;
+                    }
+                    tries++;
+                }
             }
         }
 
         // ------------
-
         hud = new GameHud(this);
         field = new GameField(this);
 
@@ -75,13 +92,14 @@ public class GameScreen implements Screen {
         currentTile.setTile(new Tile(TileTypes.tiles.get(1), 0));
         players.setPlayers(new ArrayList<>(Arrays.asList(testPlayers)));
         // ------------
-
     }
 
     @Override
     public void render(float delta) {
+        field.handleInput(delta);
 
         ScreenUtils.clear(1, 1, 1, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
