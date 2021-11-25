@@ -20,7 +20,7 @@ public class Settings {
         return serverURI;
     }
 
-    public static float maxTranslationSpeed = 100;
+    public static float maxTranslationSpeed = 175;
     public static float translationSpeedDecrease = maxTranslationSpeed*0.95f;
 
     public static float maxZoomSpeed = 4;
@@ -30,5 +30,5 @@ public class Settings {
     public static float maxCameraZoom = 16f;
 
     // чем меньше тем больше можно будет приблизить
-    public static float minCameraZoom = 0.4f;
+    public static float minCameraZoom = 0.1f;
 }

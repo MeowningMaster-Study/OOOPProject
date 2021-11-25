@@ -61,7 +61,7 @@ public class GameScreen implements Screen {
         for (int i = 1; i < 142; i++) {
             for (int j = 1; j < 142; j++) {
                 int tries = 0;
-                while (tries < 25){
+                while (tries < 50){
                     Tile tile = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
                     if (tile.canBePutBetween(map[i-1][j], map[i][j+1], map[i+1][j], map[i][j-1])) {
                         map[i][j] = tile;
@@ -99,7 +99,7 @@ public class GameScreen implements Screen {
         field.handleInput(delta);
 
         ScreenUtils.clear(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
+        // Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);

@@ -16,7 +16,7 @@ public class TileTextureManager {
             List<Texture> tileTextures = new LinkedList<>();
             for (int j = 0; j <= 3; j++){
                 Texture texture = new Texture(Gdx.files.internal("skin/classic-tiles/"+i+"-"+j+".png"));
-                texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+                // texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
                 tileTextures.add(j, texture);
             }
             textures.add(i, tileTextures);

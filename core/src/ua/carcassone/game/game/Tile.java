@@ -30,12 +30,6 @@ public class Tile {
     }
 
     public boolean canBePutBetween(Tile upper, Tile right, Tile below, Tile left){
-        System.out.println("Can be put: "+
-                "BELOW "+upper+": "+canBePutTo(upper, Utils.SpacialRelation.BELOW)+
-                "LEFT TO "+right+": "+canBePutTo(right, Utils.SpacialRelation.LEFT)+
-                "ABOVE "+below+": "+canBePutTo(below, Utils.SpacialRelation.ABOVE)+
-                "RIGHT TO "+left+": "+canBePutTo(left, Utils.SpacialRelation.RIGHT)
-        );
         return canBePutTo(upper, Utils.SpacialRelation.BELOW) &&
                 canBePutTo(right, Utils.SpacialRelation.LEFT) &&
                 canBePutTo(below, Utils.SpacialRelation.ABOVE) &&
