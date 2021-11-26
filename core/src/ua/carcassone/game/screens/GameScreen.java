@@ -1,25 +1,17 @@
 package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
+import ua.carcassone.game.Settings;
+import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.Player;
 import ua.carcassone.game.game.Tile;
 import ua.carcassone.game.game.TileTypes;
@@ -30,7 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-import static ua.carcassone.game.Utils.*;
+import static ua.carcassone.game.Utils.ELEMENT_HEIGHT_UNIT;
+import static ua.carcassone.game.Utils.ELEMENT_WIDTH_UNIT;
 
 public class GameScreen implements Screen {
 
@@ -45,9 +38,11 @@ public class GameScreen implements Screen {
     public PCLPlayers players;
     public PCLCurrentTile currentTile;
 
+    private Label debugLabel;
+
     public GameScreen(final CarcassoneGame game) {
         this.game = game;
-        map = new Tile[143][143];
+        map = new Tile[(int) Settings.fieldTileCount.y][(int) Settings.fieldTileCount.x];
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
@@ -56,10 +51,15 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
+        debugLabel = new Label("Debug", mySkin, "default");
+        debugLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        debugLabel.setPosition(ELEMENT_WIDTH_UNIT * 10, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
+        stage.addActor(debugLabel);
+
         // --- Test ---
         Random random = new Random();
-        for (int i = 1; i < 142; i++) {
-            for (int j = 1; j < 142; j++) {
+        for (int i = 1; i < Settings.fieldTileCount.y-1; i++) {
+            for (int j = 1; j < Settings.fieldTileCount.x-1; j++) {
                 int tries = 0;
                 while (tries < 50){
                     Tile tile = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
@@ -96,24 +96,11 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        field.handleInput(delta);
-
         ScreenUtils.clear(1, 1, 1, 1);
-        // Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
+        field.handleInput(delta);
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
-
-        game.batch.begin();
-        // Draw using game.batch
-        game.batch.end();
-
-/*        hud.batch.begin();
-        // Draw using hudBatch
-        hud.batch.end();*/
-
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
 
         field.stage.act(Gdx.graphics.getDeltaTime());
         field.stage.draw();
@@ -121,7 +108,8 @@ public class GameScreen implements Screen {
         hud.stage.act(Gdx.graphics.getDeltaTime());
         hud.stage.draw();
 
-
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
     }
 
     @Override
@@ -194,5 +182,9 @@ public class GameScreen implements Screen {
             this.currentTile = newTile;
         }
 
+    }
+
+    public void setDebugLabel(String val){
+        debugLabel.setText(val);
     }
 }

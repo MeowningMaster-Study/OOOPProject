@@ -20,6 +20,8 @@ public class Settings {
         return serverURI;
     }
 
+    public static final Vector2 fieldTileCount = new Vector2(143, 143);
+
     public static float maxTranslationSpeed = 175;
     public static float translationSpeedDecrease = maxTranslationSpeed*0.95f;
 
@@ -31,4 +33,7 @@ public class Settings {
 
     // чем меньше тем больше можно будет приблизить
     public static float minCameraZoom = 0.1f;
+
+    // процент расстояния который может занимать пустой стол
+    public static final float possibleEmptyCameraPercent = 0.95f;
 }
