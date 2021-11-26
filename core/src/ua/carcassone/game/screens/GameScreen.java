@@ -12,9 +12,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
-import ua.carcassone.game.game.Player;
-import ua.carcassone.game.game.Tile;
-import ua.carcassone.game.game.TileTypes;
+import ua.carcassone.game.game.*;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -28,21 +26,21 @@ import static ua.carcassone.game.Utils.ELEMENT_WIDTH_UNIT;
 public class GameScreen implements Screen {
 
     public final CarcassoneGame game;
-    private OrthographicCamera camera;
+    private final OrthographicCamera camera;
     public Viewport viewport;
-    private Stage stage;
-    private GameHud hud;
-    private GameField field;
+    private final Stage stage;
+    private final GameHud hud;
+    private final GameField field;
 
-    public final Tile[][] map;
+    public final Map map;
     public PCLPlayers players;
     public PCLCurrentTile currentTile;
 
-    private Label debugLabel;
+    private final Label debugLabel;
 
     public GameScreen(final CarcassoneGame game) {
         this.game = game;
-        map = new Tile[(int) Settings.fieldTileCount.y][(int) Settings.fieldTileCount.x];
+        this.map = new Map(new Tile(TileTypes.tiles.get(1), 0));
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
@@ -53,26 +51,10 @@ public class GameScreen implements Screen {
 
         debugLabel = new Label("Debug", mySkin, "default");
         debugLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
-        debugLabel.setPosition(ELEMENT_WIDTH_UNIT * 10, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
+        debugLabel.setPosition(ELEMENT_WIDTH_UNIT * 5, Utils.fromTop(ELEMENT_HEIGHT_UNIT));
         stage.addActor(debugLabel);
 
-        // --- Test ---
-        Random random = new Random();
-        for (int i = 1; i < Settings.fieldTileCount.y-1; i++) {
-            for (int j = 1; j < Settings.fieldTileCount.x-1; j++) {
-                int tries = 0;
-                while (tries < 50){
-                    Tile tile = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
-                    if (tile.canBePutBetween(map[i-1][j], map[i][j+1], map[i+1][j], map[i][j-1])) {
-                        map[i][j] = tile;
-                        break;
-                    }
-                    tries++;
-                }
-            }
-        }
 
-        // ------------
         hud = new GameHud(this);
         field = new GameField(this);
 
@@ -187,4 +169,6 @@ public class GameScreen implements Screen {
     public void setDebugLabel(String val){
         debugLabel.setText(val);
     }
+
+
 }

@@ -23,7 +23,7 @@ public class Tile {
 
     // temporary solution
     public boolean canBePutTo(Tile tile, Utils.SpacialRelation relation){
-        if (tile == null) return true;
+        if (tile == null || tile.type == null) return true;
         int tileActingSide = tile.type.getSide(relation.ordinal(), tile.rotation);
         int thisActingSide = this.type.getSide((relation.ordinal()+2)%4, this.rotation);
         return TileType.sidesMatch(tileActingSide, thisActingSide);
