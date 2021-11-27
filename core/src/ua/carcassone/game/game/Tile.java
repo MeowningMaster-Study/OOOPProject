@@ -23,19 +23,13 @@ public class Tile {
 
     // temporary solution
     public boolean canBePutTo(Tile tile, Utils.SpacialRelation relation){
-        if (tile == null) return true;
+        if (tile == null || tile.type == null) return true;
         int tileActingSide = tile.type.getSide(relation.ordinal(), tile.rotation);
         int thisActingSide = this.type.getSide((relation.ordinal()+2)%4, this.rotation);
         return TileType.sidesMatch(tileActingSide, thisActingSide);
     }
 
     public boolean canBePutBetween(Tile upper, Tile right, Tile below, Tile left){
-        System.out.println("Can be put: "+
-                "BELOW "+upper+": "+canBePutTo(upper, Utils.SpacialRelation.BELOW)+
-                "LEFT TO "+right+": "+canBePutTo(right, Utils.SpacialRelation.LEFT)+
-                "ABOVE "+below+": "+canBePutTo(below, Utils.SpacialRelation.ABOVE)+
-                "RIGHT TO "+left+": "+canBePutTo(left, Utils.SpacialRelation.RIGHT)
-        );
         return canBePutTo(upper, Utils.SpacialRelation.BELOW) &&
                 canBePutTo(right, Utils.SpacialRelation.LEFT) &&
                 canBePutTo(below, Utils.SpacialRelation.ABOVE) &&

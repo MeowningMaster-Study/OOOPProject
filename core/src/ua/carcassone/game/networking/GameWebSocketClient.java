@@ -18,11 +18,16 @@ public class GameWebSocketClient extends WebSocketClient {
     static class ClientState extends Observable{
         private ClientStateEnum state = ClientStateEnum.NOT_CONNECTED;
 
-        public void set(ClientStateEnum state){
-            this.state = state;
-            System.out.println("State changing to "+state);
+        public void set(ClientStateChange stateChange) {
+            this.state = stateChange.newState;
+            System.out.println("State changing to " + stateChange.newState);
             setChanged();
-            notifyObservers(state);
+            System.out.println(stateChange.additionalInfo+" - 2");
+            notifyObservers(stateChange);
+        }
+
+        public void set(ClientStateEnum state){
+            set(new ClientStateChange(state, null));
         }
 
         public boolean  is(ClientStateEnum state){
@@ -48,6 +53,16 @@ public class GameWebSocketClient extends WebSocketClient {
         FAILED_TO_CONNECT_TO_TABLE,
         CREATING_TABLE,
 
+    }
+
+    public static class ClientStateChange{
+        public ClientStateEnum newState;
+        public String additionalInfo;
+
+        public ClientStateChange(ClientStateEnum newState, String additionalInfo) {
+            this.newState = newState;
+            this.additionalInfo = additionalInfo;
+        }
     }
 
     private final ClientState state = new ClientState();
@@ -88,7 +103,8 @@ public class GameWebSocketClient extends WebSocketClient {
                 System.out.println("! Server sent wrong response: \n\tstate is "+this.state.string()+"\n\tserver sent: "+message);
 
             JOIN_TABLE_SUCCESS response = jsonConverter.fromJson(JOIN_TABLE_SUCCESS.class, message);
-            this.state.set(ClientStateEnum.CONNECTED_TO_TABLE);
+            System.out.println(response.tableId+" - 1");
+            this.state.set(new ClientStateChange(ClientStateEnum.CONNECTED_TO_TABLE, response.tableId));
         }
 
         else if (Objects.equals(action, JOIN_TABLE_FAILURE.class.getSimpleName())){
@@ -104,7 +120,7 @@ public class GameWebSocketClient extends WebSocketClient {
                 System.out.println("! Server sent wrong response: \n\tstate is "+this.state.string()+"\n\tserver sent: "+message);
 
             CREATE_TABLE_SUCCESS response = jsonConverter.fromJson(CREATE_TABLE_SUCCESS.class, message);
-            this.state.set(ClientStateEnum.CONNECTED_TO_TABLE);
+            this.state.set(new ClientStateChange(ClientStateEnum.CONNECTED_TO_TABLE, response.tableId));
         }
 
         else if (Objects.equals(action, ERROR.class.getSimpleName())){
@@ -188,21 +204,21 @@ public class GameWebSocketClient extends WebSocketClient {
      */
     public static class stateMultipleObserver implements Observer {
 
-        Consumer<ClientStateEnum> consumer;
+        Consumer<ClientStateChange> consumer;
         ClientStateEnum stoppingState = null;
 
         @Override
         public void update(Observable o, Object state) {
-            consumer.accept((ClientStateEnum) state);
-            if (state == stoppingState)
+            consumer.accept((ClientStateChange) state);
+            if (((ClientStateChange) state).newState == stoppingState)
                 o.deleteObserver(this);
         }
 
-        public stateMultipleObserver(Consumer<ClientStateEnum> consumer){
+        public stateMultipleObserver(Consumer<ClientStateChange> consumer){
             this.consumer = consumer;
         }
 
-        public stateMultipleObserver(ClientStateEnum stoppingState, Consumer<ClientStateEnum> consumer){
+        public stateMultipleObserver(ClientStateEnum stoppingState, Consumer<ClientStateChange> consumer){
             this.consumer = consumer;
             this.stoppingState = stoppingState;
         }
@@ -212,15 +228,15 @@ public class GameWebSocketClient extends WebSocketClient {
      * Observer which accepts a state, and deletes itself.
      */
     public static class stateSingleObserver implements Observer {
-        Consumer<ClientStateEnum> consumer;
+        Consumer<ClientStateChange> consumer;
 
         @Override
         public void update(Observable o, Object state) {
-            consumer.accept((ClientStateEnum) state);
+            consumer.accept((ClientStateChange) state);
             o.deleteObserver(this);
         }
 
-        public stateSingleObserver(Consumer<ClientStateEnum> consumer){
+        public stateSingleObserver(Consumer<ClientStateChange> consumer){
             this.consumer = consumer;
         }
 
@@ -230,15 +246,15 @@ public class GameWebSocketClient extends WebSocketClient {
      * Observer which accepts all states from "acceptable" list, and deletes itself after getting stoppingState or a state not in "acceptable" list.
      */
     public static class stateAcceptableObserver implements Observer {
-        Consumer<ClientStateEnum> consumer;
+        Consumer<ClientStateChange> consumer;
         List<ClientStateEnum> acceptable;
         ClientStateEnum stoppingState;
 
         @Override
         public void update(Observable o, Object state) {
-            if (acceptable.contains((ClientStateEnum) state)){
-                consumer.accept((ClientStateEnum) state);
-                if (state == stoppingState)
+            if (acceptable.contains(((ClientStateChange) state).newState)){
+                consumer.accept((ClientStateChange) state);
+                if (((ClientStateChange) state).newState == stoppingState)
                     o.deleteObserver(this);
             } else {
                 o.deleteObserver(this);
@@ -247,7 +263,7 @@ public class GameWebSocketClient extends WebSocketClient {
         }
 
         public stateAcceptableObserver(ClientStateEnum stoppingState, List<ClientStateEnum> acceptable,
-                                       Consumer<ClientStateEnum> consumer){
+                                       Consumer<ClientStateChange> consumer){
             this.stoppingState = stoppingState;
             this.acceptable = new ArrayList<>(acceptable);
 

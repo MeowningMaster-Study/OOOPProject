@@ -82,11 +82,11 @@ public class JoinGameScreen implements Screen {
 
 
                 GameWebSocketClient.stateSingleObserver changeObserver = new GameWebSocketClient.stateSingleObserver(
-                        (state)->{
-                            if ( state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE) {
+                        (stateChange)->{
+                            if ( stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE) {
                                 Gdx.app.postRunnable(() -> {
                                     System.out.println("CHANGING TO A GAME SCREEN");
-                                    game.setScreen(new GameScreen(game));
+                                    game.setScreen(new GameScreen(game, stateChange.additionalInfo));
                                 });
                             }
                             else {
