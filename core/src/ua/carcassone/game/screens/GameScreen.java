@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class GameScreen implements Screen {
-
+    // s
     public final CarcassoneGame game;
     private OrthographicCamera camera;
     public Viewport viewport;
