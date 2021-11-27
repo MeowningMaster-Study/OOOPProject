@@ -26,7 +26,7 @@ public class GameScreen implements Screen {
     public final CarcassoneGame game;
     private OrthographicCamera camera;
     public Viewport viewport;
-    private Stage stage;
+    public Stage stage;
     public GameHud hud;
     private GameField field;
     public PauseGameScreen pauseScreen;

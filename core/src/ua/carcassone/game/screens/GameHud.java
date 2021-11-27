@@ -125,7 +125,6 @@ public class GameHud {
         hudStage.addActor(rightRotateButton);
         hudStage.addActor(leftRotateButton);
 
-        System.out.println("updated");
     }
 
     private void drawPlayers(){
@@ -189,30 +188,20 @@ public class GameHud {
     }
 
     public void pause(){
+
         menuButton.setTouchable(Touchable.disabled);
         rightRotateButton.setTouchable(Touchable.disabled);
         leftRotateButton.setTouchable(Touchable.disabled);
 
-        menuButton.setDisabled(true);
-        rightRotateButton.setDisabled(true);
-        leftRotateButton.setDisabled(true);
-
-
     }
 
     public void resume(){
-        System.out.println("resumed");
+
         menuButton.setTouchable(Touchable.enabled);
         rightRotateButton.setTouchable(Touchable.enabled);
         leftRotateButton.setTouchable(Touchable.enabled);
 
-        menuButton.setDisabled(false);
-        System.out.println(menuButton.isDisabled());
-        rightRotateButton.setDisabled(false);
-        System.out.println(rightRotateButton.isDisabled());
-        leftRotateButton.setDisabled(false);
-        System.out.println(leftRotateButton.isDisabled());
-
+        Gdx.input.setInputProcessor(hudStage);
 
     }
 }

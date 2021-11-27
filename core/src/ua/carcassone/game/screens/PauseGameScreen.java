@@ -13,6 +13,8 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.networking.GameWebSocketClient;
+import ua.carcassone.game.networking.IncorrectClientActionException;
 
 import static ua.carcassone.game.Utils.ELEMENT_HEIGHT_UNIT;
 import static ua.carcassone.game.Utils.ELEMENT_WIDTH_UNIT;
@@ -101,10 +103,13 @@ public class PauseGameScreen {
                     @Override
                     protected void result(final Object object) {
                         if(object.equals(true)){
-                            // exit table
-                        }
-                        else{
-                            // nothing
+                            try {
+                                gameScreen.game.socketClient.leaveTable();
+                            } catch (IncorrectClientActionException e) {
+                                e.printStackTrace();
+                            }
+                            gameScreen.game.setScreen(new MainMenuScreen(gameScreen.game));
+                            gameScreen.dispose();
                         }
                     }
                 }.show(stage);
