@@ -1,6 +1,7 @@
 package ua.carcassone.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import ua.carcassone.game.game.TileType;
 import ua.carcassone.game.game.TileTypes;
 
@@ -37,6 +38,10 @@ public class Utils {
 
     public static boolean numberInRange(int number, int min, int upperBound){
         return (min <= number) && (number < upperBound);
+    }
+
+    public static float min(Vector2 vec){
+        return Math.min(vec.x, vec.y);
     }
 
 }

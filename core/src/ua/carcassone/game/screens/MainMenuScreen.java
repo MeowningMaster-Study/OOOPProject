@@ -46,11 +46,11 @@ public class MainMenuScreen implements Screen {
         connectionLabel.setPosition(ELEMENT_WIDTH_UNIT * 6, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(connectionLabel);
 
-        GameWebSocketClient.stateMultipleObserver observer = new GameWebSocketClient.stateMultipleObserver((state)->{
-            if (state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_SERVER)
+        GameWebSocketClient.stateMultipleObserver observer = new GameWebSocketClient.stateMultipleObserver((stateChange)->{
+            if (stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_SERVER)
                 connectionLabel.setText("Connected to server!");
             else
-                connectionLabel.setText("Not connected to server! " + state);
+                connectionLabel.setText("Not connected to server! " + stateChange.newState);
         });
         game.socketClient.addStateObserver(observer);
       
