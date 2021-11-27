@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -26,7 +27,6 @@ import static ua.carcassone.game.Utils.ELEMENT_WIDTH_UNIT;
 
 public class GameHud {
     public Stage hudStage;
-    public Stage menuStage;
     private Viewport viewport;
     private GameScreen gameScreen;
     private Skin mySkin;
@@ -73,7 +73,10 @@ public class GameHud {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                currentTileObserver.rightRotate();
+                gameScreen.isPaused = true;
+                pause();
+                updateStage();
+
             }
         });
         return menuButton;
@@ -84,7 +87,7 @@ public class GameHud {
         Drawable leftDrawable = new TextureRegionDrawable(new TextureRegion(leftRotateTexture));
         ImageButton leftRotateButton = new ImageButton(leftDrawable);
         leftRotateButton.setSize(50, 50);
-        int shift = type == "left" ? 0 : 170 - 50;
+        int shift = type.equals("left") ? 0 : 170 - 50;
         leftRotateButton.setPosition(Gdx.graphics.getWidth() - (float) (ELEMENT_WIDTH_UNIT * 1.5) + shift,
                 (float) (ELEMENT_HEIGHT_UNIT * 1.3));
 
@@ -96,7 +99,7 @@ public class GameHud {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                if(type == "left"){
+                if(type.equals("left")){
                     currentTileObserver.leftRotate();
                 }
                 else{
@@ -108,39 +111,49 @@ public class GameHud {
         return leftRotateButton;
     }
 
-    private void updateStage(){
+    public void updateStage(){
         hudStage.clear();
 
-        hudStage.addActor(menuButton);
-
         if(currentTileObserver.tile != null){
-            Image tileImage = currentTileObserver.tileImage;
-            tileImage.setSize(170, 170);
-            tileImage.setPosition(Gdx.graphics.getWidth() - (float) (ELEMENT_WIDTH_UNIT * 1.5), (float) (ELEMENT_HEIGHT_UNIT * 1.3));
-            hudStage.addActor(tileImage);
-
-            hudStage.addActor(leftRotateButton);
-            hudStage.addActor(rightRotateButton);
+            drawCurrentTile();
         }
-
-
         if(playersObserver.players != null){
-            float size = playersObserver.players.size();
-            float heightCoeff = Gdx.graphics.getHeight() / ((size + 1) * ELEMENT_HEIGHT_UNIT);
-            for (int i = 0; i < size; ++i) {
-                Player player = playersObserver.players.get(i);
-
-                Image pImage = new Image(textureManager.getTexture(0, 0));
-                pImage.setPosition((float)(ELEMENT_WIDTH_UNIT / 2), Utils.fromTop(ELEMENT_HEIGHT_UNIT * (heightCoeff * i + 2)));
-                pImage.setSize(100, 100);
-                hudStage.addActor(pImage);
-
-                Label pName = new Label(player.getName(), new Label.LabelStyle(new BitmapFont(), player.getColor()));
-                pName.setSize(100, 20);
-                pName.setPosition(pImage.getX(), pImage.getY());
-                hudStage.addActor(pName);
-            }
+            drawPlayers();
         }
+
+        hudStage.addActor(menuButton);
+        hudStage.addActor(rightRotateButton);
+        hudStage.addActor(leftRotateButton);
+
+        System.out.println("updated");
+    }
+
+    private void drawPlayers(){
+        float size = playersObserver.players.size();
+        float heightCoeff = Gdx.graphics.getHeight() / ((size + 1) * ELEMENT_HEIGHT_UNIT);
+        for (int i = 0; i < size; ++i) {
+            Player player = playersObserver.players.get(i);
+
+            Image pImage = new Image(textureManager.getTexture(0, 0));
+            pImage.setPosition((float)(ELEMENT_WIDTH_UNIT / 2), Utils.fromTop(ELEMENT_HEIGHT_UNIT * (heightCoeff * i + 2)));
+            pImage.setSize(100, 100);
+            hudStage.addActor(pImage);
+
+            Label pName = new Label(player.getName(), new Label.LabelStyle(new BitmapFont(), player.getColor()));
+            pName.setSize(100, 20);
+            pName.setPosition(pImage.getX(), pImage.getY());
+            hudStage.addActor(pName);
+        }
+    }
+
+    private void drawCurrentTile(){
+        Image tileImage = currentTileObserver.tileImage;
+        tileImage.setSize(170, 170);
+        tileImage.setPosition(Gdx.graphics.getWidth() - (float) (ELEMENT_WIDTH_UNIT * 1.5), (float) (ELEMENT_HEIGHT_UNIT * 1.3));
+        hudStage.addActor(tileImage);
+
+        hudStage.addActor(leftRotateButton);
+        hudStage.addActor(rightRotateButton);
     }
 
     class PlayersObserver implements PropertyChangeListener{
@@ -175,4 +188,31 @@ public class GameHud {
         }
     }
 
+    public void pause(){
+        menuButton.setTouchable(Touchable.disabled);
+        rightRotateButton.setTouchable(Touchable.disabled);
+        leftRotateButton.setTouchable(Touchable.disabled);
+
+        menuButton.setDisabled(true);
+        rightRotateButton.setDisabled(true);
+        leftRotateButton.setDisabled(true);
+
+
+    }
+
+    public void resume(){
+        System.out.println("resumed");
+        menuButton.setTouchable(Touchable.enabled);
+        rightRotateButton.setTouchable(Touchable.enabled);
+        leftRotateButton.setTouchable(Touchable.enabled);
+
+        menuButton.setDisabled(false);
+        System.out.println(menuButton.isDisabled());
+        rightRotateButton.setDisabled(false);
+        System.out.println(rightRotateButton.isDisabled());
+        leftRotateButton.setDisabled(false);
+        System.out.println(leftRotateButton.isDisabled());
+
+
+    }
 }
