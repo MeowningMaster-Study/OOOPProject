@@ -31,6 +31,7 @@ public class GameScreen implements Screen {
     private final Stage stage;
     private final GameHud hud;
     private final GameField field;
+    private final String tableId;
 
     public final Map map;
     public PCLPlayers players;
@@ -38,8 +39,10 @@ public class GameScreen implements Screen {
 
     private final Label debugLabel;
 
-    public GameScreen(final CarcassoneGame game) {
+    public GameScreen(final CarcassoneGame game, String tableId) {
         this.game = game;
+        this.tableId = tableId;
+        System.out.println(tableId+" - 4");
         this.map = new Map(new Tile(TileTypes.tiles.get(1), 0));
 
         camera = new OrthographicCamera();
@@ -53,6 +56,11 @@ public class GameScreen implements Screen {
         debugLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         debugLabel.setPosition(ELEMENT_WIDTH_UNIT * 5, Utils.fromTop(ELEMENT_HEIGHT_UNIT));
         stage.addActor(debugLabel);
+
+        Label tableIdLabel = new Label("Table ID: "+this.tableId, mySkin, "default");
+        tableIdLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        tableIdLabel.setPosition(ELEMENT_WIDTH_UNIT * 2, Utils.fromTop(ELEMENT_HEIGHT_UNIT));
+        stage.addActor(tableIdLabel);
 
 
         hud = new GameHud(this);

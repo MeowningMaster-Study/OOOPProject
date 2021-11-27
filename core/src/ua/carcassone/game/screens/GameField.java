@@ -10,11 +10,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
-import ua.carcassone.game.game.Tile;
 import ua.carcassone.game.game.TileTextureManager;
-import ua.carcassone.game.game.TileTypes;
-
-import java.util.Random;
 
 public class GameField {
     public Stage stage;
@@ -71,11 +67,21 @@ public class GameField {
 
         // new input
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
-            this.zoomSpeed = -Settings.maxZoomSpeed;
+            if(this.zoomSpeed == 0) {
+
+                this.zoomSpeed = -Settings.maxZoomSpeed / 3;
+            }
+            else
+                this.zoomSpeed = -Settings.maxZoomSpeed;
         }
         if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            this.zoomSpeed = Settings.maxZoomSpeed;
+            if(this.zoomSpeed == 0) {
+                this.zoomSpeed = Settings.maxZoomSpeed / 3;
+            }
+            else
+                this.zoomSpeed = Settings.maxZoomSpeed;
         }
+        this.gameScreen.setDebugLabel("zoom speed: "+this.zoomSpeed);
 
         float maxTranslationSpeed = (float) (Settings.maxTranslationSpeed
                         + Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxTranslationSpeedTilesPower));
@@ -160,10 +166,14 @@ public class GameField {
 
 
         if (zoomSpeed > 0){
-            zoomSpeed = Math.max(0, zoomSpeed-Settings.zoomSpeedDecrease*delta*Math.abs(zoomSpeed));
+            zoomSpeed = Math.max(0, zoomSpeed-Settings.zoomSpeedDecrease*delta);
+            if (zoomSpeed < 0.001)
+                zoomSpeed = 0;
         }
         else if (zoomSpeed < 0){
-            zoomSpeed = Math.min(0, zoomSpeed+Settings.zoomSpeedDecrease*delta*Math.abs(zoomSpeed));
+            zoomSpeed = Math.min(0, zoomSpeed+Settings.zoomSpeedDecrease*delta);
+            if (zoomSpeed > -0.001)
+                zoomSpeed = 0;
         }
 
 }

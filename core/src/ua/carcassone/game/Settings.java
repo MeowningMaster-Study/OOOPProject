@@ -27,7 +27,7 @@ public class Settings {
     public static float translationSpeedDecrease = maxTranslationSpeed*1.35f;
 
     public static float maxZoomSpeed = 4;
-    public static float zoomSpeedDecrease = maxZoomSpeed*2.2f;
+    public static float zoomSpeedDecrease = maxZoomSpeed*4.2f;
 
     // чем больше тем больше можно будет отдалить
     public static float maxCameraZoom = 1.2f;
