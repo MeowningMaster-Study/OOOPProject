@@ -6,14 +6,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
-import ua.carcassone.game.game.Player;
-import ua.carcassone.game.game.Tile;
-import ua.carcassone.game.game.TileTypes;
+import ua.carcassone.game.Settings;
+import ua.carcassone.game.Utils;
+import ua.carcassone.game.game.*;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -21,27 +20,36 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import static ua.carcassone.game.Utils.ELEMENT_HEIGHT_UNIT;
+import static ua.carcassone.game.Utils.ELEMENT_WIDTH_UNIT;
+
 public class GameScreen implements Screen {
 
     public final CarcassoneGame game;
-    private OrthographicCamera camera;
+    private final OrthographicCamera camera;
     public Viewport viewport;
-    private Stage stage;
-    public GameHud hud;
-    private GameField field;
+
+    private final Stage stage;
+    public final GameHud hud;
+    private final GameField field;
+    private final String tableId;
     public PauseGameScreen pauseScreen;
 
-    public final Tile[][] map;
+    public final Map map;
     public PCLPlayers players;
     public PCLCurrentTile currentTile;
-
+  
+    private final Label debugLabel;
     public boolean isPaused;
 
-    public GameScreen(final CarcassoneGame game) {
+    public GameScreen(final CarcassoneGame game, String tableId) {
         this.game = game;
-        map = new Tile[143][143];
+        this.tableId = tableId;
+        System.out.println(tableId+" - 4");
+        this.map = new Map(new Tile(TileTypes.tiles.get(1), 0));
         pauseScreen = null;
         isPaused = false;
+
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
@@ -50,23 +58,17 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
-        // --- Test ---
-        Random random = new Random();
-        for (int i = 1; i < 142; i++) {
-            for (int j = 1; j < 142; j++) {
-                int tries = 0;
-                while (tries < 25){
-                    Tile tile = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
-                    if (tile.canBePutBetween(map[i-1][j], map[i][j+1], map[i+1][j], map[i][j-1])) {
-                        map[i][j] = tile;
-                        break;
-                    }
-                    tries++;
-                }
-            }
-        }
+        debugLabel = new Label("Debug", mySkin, "default");
+        debugLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        debugLabel.setPosition(ELEMENT_WIDTH_UNIT * 5, Utils.fromTop(ELEMENT_HEIGHT_UNIT));
+        stage.addActor(debugLabel);
 
-        // ------------
+        Label tableIdLabel = new Label("Table ID: "+this.tableId, mySkin, "default");
+        tableIdLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        tableIdLabel.setPosition(ELEMENT_WIDTH_UNIT * 2, Utils.fromTop(ELEMENT_HEIGHT_UNIT));
+        stage.addActor(tableIdLabel);
+
+
         hud = new GameHud(this);
         field = new GameField(this);
 
@@ -90,6 +92,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
+
         if(isPaused && pauseScreen == null){
             pauseScreen = new PauseGameScreen(this);
         }
@@ -100,8 +103,8 @@ public class GameScreen implements Screen {
         if(!isPaused){
             field.handleInput(delta);
         }
+
         ScreenUtils.clear(1, 1, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
@@ -198,4 +201,10 @@ public class GameScreen implements Screen {
         }
 
     }
+
+    public void setDebugLabel(String val){
+        debugLabel.setText(val);
+    }
+
+
 }

@@ -84,12 +84,11 @@ public class CreateTableScreen implements Screen {
                 GameWebSocketClient.stateAcceptableObserver changeObserver = new GameWebSocketClient.stateAcceptableObserver(
                         GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE,
                         Arrays.asList(new GameWebSocketClient.ClientStateEnum[]{GameWebSocketClient.ClientStateEnum.CREATING_TABLE}),
-                        (state)->{
-                            if ( state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE)
-                                Gdx.app.postRunnable(() -> {
-                                    System.out.println("CHANGING TO A GAME SCREEN");
-                                    game.setScreen(new GameScreen(game));
-                                });
+                        (stateChange)->{
+                            if ( stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE) {
+                                System.out.println(stateChange.additionalInfo+" - 3");
+                                Gdx.app.postRunnable(() -> game.setScreen(new GameScreen(game, stateChange.additionalInfo)));
+                            }
                         }
                 );
                 game.socketClient.addStateObserver(changeObserver);

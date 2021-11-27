@@ -57,8 +57,8 @@ public class TileTypes {
             ),
             // 8
             new TileType(
-                new int[]{5, 5, 5, 1},
-                new int[]{0, 0, 0, 0, 0, 0, 9, 10},
+                new int[]{5, 5, 0, 0},
+                new int[]{0, 0, 0, 0, 9, 9, 9, 9},
                 false,
                 false
             ),
