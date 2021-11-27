@@ -27,21 +27,16 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     public Viewport viewport;
     private Stage stage;
-    public GameHud hud;
+    private GameHud hud;
     private GameField field;
-    public PauseGameScreen pauseScreen;
 
     public final Tile[][] map;
     public PCLPlayers players;
     public PCLCurrentTile currentTile;
 
-    public boolean isPaused;
-
     public GameScreen(final CarcassoneGame game) {
         this.game = game;
         map = new Tile[143][143];
-        pauseScreen = null;
-        isPaused = false;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
@@ -90,41 +85,32 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        if(isPaused && pauseScreen == null){
-            pauseScreen = new PauseGameScreen(this);
-        }
-        else if(!isPaused && pauseScreen != null){
-            pauseScreen = null;
-        }
+        field.handleInput(delta);
 
-        if(!isPaused){
-            field.handleInput(delta);
-        }
         ScreenUtils.clear(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
-        if(!isPaused){
-            stage.act(Gdx.graphics.getDeltaTime());
-        }
+        game.batch.begin();
+        // Draw using game.batch
+        game.batch.end();
+
+/*        hud.batch.begin();
+        // Draw using hudBatch
+        hud.batch.end();*/
+
+        stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
 
-        if(!isPaused){
-            field.stage.act(Gdx.graphics.getDeltaTime());
-        }
+        field.stage.act(Gdx.graphics.getDeltaTime());
         field.stage.draw();
 
-        if(!isPaused){
-            hud.hudStage.act(Gdx.graphics.getDeltaTime());
-        }
+        hud.hudStage.act(Gdx.graphics.getDeltaTime());
         hud.hudStage.draw();
 
-        if(isPaused){
-            pauseScreen.stage.act(Gdx.graphics.getDeltaTime());
-            pauseScreen.stage.draw();
-        }
+
     }
 
     @Override
