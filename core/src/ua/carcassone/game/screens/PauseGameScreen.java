@@ -110,6 +110,9 @@ public class PauseGameScreen {
 
     private CheckBox makeNoVolumeBox(String name){
         CheckBox noVolumeBox = new CheckBox(name, skin);
+        if(gameScreen.game.getCurrMusicVolume() == 0){
+            noVolumeBox.setChecked(true);
+        }
 
         noVolumeBox.addListener(new InputListener(){
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {

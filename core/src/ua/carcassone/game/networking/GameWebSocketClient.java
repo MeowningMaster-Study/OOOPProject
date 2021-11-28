@@ -246,7 +246,7 @@ public class GameWebSocketClient extends WebSocketClient {
     }
 
     public void leaveTable() throws IncorrectClientActionException {
-        if (!this.state.is(ClientStateEnum.CONNECTED_TO_TABLE))
+        if (!(this.state.is(ClientStateEnum.CONNECTED_TO_TABLE) || this.state.is(ClientStateEnum.IN_GAME)))
             throw new IncorrectClientActionException("can not leave table as client state is " + this.state.string());
 
         this.sendJSON(new ClientQueries.LEAVE_TABLE("i am leaving"));
