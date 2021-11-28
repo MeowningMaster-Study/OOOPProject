@@ -15,6 +15,7 @@ public class Map {
     private final int zeroTileXPositionInArray;
     private final int zeroTileYPositionInArray;
     private final Vector2 size;
+    private int tilesCount;
     private final Vector2 minOccupiedCoordinate;
     private final Vector2 maxOccupiedCoordinate;
     private final List<GameField> linkedGameFields = new LinkedList<>();
@@ -79,9 +80,13 @@ public class Map {
     }
 
     private void setWithoutUpdate(int x, int y, Tile tile){
+        if(map[zeroTileXPositionInArray-y][zeroTileYPositionInArray+x] == null && tile != null)
+            this.tilesCount++;
+        else if(map[zeroTileXPositionInArray-y][zeroTileYPositionInArray+x] != null && tile == null)
+            this.tilesCount--;
+
         map[zeroTileXPositionInArray-y][zeroTileYPositionInArray+x] = tile;
         if(tile != null){
-            System.out.println("Setting tile "+tile.type);
             if (x < minOccupiedCoordinate.x) minOccupiedCoordinate.x = x;
             if (x > maxOccupiedCoordinate.x) maxOccupiedCoordinate.x = x;
             if (y < minOccupiedCoordinate.y) minOccupiedCoordinate.y = y;
@@ -149,7 +154,9 @@ public class Map {
     }
 
     public Vector2 getOccupiedSize(){
-        return maxOccupiedCoordinate.cpy().sub(minOccupiedCoordinate);
+        if(tilesCount == 0)
+            return new Vector2(0,0);
+        return maxOccupiedCoordinate.cpy().sub(minOccupiedCoordinate).add(1, 1);
     }
 
     public void generateRandom(int size){

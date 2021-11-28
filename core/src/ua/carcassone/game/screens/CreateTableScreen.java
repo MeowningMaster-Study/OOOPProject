@@ -101,7 +101,6 @@ public class CreateTableScreen implements Screen {
 
             }
         });
-
         return createButton;
     }
 

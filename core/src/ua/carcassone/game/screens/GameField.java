@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.TileTextureManager;
+import ua.carcassone.game.game.TileTypes;
 
 public class GameField {
     public Stage stage;
@@ -45,7 +46,6 @@ public class GameField {
     public void updateStage(){
         // can be updated by saving prev. field and only setting changed tiles
         // but is not needed as stage updates rarely
-        System.out.println("Stage update");
         float halfTile = tileSize/2.0f;
         stage.clear();
         for (int i = gameScreen.map.minX(); i <= gameScreen.map.maxX(); i++){ // для каждого столбца
@@ -61,11 +61,15 @@ public class GameField {
                 }
             }
         }
-
     }
 
     public void handleInput(float delta) {
+        handleNewInput();
+        calculateCamera(delta);
+        descendSpeed(delta);
+    }
 
+    private void handleNewInput(){
         // new input
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
             if(this.zoomSpeed == 0) {
@@ -84,7 +88,7 @@ public class GameField {
         }
 
         float maxTranslationSpeed = (float) (Settings.maxTranslationSpeed
-                        + Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxTranslationSpeedTilesPower));
+                + Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxTranslationSpeedTilesPower));
         if(Gdx.input.isKeyPressed(Input.Keys.A)) {
             this.translationSpeed.x = -maxTranslationSpeed;
         }
@@ -127,8 +131,9 @@ public class GameField {
             this.gameScreen.map.generateRandom(77);
             gameScreen.setDebugLabel("Generated random map size=77");
         }
+    }
 
-        // calculating camera based on input
+    private void calculateCamera(float delta){
         Vector2 translation = new Vector2(translationSpeed).cpy().scl(delta).scl(camera.zoom);
         camera.translate(translation);
 
@@ -141,14 +146,19 @@ public class GameField {
         if (camera.position.y > gameScreen.map.getMaxOccupiedCoordinate().y * tileSize  + camera.viewportHeight*camera.zoom/2 * Settings.possibleEmptyCameraPercent)
             camera.position.y = gameScreen.map.getMaxOccupiedCoordinate().y * tileSize + camera.viewportHeight*camera.zoom/2 * Settings.possibleEmptyCameraPercent;
 
-
         camera.zoom += zoomSpeed * delta;
-        if (camera.zoom > Settings.maxCameraZoom * Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxCameraZoomTilesPower))
+
+        if (camera.zoom > Settings.maxCameraZoom * Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxCameraZoomTilesPower)) {
             camera.zoom = (float) (Settings.maxCameraZoom * Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxCameraZoomTilesPower));
-        else if (camera.zoom < Settings.minCameraZoom) camera.zoom = Settings.minCameraZoom;
+        }
+        if (camera.zoom < Settings.minCameraZoom) {
+            camera.zoom = Settings.minCameraZoom;
+        }
 
+    }
 
-        // descend the speeds
+    private void descendSpeed(float delta){
+
         if (translationSpeed.x > 0){
             translationSpeed.x = Math.max(0, translationSpeed.x-Settings.translationSpeedDecrease*delta);
         }
@@ -175,8 +185,8 @@ public class GameField {
             if (zoomSpeed > -0.001)
                 zoomSpeed = 0;
         }
+    }
 
-}
 
     /**
      * Centers the camera on tile on map[x][y]

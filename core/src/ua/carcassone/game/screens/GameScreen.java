@@ -70,6 +70,7 @@ public class GameScreen implements Screen {
         tableIdLabel.setPosition(ELEMENT_WIDTH_UNIT * 2, Utils.fromTop(ELEMENT_HEIGHT_UNIT));
         stage.addActor(tableIdLabel);
 
+        // TODO move to hud and link to game logic
         Label tilesLeftLabel = new Label("Tiles left: "+this.tilesLeft, mySkin, "default");
         tilesLeftLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         tilesLeftLabel.setPosition(ELEMENT_WIDTH_UNIT * 6, (ELEMENT_HEIGHT_UNIT));
