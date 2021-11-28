@@ -35,7 +35,7 @@ public class JoinGameScreen implements Screen {
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
 
-        mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
+        mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
         Label carcassoneLabel = new Label("Join game", mySkin, "big");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
@@ -90,7 +90,7 @@ public class JoinGameScreen implements Screen {
                                 });
                             }
                             else {
-                                joinCodeField.setText("Couldn't connect");
+                                joinCodeField.setMessageText("Couldn't connect...");
                                 try {
                                     game.socketClient.restoreServerConnection();
                                 } catch (IncorrectClientActionException e) {

@@ -132,7 +132,7 @@ public class Map {
                 }
 
                 int tries = 0;
-                while (tries < 50){
+                while (tries < 96){
                     Tile tile = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
                     if (tile.canBePutBetween(this.get(i,j+1), this.get(i+1,j), this.get(i,j-1), this.get(i-1,j))) {
                         this.setWithoutUpdate(i, j, tile);

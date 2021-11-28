@@ -56,7 +56,7 @@ public class GameScreen implements Screen {
         viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height, camera);
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
-        Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
+        Skin mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
         debugLabel = new Label("Debug", mySkin, "default");
         debugLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);

@@ -46,7 +46,7 @@ public class GameHud {
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera());
         hudStage = new Stage(viewport, gameScreen.game.batch);
         Gdx.input.setInputProcessor(hudStage);
-        mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
+        mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
         currentTileObserver = new CurrentTileObserver();
         playersObserver = new PlayersObserver();
@@ -54,10 +54,10 @@ public class GameHud {
         menuButton = makeMenuButton("Menu");
         hudStage.addActor(menuButton);
 
-        leftRotateButton = makeRotateButton("left", "skin/icons/left.png");
+        leftRotateButton = makeRotateButton("left", "skins/icons/left.png");
         hudStage.addActor(leftRotateButton);
 
-        rightRotateButton = makeRotateButton("right", "skin/icons/right.png");
+        rightRotateButton = makeRotateButton("right", "skins/icons/right.png");
         hudStage.addActor(rightRotateButton);
     }
 
