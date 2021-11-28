@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.game.PCLPlayers;
 import ua.carcassone.game.networking.GameWebSocketClient;
 import ua.carcassone.game.networking.IncorrectClientActionException;
 
@@ -87,7 +88,12 @@ public class CreateTableScreen implements Screen {
                         (stateChange)->{
                             if ( stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE) {
                                 System.out.println("CHANGING TO A LOBBY SCREEN");
-                                Gdx.app.postRunnable(() -> game.setScreen(new LobbyScreen(game,  (String) stateChange.additionalInfo)));
+                                String tableId = (String) stateChange.additionalInfo[0];
+                                PCLPlayers pclPlayers = (PCLPlayers) stateChange.additionalInfo[1];
+                                System.out.println("Got PCL creating: "+pclPlayers);
+                                Gdx.app.postRunnable(() -> game.setScreen(
+                                        new LobbyScreen(game, tableId, pclPlayers))
+                                );
                             }
                         }
                 );

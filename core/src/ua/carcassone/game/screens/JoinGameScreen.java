@@ -2,6 +2,7 @@ package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -12,8 +13,14 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.game.PCLPlayers;
+import ua.carcassone.game.game.Player;
 import ua.carcassone.game.networking.GameWebSocketClient;
 import ua.carcassone.game.networking.IncorrectClientActionException;
+import ua.carcassone.game.networking.ServerQueries;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 import static ua.carcassone.game.Utils.*;
 
@@ -85,12 +92,16 @@ public class JoinGameScreen implements Screen {
                         (stateChange)->{
                             if ( stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE) {
                                 Gdx.app.postRunnable(() -> {
-                                    System.out.println("CHANGING TO A LOBBY SCREEN");
-                                    game.setScreen(new LobbyScreen(game, (String) stateChange.additionalInfo));
+                                    System.out.println(1);
+                                    String tableId = (String) stateChange.additionalInfo[0];
+                                    PCLPlayers pclPlayers = (PCLPlayers) stateChange.additionalInfo[1];
+                                    System.out.println(2);
+
+                                    game.setScreen(new LobbyScreen(game, tableId, pclPlayers));
                                 });
                             }
                             else {
-                                joinCodeField.setMessageText("Couldn't connect...");
+                                joinCodeField.setMessageText("Couldn't connect");
                                 try {
                                     game.socketClient.restoreServerConnection();
                                 } catch (IncorrectClientActionException e) {

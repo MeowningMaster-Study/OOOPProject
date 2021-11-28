@@ -50,7 +50,7 @@ public class LobbyScreen implements Screen {
     Label codeLabel;
 
 
-    public LobbyScreen(final CarcassoneGame game, String tableId) {
+    public LobbyScreen(final CarcassoneGame game, String tableId, PCLPlayers pclPlayers) {
         this.game = game;
         this.tableId = tableId;
 
@@ -63,11 +63,8 @@ public class LobbyScreen implements Screen {
         mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
         this.playersObserver = new PlayersObserver();
-        this.players = new PCLPlayers();
+        this.players = pclPlayers;
         this.players.addPCLListener(playersObserver);
-        this.players.setPlayers(new ArrayList<>(Arrays.asList(
-                new Player("You", "CLIENT", Color.WHITE)
-        )));
         game.socketClient.setPCLPlayers(this.players);
 
         GameWebSocketClient.stateSingleObserver changeObserver = new GameWebSocketClient.stateSingleObserver(
@@ -76,7 +73,10 @@ public class LobbyScreen implements Screen {
                         Gdx.app.postRunnable(() -> {
                             System.out.println("CHANGING TO A GAME SCREEN "+this.getClass().getSimpleName());
                             players.removePCLListener(playersObserver);
-                            game.setScreen(new GameScreen(game, this.tableId, (int) stateChange.additionalInfo, players));
+                            int tiles = (int) stateChange.additionalInfo[0];
+                            game.setScreen(
+                                    new GameScreen(game, this.tableId, tiles, players)
+                            );
                         });
                     }
                 }
@@ -237,7 +237,8 @@ public class LobbyScreen implements Screen {
     }
 
     private void drawPlayers(){
-        float size = playersObserver.players.size();
+        System.out.println("Drawing "+players.getPlayers());
+        float size = players.getPlayers().size();
         float heightSpacing = 20;
         float top = Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2);
         float left = fromRight(ELEMENT_WIDTH_UNIT * 2);
@@ -248,7 +249,7 @@ public class LobbyScreen implements Screen {
         stage.addActor(playersLabel);
 
         for (int i = 0; i < size; ++i) {
-            Player player = playersObserver.players.get(i);
+            Player player = players.getPlayers().get(i);
 
             Label pName = new Label(player.getName(), mySkin, "narration");
             pName.setSize(150, 40);
@@ -258,10 +259,8 @@ public class LobbyScreen implements Screen {
     }
 
     private class PlayersObserver implements PropertyChangeListener {
-        private ArrayList<Player> players = new ArrayList<>();
-
         public void propertyChange(PropertyChangeEvent evt){
-            this.players = (ArrayList<Player>) evt.getNewValue();
+            System.out.println("AAAAAAAAAAAAAAAAAH PROPERTY CHANGED SENPAIII");
             updateStage();
         }
     }
