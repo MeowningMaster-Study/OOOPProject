@@ -7,12 +7,19 @@ public class Player {
     private final String code;
     private Color color;
     private int meepleCount = 0;
-    public boolean left = false;
+    private boolean isClient = false;
 
     public Player(String name, String code, Color color) {
         this.name = name;
         this.code = code;
         this.color = color;
+    }
+
+    public Player(String name, String code, Color color, boolean isClient) {
+        this.name = name;
+        this.code = code;
+        this.color = color;
+        this.isClient = isClient;
     }
 
 
@@ -30,5 +37,9 @@ public class Player {
 
     public void setColor(Color color) {
         this.color = color;
+    }
+
+    public boolean isClient() {
+        return isClient;
     }
 }

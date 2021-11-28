@@ -140,9 +140,18 @@ public class GameHud {
             pImage.setSize(100, 100);
             hudStage.addActor(pImage);
 
+            System.out.println("Drawing for "+
+                    (gameScreen.players.isTurnOf(player)?"=> ":"")+
+                    player.getName()+
+                    player.getColor()
+            );
             Label pName = new Label(
-                    (gameScreen.players.isTurnOf(player)?"=> ":"")+player.getName(),
-                    new Label.LabelStyle(new BitmapFont(), player.getColor())
+                    (gameScreen.players.isTurnOf(player)?"=> ":"")+
+                            player.getName()
+                    ,
+//                    new Label.LabelStyle(new BitmapFont(), player.getColor())
+                    mySkin,
+                    "alt"
             );
             pName.setSize(100, 20);
             pName.setPosition(pImage.getX(), pImage.getY());
