@@ -10,6 +10,7 @@ import java.util.List;
 public class TileTextureManager {
     private final List<List<Texture>> textures = new LinkedList<>();
     private int minTileSize = new Texture(Gdx.files.internal("skins/classic-tiles/1-0.png")).getWidth();
+    private Texture borderTexture, innerBorderTexture, rotateClockwiseTexture, rotateAnticlockwiseTexture;
 
     public TileTextureManager() {
         for (int i = 0; i <= 24; i++){
@@ -22,6 +23,10 @@ public class TileTextureManager {
             }
             textures.add(i, tileTextures);
         }
+        this.borderTexture = new Texture(Gdx.files.internal("skins/icons/tile-border.png"));
+        this.innerBorderTexture = new Texture(Gdx.files.internal("skins/icons/tile-inner-border.png"));
+        this.rotateClockwiseTexture = new Texture(Gdx.files.internal("skins/icons/clockwiseRotate.png"));
+        this.rotateAnticlockwiseTexture = new Texture(Gdx.files.internal("skins/icons/left.png"));
     }
 
     public Texture getTexture(int tileTypeId, int rotation){
@@ -38,5 +43,21 @@ public class TileTextureManager {
 
     public int getMinTileSize() {
         return minTileSize;
+    }
+
+    public Texture getInnerBorderTexture() {
+        return innerBorderTexture;
+    }
+
+    public Texture getBorderTexture() {
+        return borderTexture;
+    }
+
+    public Texture getRotateAnticlockwiseTexture() {
+        return rotateAnticlockwiseTexture;
+    }
+
+    public Texture getRotateClockwiseTexture() {
+        return rotateClockwiseTexture;
     }
 }

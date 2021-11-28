@@ -1,6 +1,7 @@
 package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -40,6 +41,7 @@ public class GameScreen implements Screen {
     public final Map map;
     public PCLPlayers players;
     public PCLCurrentTile currentTile;
+    public InputMultiplexer inputMultiplexer;
   
     private final Label debugLabel;
     public boolean isPaused;
@@ -49,6 +51,10 @@ public class GameScreen implements Screen {
         this.tableId = tableId;
         this.tilesLeft = tilesLeft;
         this.map = new Map();
+        this.players = players;
+
+        this.inputMultiplexer = new InputMultiplexer();
+
 
         pauseScreen = null;
         isPaused = false;
@@ -80,7 +86,7 @@ public class GameScreen implements Screen {
         hud = new GameHud(this);
         field = new GameField(this);
 
-        this.players = players;
+
         this.players.addPCLListener(hud.playersObserver);
         this.map.setRelatedPlayers(this.players);
         currentTile = new PCLCurrentTile();
@@ -91,6 +97,7 @@ public class GameScreen implements Screen {
         if (currentTile.getCurrentTile() == null){
             currentTile.setTile(new Tile(TileTypes.get(0), 0));
         }
+        Gdx.input.setInputProcessor(this.inputMultiplexer);
     }
 
     @Override

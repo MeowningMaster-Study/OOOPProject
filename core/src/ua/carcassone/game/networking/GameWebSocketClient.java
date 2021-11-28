@@ -227,9 +227,7 @@ public class GameWebSocketClient extends WebSocketClient {
     private PCLPlayers getPclPlayers(){
         if(this.pclPlayers == null) {
             this.pclPlayers = new PCLPlayers();
-            this.pclPlayers.addPlayer(
-                    new Player("You", "CLIENT", Color.WHITE)
-            );
+            this.pclPlayers.addPlayer("CLIENT", true);
         }
         return this.pclPlayers;
     }

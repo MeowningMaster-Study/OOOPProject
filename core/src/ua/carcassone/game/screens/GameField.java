@@ -3,17 +3,31 @@ package ua.carcassone.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.game.Tile;
 import ua.carcassone.game.game.TileTextureManager;
-import ua.carcassone.game.game.TileTypes;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Objects;
 
 import static ua.carcassone.game.Settings.shiftTranslationCoefficient;
+import static ua.carcassone.game.Utils.ELEMENT_HEIGHT_UNIT;
+import static ua.carcassone.game.Utils.ELEMENT_WIDTH_UNIT;
 
 public class GameField {
     public Stage stage;
@@ -26,7 +40,7 @@ public class GameField {
     private final Vector2 fieldSize;
     private final Vector2 translationSpeed;
     private float zoomSpeed;
-
+    private CurrentPlayerObserver currentPlayerObserver;
 
     public GameField(GameScreen gameScreen){
         this.textureManager = new TileTextureManager();
@@ -38,6 +52,10 @@ public class GameField {
         this.viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), this.camera);
         this.stage = new Stage(viewport, gameScreen.game.batch);
         this.translationSpeed = new Vector2(0f, 0f);
+        gameScreen.inputMultiplexer.addProcessor(this.stage);
+
+        this.currentPlayerObserver = new CurrentPlayerObserver();
+        this.gameScreen.players.addPCLListener(this.currentPlayerObserver);
         gameScreen.map.linkGameField(this);
         centerCameraOnTile(0,0);
     }
@@ -48,6 +66,7 @@ public class GameField {
     public void updateStage(){
         // can be updated by saving prev. field and only setting changed tiles
         // but is not needed as stage updates rarely
+        System.out.println("Updating gameField stage");
         float halfTile = tileSize/2.0f;
         stage.clear();
         for (int i = gameScreen.map.minX(); i <= gameScreen.map.maxX(); i++){ // для каждого столбца
@@ -60,10 +79,64 @@ public class GameField {
                     image.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
                     image.setSize(tileSize, tileSize);
                     stage.addActor(image);
+
+                    if(gameScreen.map.get(i, j).purpose == Tile.TilePurpose.IMAGINARY_SELECTED){
+                        Image rotateImage = new Image(textureManager.getRotateClockwiseTexture());
+                        rotateImage.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
+                        rotateImage.setSize(tileSize, tileSize);
+                        stage.addActor(rotateImage);
+
+                        Texture imageTexture = textureManager.getBorderTexture();
+                        Drawable imageDrawable = new TextureRegionDrawable(new TextureRegion(imageTexture));
+                        ImageButton imageButton = new ImageButton(imageDrawable);
+                        imageButton.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
+                        imageButton.setSize(tileSize, tileSize);
+                        imageButton.addListener(new InputListener(){
+                            @Override
+                            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                                return true;
+                            }
+
+                            @Override
+                            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                                Gdx.app.postRunnable(gameScreen.map::rotateSelectedTile);
+                            }
+                        });
+                        stage.addActor(imageButton);
+                    }
                 }
             }
         }
 
+
+        if(gameScreen.players.isCurrentPlayerClient()){
+
+            ArrayList<Vector2> availableTileSpots =
+                    gameScreen.map.getAvailableSpots(gameScreen.currentTile.getCurrentTile().type);
+            for (Vector2 coordinate : availableTileSpots) {
+                Texture imageTexture = textureManager.getInnerBorderTexture();
+                Drawable imageDrawable = new TextureRegionDrawable(new TextureRegion(imageTexture));
+                ImageButton imageButton = new ImageButton(imageDrawable);
+                imageButton.setPosition(coordinate.x*tileSize-halfTile, coordinate.y*tileSize-halfTile);
+                imageButton.setSize(tileSize, tileSize);
+                imageButton.addListener(new InputListener(){
+                    @Override
+                    public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                        return true;
+                    }
+
+                    @Override
+                    public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                        Gdx.app.postRunnable(() -> gameScreen.map.setSelectedTile((int) coordinate.x, (int) coordinate.y,
+                                gameScreen.currentTile.getCurrentTile().type));
+                    }
+                });
+                stage.addActor(imageButton);
+
+            }
+        }
+
+        gameScreen.setDebugLabel("Cuurent player is "+gameScreen.players.getCurrentPlayer());
     }
 
     public void handleInput(float delta) {
@@ -216,6 +289,13 @@ public class GameField {
         float minScreenDimension = Math.min(camera.viewportWidth, camera.viewportHeight);
         float neededTileSize = minScreenDimension/tilesQuantity;
         camera.zoom = tileSize/neededTileSize;
+    }
+
+    private class CurrentPlayerObserver implements PropertyChangeListener {
+        public void propertyChange(PropertyChangeEvent evt){
+            if (Objects.equals(evt.getPropertyName(), "currentPlayer"))
+                updateStage();
+        }
     }
 
 
