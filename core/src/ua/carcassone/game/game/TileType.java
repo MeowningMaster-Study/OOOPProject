@@ -38,4 +38,5 @@ public class TileType {
                 "sides=" + Arrays.toString(sides) +
                 '}';
     }
+
 }

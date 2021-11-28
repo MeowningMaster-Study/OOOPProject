@@ -3,7 +3,6 @@ package ua.carcassone.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -211,7 +210,7 @@ public class GameHud {
 //        rightRotateButton.setTouchable(Touchable.enabled);
 //        leftRotateButton.setTouchable(Touchable.enabled);
 
-        Gdx.input.setInputProcessor(hudStage);
+        Gdx.input.setInputProcessor(gameScreen.inputMultiplexer);
 
     }
 }

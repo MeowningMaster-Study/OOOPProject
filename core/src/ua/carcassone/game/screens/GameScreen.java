@@ -52,6 +52,7 @@ public class GameScreen implements Screen {
         this.tilesLeft = tilesLeft;
         this.map = new Map();
         this.players = players;
+        this.currentTile = new PCLCurrentTile();
 
         this.inputMultiplexer = new InputMultiplexer();
 
@@ -89,7 +90,6 @@ public class GameScreen implements Screen {
 
         this.players.addPCLListener(hud.playersObserver);
         this.map.setRelatedPlayers(this.players);
-        currentTile = new PCLCurrentTile();
         currentTile.addPCLListener(hud.currentTileObserver);
         game.socketClient.setPCLCurrentTile(currentTile);
         game.socketClient.setMap(this.map);

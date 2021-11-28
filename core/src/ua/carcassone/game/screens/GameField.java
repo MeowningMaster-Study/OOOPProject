@@ -19,6 +19,7 @@ import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.Tile;
 import ua.carcassone.game.game.TileTextureManager;
+import ua.carcassone.game.game.TileTypes;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -41,6 +42,7 @@ public class GameField {
     private final Vector2 translationSpeed;
     private float zoomSpeed;
     private CurrentPlayerObserver currentPlayerObserver;
+    private CurrentTileObserver currentTileObserver;
 
     public GameField(GameScreen gameScreen){
         this.textureManager = new TileTextureManager();
@@ -54,6 +56,8 @@ public class GameField {
         this.translationSpeed = new Vector2(0f, 0f);
         gameScreen.inputMultiplexer.addProcessor(this.stage);
 
+        this.currentTileObserver = new CurrentTileObserver();
+        this.gameScreen.currentTile.addPCLListener(this.currentTileObserver);
         this.currentPlayerObserver = new CurrentPlayerObserver();
         this.gameScreen.players.addPCLListener(this.currentPlayerObserver);
         gameScreen.map.linkGameField(this);
@@ -72,19 +76,19 @@ public class GameField {
         for (int i = gameScreen.map.minX(); i <= gameScreen.map.maxX(); i++){ // для каждого столбца
             for (int j = gameScreen.map.maxY(); j >= gameScreen.map.minY(); j--){ // для каждой строки
                 if (gameScreen.map.get(i, j) != null){
-                    Image image = new Image(
-                            textureManager.getTexture(gameScreen.map.get(i, j).type,
-                                    gameScreen.map.get(i, j).rotation)
-                    );
+                    Tile tile = gameScreen.map.get(i, j);
+                    Image image = new Image(textureManager.getTexture(tile.type, tile.rotation));
                     image.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
                     image.setSize(tileSize, tileSize);
                     stage.addActor(image);
 
-                    if(gameScreen.map.get(i, j).purpose == Tile.TilePurpose.IMAGINARY_SELECTED){
-                        Image rotateImage = new Image(textureManager.getRotateClockwiseTexture());
-                        rotateImage.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
-                        rotateImage.setSize(tileSize, tileSize);
-                        stage.addActor(rotateImage);
+                    if(tile.purpose == Tile.TilePurpose.IMAGINARY_SELECTED){
+                        if(gameScreen.map.getAvailableRotations(i, j, tile.type).size() > 1){
+                            Image rotateImage = new Image(textureManager.getRotateClockwiseTexture(tile.rotation));
+                            rotateImage.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
+                            rotateImage.setSize(tileSize, tileSize);
+                            stage.addActor(rotateImage);
+                        }
 
                         Texture imageTexture = textureManager.getBorderTexture();
                         Drawable imageDrawable = new TextureRegionDrawable(new TextureRegion(imageTexture));
@@ -109,7 +113,7 @@ public class GameField {
         }
 
 
-        if(gameScreen.players.isCurrentPlayerClient()){
+        if(gameScreen.players.isCurrentPlayerClient() &&  TileTypes.isGamingTile(gameScreen.currentTile.getCurrentTile())){
 
             ArrayList<Vector2> availableTileSpots =
                     gameScreen.map.getAvailableSpots(gameScreen.currentTile.getCurrentTile().type);
@@ -294,6 +298,13 @@ public class GameField {
     private class CurrentPlayerObserver implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent evt){
             if (Objects.equals(evt.getPropertyName(), "currentPlayer"))
+                updateStage();
+        }
+    }
+
+    private class CurrentTileObserver implements PropertyChangeListener{
+        public void propertyChange(PropertyChangeEvent evt){
+            if(Objects.equals(evt.getPropertyName(), "currentTile"))
                 updateStage();
         }
     }

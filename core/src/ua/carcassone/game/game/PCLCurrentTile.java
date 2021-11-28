@@ -27,4 +27,8 @@ public class PCLCurrentTile{
     public Tile getCurrentTile() {
         return currentTile;
     }
+
+    public boolean isSet(){
+        return currentTile != null && currentTile.type != null;
+    }
 }
