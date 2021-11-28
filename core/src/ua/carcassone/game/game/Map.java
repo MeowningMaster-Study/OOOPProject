@@ -109,6 +109,10 @@ public class Map {
         }
     }
 
+    public void setRelatedPlayers(PCLPlayers relatedPlayers) {
+        this.relatedPlayers = relatedPlayers;
+    }
+
     public void set(Vector2 pos, Tile tile){
         set((int) pos.x, (int) pos.y, tile);
     }

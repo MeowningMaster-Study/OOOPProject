@@ -49,7 +49,7 @@ public class LobbyScreen implements Screen {
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
 
-        mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
+        mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
         this.playersObserver = new PlayersObserver();
         this.players = new PCLPlayers();
