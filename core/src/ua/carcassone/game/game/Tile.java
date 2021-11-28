@@ -34,25 +34,28 @@ public class Tile {
         this.type = tile.type;
         this.rotation = tile.rotation;
         this.purpose = tile.purpose;
-        this.meeple = null;
+        this.meeple = new Meeple(null, 0);
     }
 
     public Tile(Tile tile, TilePurpose purpose){
         this.type = tile.type;
         this.rotation = tile.rotation;
         this.purpose = purpose;
-        this.meeple = null;
+        this.meeple = new Meeple(null, 0);
     }
 
     public Tile(TileType type, int rotation) {
         this.type = type;
         this.rotation = rotation;
+        this.meeple = new Meeple(
+                null, 0);
     }
 
     public Tile(TileType type, int rotation, TilePurpose purpose) {
         this.type = type;
         this.rotation = rotation;
         this.purpose = purpose;
+        this.meeple = new Meeple(null, 0);
     }
 
     public Tile(ServerQueries.TILE_PUTTED.Tile serverTile, Player relatedPlayer){
@@ -100,7 +103,7 @@ public class Tile {
     @Override
     public String toString() {
         return "Tile{" +
-                "sides=" + Arrays.toString(type.sides) +
+                "sides=" + (type != null ? Arrays.toString(type.sides) : "null" )+
                 ", rotation=" + rotation +
                 '}';
     }

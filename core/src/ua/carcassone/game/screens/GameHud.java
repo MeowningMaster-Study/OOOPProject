@@ -130,7 +130,6 @@ public class GameHud {
 
     private void drawPlayers(){
         float size = gameScreen.players.getPlayers().size();
-        System.out.println("drawing "+size+" players");
 
         float heightCoeff = Gdx.graphics.getHeight() / ((size + 1) * ELEMENT_HEIGHT_UNIT);
         for (int i = 0; i < size; ++i) {

@@ -70,7 +70,7 @@ public class GameField {
     public void updateStage(){
         // can be updated by saving prev. field and only setting changed tiles
         // but is not needed as stage updates rarely
-        System.out.println("Updating gameField stage");
+        // System.out.println("Updating gameField stage");
         float halfTile = tileSize/2.0f;
         stage.clear();
         for (int i = gameScreen.map.minX(); i <= gameScreen.map.maxX(); i++){ // для каждого столбца
@@ -112,7 +112,8 @@ public class GameField {
             }
         }
 
-
+        System.out.println(gameScreen.currentTile.getCurrentTile());
+        System.out.println(TileTypes.isGamingTile(gameScreen.currentTile.getCurrentTile()));
         if(gameScreen.players.isCurrentPlayerClient() &&  TileTypes.isGamingTile(gameScreen.currentTile.getCurrentTile())){
 
             ArrayList<Vector2> availableTileSpots =
@@ -211,6 +212,13 @@ public class GameField {
         if(Gdx.input.isKeyPressed(Input.Keys.NUM_4)) {
             this.gameScreen.map.generateRandom(77);
             gameScreen.setDebugLabel("Generated random map size=77");
+        }
+
+        if(Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
+            if (gameScreen.map.hasSelectedTile()) {
+                gameScreen.currentTile.setTile(new Tile(TileTypes.get(0), 0));
+                gameScreen.map.confirmSelectedTile();
+            }
         }
     }
 

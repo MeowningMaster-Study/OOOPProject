@@ -56,7 +56,9 @@ public class ServerQueries {
 
     public static class TILE_PUTTED {
         public String action;
+        public String playerId;
         public Tile tile;
+
 
         public static class Tile{
             public int type;

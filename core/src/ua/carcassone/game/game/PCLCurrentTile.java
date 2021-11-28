@@ -20,8 +20,9 @@ public class PCLCurrentTile{
     }
 
     public void setTile(Tile newTile){
-        support.firePropertyChange("currentTile", this.currentTile, newTile);
+        Tile prevTile = this.currentTile;
         this.currentTile = newTile;
+        support.firePropertyChange("currentTile", prevTile, newTile);
     }
 
     public Tile getCurrentTile() {

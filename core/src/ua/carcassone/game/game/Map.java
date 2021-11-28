@@ -2,6 +2,8 @@ package ua.carcassone.game.game;
 
 import com.badlogic.gdx.math.Vector2;
 import ua.carcassone.game.Settings;
+import ua.carcassone.game.networking.GameWebSocketClient;
+import ua.carcassone.game.networking.IncorrectClientActionException;
 import ua.carcassone.game.networking.ServerQueries;
 import ua.carcassone.game.screens.GameField;
 import ua.carcassone.game.screens.GameHud;
@@ -23,6 +25,7 @@ public class Map {
     private final List<GameField> linkedGameFields = new LinkedList<>();
     private final List<GameHud> linkedGameHuds = new LinkedList<>();
     private PCLPlayers relatedPlayers;
+    private GameWebSocketClient relatedClient;
 
     public Map(Tile tile, int columns, int rows) {
         this.map = new Tile[rows][columns];
@@ -73,7 +76,18 @@ public class Map {
 
     public void setByPlayer(int x, int y, Tile tile){
         set(x, y, tile);
+        if(relatedPlayers.isCurrentPlayerClient()){
+            try {
+                relatedClient.putTile(x, y, tile.rotation, tile.meeple.position);
+            } catch (IncorrectClientActionException e) {
+                e.printStackTrace();
+            }
+        }
         relatedPlayers.passTurn();
+    }
+
+    public void setByPlayer(Vector2 pos, Tile tile){
+        setByPlayer((int) pos.x, (int) pos.y, tile);
     }
 
     public void setByPlayer(ServerQueries.TILE_PUTTED.Tile tile){
@@ -96,6 +110,14 @@ public class Map {
             if (y < minOccupiedCoordinate.y) minOccupiedCoordinate.y = y;
             if (y > maxOccupiedCoordinate.y) maxOccupiedCoordinate.y = y;
         }
+    }
+
+    public void confirmSelectedTile(){
+        Vector2 coordinate = this.selectedTileCoordinate;
+        Tile selected = this.get(coordinate);
+        selected.purpose = Tile.TilePurpose.LEGIT;
+        this.selectedTileCoordinate = null;
+        setByPlayer(coordinate, selected);
     }
 
     private void recalculateOccupiedCoordinates(){
@@ -272,12 +294,18 @@ public class Map {
             System.out.println("SELECTED != null");
             this.set(this.selectedTileCoordinate, null);
         }
-        this.set(x, y, new Tile(tile, getAvailableRotations(x, y, tile).get(0), Tile.TilePurpose.IMAGINARY_SELECTED));
+        ArrayList<Integer> availableRotations = getAvailableRotations(x, y, tile);
+        if (availableRotations.size() == 0){
+            availableRotations = getAvailableRotations(x, y, tile);
+        }
+        this.set(x, y, new Tile(tile, availableRotations.get(0), Tile.TilePurpose.IMAGINARY_SELECTED));
         this.selectedTileCoordinate = new Vector2(x, y);
         updateLinkedStages();
     }
 
     public void rotateSelectedTile(){
+        if(selectedTileCoordinate == null)
+            return;
         Tile selectedTile = this.get(selectedTileCoordinate);
         ArrayList<Integer> availableRotations = this.getAvailableRotations(selectedTileCoordinate, selectedTile.type);
         int currentRotationIndex = availableRotations.indexOf(selectedTile.rotation);
@@ -286,4 +314,11 @@ public class Map {
     }
 
 
+    public void setRelatedClient(GameWebSocketClient relatedClient) {
+        this.relatedClient = relatedClient;
+    }
+
+    public boolean hasSelectedTile(){
+        return this.selectedTileCoordinate != null;
+    }
 }

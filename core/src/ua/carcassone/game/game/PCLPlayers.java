@@ -93,7 +93,6 @@ public class PCLPlayers{
             this.currentPlayer = players.get((players.indexOf(currentPlayer)+1)%players.size());
         }
 
-        System.out.println("now it is "+this.getCurrentPlayer()+" "+this.currentPlayer.isClient());
         support.firePropertyChange("currentPlayer", prevPlayer, this.currentPlayer);
     }
 

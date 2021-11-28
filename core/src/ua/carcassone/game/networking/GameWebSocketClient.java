@@ -273,6 +273,13 @@ public class GameWebSocketClient extends WebSocketClient {
         this.state.set(ClientStateEnum.CREATING_TABLE);
     }
 
+    public void putTile(int x, int y, int rotation, int meeple) throws IncorrectClientActionException {
+        if (!this.state.is(ClientStateEnum.IN_GAME))
+            throw new IncorrectClientActionException("can not put a tile as client state is " + this.state.string());
+
+        this.sendJSON(new ClientQueries.PUT_TILE(x, y, rotation, meeple));
+    }
+
     public void restoreServerConnection() throws IncorrectClientActionException {
         System.out.println("Restoring connection");
         switch (this.state.state()){
@@ -307,6 +314,7 @@ public class GameWebSocketClient extends WebSocketClient {
 
     public void setMap(Map relatedMap) {
         this.relatedMap = relatedMap;
+        relatedMap.setRelatedClient(this);
         if(this.pclPlayers != null && !cachedPuttedTiles.isEmpty()){
             while (!cachedPuttedTiles.isEmpty()){
                 TILE_PUTTED.Tile tile = cachedPuttedTiles.remove();
@@ -401,6 +409,7 @@ public class GameWebSocketClient extends WebSocketClient {
     }
 
     public void sendJSON(Object o){
+        System.out.println("Sending: "+jsonConverter.toJson(o));
         this.send(jsonConverter.toJson(o));
     }
     public ClientStateEnum getState(){

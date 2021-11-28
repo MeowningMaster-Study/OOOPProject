@@ -46,6 +46,11 @@ public class ClientQueries {
         static class Position{
             public int x;
             public int y;
+
+            public Position(int x, int y){
+                this.x = x;
+                this.y = y;
+            }
         }
 
         public Position position;
@@ -53,9 +58,7 @@ public class ClientQueries {
         public int meeple;
 
         public PUT_TILE(int x, int y, int rotation, int meeple){
-            this.position = new Position();
-            this.position.x = x;
-            this.position.y = y;
+            this.position = new Position(x, y);
             this.rotation = rotation;
             this.meeple = meeple;
         }
