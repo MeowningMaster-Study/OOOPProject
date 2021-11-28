@@ -9,13 +9,13 @@ import java.util.List;
 
 public class TileTextureManager {
     private final List<List<Texture>> textures = new LinkedList<>();
-    private int minTileSize = new Texture(Gdx.files.internal("skin/classic-tiles/1-0.png")).getWidth();
+    private int minTileSize = new Texture(Gdx.files.internal("skins/classic-tiles/1-0.png")).getWidth();
 
     public TileTextureManager() {
         for (int i = 0; i <= 24; i++){
             List<Texture> tileTextures = new LinkedList<>();
             for (int j = 0; j <= 3; j++){
-                Texture texture = new Texture(Gdx.files.internal("skin/classic-tiles/"+i+"-"+j+".png"));
+                Texture texture = new Texture(Gdx.files.internal("skins/classic-tiles/"+i+"-"+j+".png"));
                 if (texture.getHeight() < minTileSize) minTileSize = texture.getHeight();
                 if  (texture.getWidth() < minTileSize) minTileSize = texture.getWidth();
                 tileTextures.add(j, texture);

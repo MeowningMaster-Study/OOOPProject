@@ -46,7 +46,7 @@ public class GameHud {
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera());
         hudStage = new Stage(viewport, gameScreen.game.batch);
         Gdx.input.setInputProcessor(hudStage);
-        mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
+        mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
         currentTileObserver = new CurrentTileObserver();
         playersObserver = new PlayersObserver();
@@ -54,10 +54,10 @@ public class GameHud {
         menuButton = makeMenuButton("Menu");
         hudStage.addActor(menuButton);
 
-        leftRotateButton = makeRotateButton("left", "skin/icons/left.png");
+        leftRotateButton = makeRotateButton("left", "skins/icons/left.png");
         hudStage.addActor(leftRotateButton);
 
-        rightRotateButton = makeRotateButton("right", "skin/icons/right.png");
+        rightRotateButton = makeRotateButton("right", "skins/icons/right.png");
         hudStage.addActor(rightRotateButton);
     }
 
@@ -125,7 +125,6 @@ public class GameHud {
         hudStage.addActor(rightRotateButton);
         hudStage.addActor(leftRotateButton);
 
-        System.out.println("updated");
     }
 
     private void drawPlayers(){
@@ -191,30 +190,20 @@ public class GameHud {
     }
 
     public void pause(){
+
         menuButton.setTouchable(Touchable.disabled);
         rightRotateButton.setTouchable(Touchable.disabled);
         leftRotateButton.setTouchable(Touchable.disabled);
 
-        menuButton.setDisabled(true);
-        rightRotateButton.setDisabled(true);
-        leftRotateButton.setDisabled(true);
-
-
     }
 
     public void resume(){
-        System.out.println("resumed");
+
         menuButton.setTouchable(Touchable.enabled);
         rightRotateButton.setTouchable(Touchable.enabled);
         leftRotateButton.setTouchable(Touchable.enabled);
 
-        menuButton.setDisabled(false);
-        System.out.println(menuButton.isDisabled());
-        rightRotateButton.setDisabled(false);
-        System.out.println(rightRotateButton.isDisabled());
-        leftRotateButton.setDisabled(false);
-        System.out.println(leftRotateButton.isDisabled());
-
+        Gdx.input.setInputProcessor(hudStage);
 
     }
 }

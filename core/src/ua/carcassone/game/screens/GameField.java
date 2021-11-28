@@ -13,6 +13,8 @@ import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.TileTextureManager;
 import ua.carcassone.game.game.TileTypes;
 
+import static ua.carcassone.game.Settings.shiftTranslationCoefficient;
+
 public class GameField {
     public Stage stage;
     private Viewport viewport;
@@ -61,6 +63,7 @@ public class GameField {
                 }
             }
         }
+
     }
 
     public void handleInput(float delta) {
@@ -70,6 +73,7 @@ public class GameField {
     }
 
     private void handleNewInput(){
+        float shift = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) ? shiftTranslationCoefficient : 0f;
         // new input
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
             if(this.zoomSpeed == 0) {
@@ -90,16 +94,16 @@ public class GameField {
         float maxTranslationSpeed = (float) (Settings.maxTranslationSpeed
                 + Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxTranslationSpeedTilesPower));
         if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            this.translationSpeed.x = -maxTranslationSpeed;
+            this.translationSpeed.x = -maxTranslationSpeed * (1 + shift);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            this.translationSpeed.x = maxTranslationSpeed;
+            this.translationSpeed.x = maxTranslationSpeed * (1 + shift);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.S)) {
-            this.translationSpeed.y = -maxTranslationSpeed;
+            this.translationSpeed.y = -maxTranslationSpeed * (1 + shift);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
-            this.translationSpeed.y = maxTranslationSpeed;
+            this.translationSpeed.y = maxTranslationSpeed * (1 + shift);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.Z)) {

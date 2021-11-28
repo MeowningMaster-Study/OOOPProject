@@ -39,7 +39,7 @@ public class CreateTableScreen implements Screen {
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
 
-        mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
+        mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
         Label carcassoneLabel = new Label("Create Table", mySkin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);

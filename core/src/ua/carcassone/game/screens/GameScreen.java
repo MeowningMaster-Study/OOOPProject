@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
+
 import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.*;
@@ -29,7 +30,7 @@ public class GameScreen implements Screen {
     private final OrthographicCamera camera;
     public Viewport viewport;
 
-    private final Stage stage;
+    public final Stage stage;
     public final GameHud hud;
     private final GameField field;
     private final String tableId;
@@ -52,13 +53,12 @@ public class GameScreen implements Screen {
         pauseScreen = null;
         isPaused = false;
 
-
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
         viewport = new FitViewport(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height, camera);
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
-        Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
+        Skin mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
         debugLabel = new Label("Debug", mySkin, "default");
         debugLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
@@ -159,10 +159,6 @@ public class GameScreen implements Screen {
     public void dispose() {
         stage.dispose();
     }
-
-
-
-
 
     public void setDebugLabel(String val){
         debugLabel.setText(val);
