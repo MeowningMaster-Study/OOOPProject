@@ -4,11 +4,17 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -19,9 +25,11 @@ import ua.carcassone.game.game.Player;
 import ua.carcassone.game.networking.GameWebSocketClient;
 import ua.carcassone.game.networking.IncorrectClientActionException;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -37,6 +45,9 @@ public class LobbyScreen implements Screen {
     private Skin mySkin;
     private PCLPlayers players;
     private PlayersObserver playersObserver;
+
+    Label carcassoneLabel;
+    Label codeLabel;
 
 
     public LobbyScreen(final CarcassoneGame game, String tableId) {
@@ -74,6 +85,35 @@ public class LobbyScreen implements Screen {
 
 
         updateStage();
+    }
+
+    private ImageButton makeCopyButton(String path){
+        Texture copyTexture = new Texture(Gdx.files.internal(path));
+        Drawable copyDrawable = new TextureRegionDrawable(new TextureRegion(copyTexture));
+        ImageButton copyButton = new ImageButton(copyDrawable);
+
+        copyButton.setPosition(codeLabel.getX()+codeLabel.getWidth()+ELEMENT_WIDTH_UNIT + 40, codeLabel.getY());
+        copyButton.setSize(50, 50);
+
+
+        copyButton.addListener(new InputListener(){
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                return true;
+            }
+
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                copyStringInBuffer(tableId);
+            }
+        });
+        return copyButton;
+    }
+
+    private void copyStringInBuffer(String message){
+        final StringSelection stringSelection = new StringSelection(message);
+        final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
     }
 
     private Button makeStartGameButton(String name){
@@ -169,15 +209,18 @@ public class LobbyScreen implements Screen {
     private void updateStage(){
         stage.clear();
 
-        Label carcassoneLabel = new Label("Lobby", mySkin, "title");
+        carcassoneLabel = new Label("Lobby", mySkin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
 
-        Label codeLabel = new Label("Join Code:", mySkin, "big");
+        codeLabel = new Label("Join Code:", mySkin, "big");
         codeLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         codeLabel.setPosition(carcassoneLabel.getX(), carcassoneLabel.getY()-ELEMENT_HEIGHT_UNIT);
         stage.addActor(codeLabel);
+
+        Button copyButton = makeCopyButton("skins/utils/copy.png");
+        stage.addActor(copyButton);
 
         Label code = new Label(this.tableId, mySkin, "half-tone");
         code.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
