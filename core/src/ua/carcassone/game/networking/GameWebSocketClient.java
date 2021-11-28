@@ -227,9 +227,7 @@ public class GameWebSocketClient extends WebSocketClient {
     private PCLPlayers getPclPlayers(){
         if(this.pclPlayers == null) {
             this.pclPlayers = new PCLPlayers();
-            this.pclPlayers.addPlayer(
-                    new Player("You", "CLIENT", Color.WHITE)
-            );
+            this.pclPlayers.addPlayer("CLIENT", true);
         }
         return this.pclPlayers;
     }
@@ -261,6 +259,8 @@ public class GameWebSocketClient extends WebSocketClient {
         if (!(this.state.is(ClientStateEnum.CONNECTED_TO_TABLE) || this.state.is(ClientStateEnum.IN_GAME)))
             throw new IncorrectClientActionException("can not leave table as client state is " + this.state.string());
 
+        this.pclPlayers = null;
+        this.pclCurrentTile = null;
         this.sendJSON(new ClientQueries.LEAVE_TABLE("i am leaving"));
         this.state.set(ClientStateEnum.CONNECTED_TO_SERVER);
     }
@@ -271,6 +271,13 @@ public class GameWebSocketClient extends WebSocketClient {
 
         this.sendJSON(new ClientQueries.CREATE_TABLE(tableName));
         this.state.set(ClientStateEnum.CREATING_TABLE);
+    }
+
+    public void putTile(int x, int y, int rotation, int meeple) throws IncorrectClientActionException {
+        if (!this.state.is(ClientStateEnum.IN_GAME))
+            throw new IncorrectClientActionException("can not put a tile as client state is " + this.state.string());
+
+        this.sendJSON(new ClientQueries.PUT_TILE(x, y, rotation, meeple));
     }
 
     public void restoreServerConnection() throws IncorrectClientActionException {
@@ -307,6 +314,7 @@ public class GameWebSocketClient extends WebSocketClient {
 
     public void setMap(Map relatedMap) {
         this.relatedMap = relatedMap;
+        relatedMap.setRelatedClient(this);
         if(this.pclPlayers != null && !cachedPuttedTiles.isEmpty()){
             while (!cachedPuttedTiles.isEmpty()){
                 TILE_PUTTED.Tile tile = cachedPuttedTiles.remove();
@@ -401,6 +409,7 @@ public class GameWebSocketClient extends WebSocketClient {
     }
 
     public void sendJSON(Object o){
+        System.out.println("Sending: "+jsonConverter.toJson(o));
         this.send(jsonConverter.toJson(o));
     }
     public ClientStateEnum getState(){

@@ -183,4 +183,12 @@ public class TileTypes {
         public static int indexOf(TileType o) {
                 return tiles.indexOf(o);
         }
+
+        public static boolean isGamingTile(TileType tileType){
+            return tileType != null && tiles.indexOf(tileType) > 0;
+        }
+
+        public static boolean isGamingTile(Tile tile){
+            return tile != null && tile.type != null && tiles.indexOf(tile.type) > 0;
+        }
 }

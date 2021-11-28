@@ -27,7 +27,6 @@ public class PCLPlayers{
     }
 
     public void setPlayers(ArrayList<Player> newPlayers){
-        System.out.println("SETTING PLAYERS FROM "+this.players+" TO "+newPlayers);
         ArrayList<Player> prevPlayers = this.players;
         this.players = newPlayers;
         support.firePropertyChange("players", prevPlayers, newPlayers);
@@ -59,14 +58,12 @@ public class PCLPlayers{
     }
 
     public void removePlayer(String playerID){
-        System.out.println("Removing player, cur: "+this.players);
         ArrayList<Player> newPlayers = new ArrayList<>();
         for (Player player : this.players){
             if (!Objects.equals(player.getCode(), playerID)){
                 newPlayers.add(player);
             }
         }
-        System.out.println("Removing player, new: "+newPlayers);
         setPlayers(newPlayers);
     }
 
@@ -78,13 +75,25 @@ public class PCLPlayers{
         return currentPlayer;
     }
 
+    public boolean isCurrentPlayerClient(){
+        return currentPlayer != null && currentPlayer.isClient();
+    }
+
     public void passTurn(){
-        if (this.players.size() == 1){
+        Player prevPlayer = currentPlayer;
+
+        if(currentPlayer == null){
+            this.currentPlayer = players.get(0);
+        }
+        else if (this.players.size() == 1){
             System.out.println("Turn has been passed to the same player as there is only one");
             return;
         }
+        else {
+            this.currentPlayer = players.get((players.indexOf(currentPlayer)+1)%players.size());
+        }
 
-        currentPlayer = players.get((players.indexOf(currentPlayer)+1)%players.size());
+        support.firePropertyChange("currentPlayer", prevPlayer, this.currentPlayer);
     }
 
     public boolean isTurnOf(Player player){
