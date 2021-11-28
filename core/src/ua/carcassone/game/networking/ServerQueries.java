@@ -41,6 +41,7 @@ public class ServerQueries {
 
     public static class GAME_STARTED {
         String action;
+        int tiles;
     }
 
     public static class GAME_ENDED {
@@ -50,25 +51,23 @@ public class ServerQueries {
 
     public static class TILE_DRAWN {
         String action;
-        byte tileType;
+        int tileType;
     }
 
     public static class TILE_PUTTED {
         String action;
         Tile tile;
 
-        static class Tile{
-            byte type;
-            Position position;
-            byte rotation;
-            byte meeple;
+        public static class Tile{
+            public int type;
+            public Position position;
+            public int rotation;
+            public int meeple;
 
-            static class Position{
-                int x;
-                int y;
+            public static class Position{
+                public int x;
+                public int y;
             }
         }
     }
-
-
 }

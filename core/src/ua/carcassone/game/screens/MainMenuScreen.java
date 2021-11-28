@@ -36,23 +36,27 @@ public class MainMenuScreen implements Screen {
 
         mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
-        Label carcassoneLabel = new Label("Carcassone Game", mySkin, "big");
+        Label carcassoneLabel = new Label("Carcassone Game", mySkin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
 
         Label connectionLabel = new Label("NOT Connected", mySkin, "default");
-        connectionLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
-        connectionLabel.setPosition(ELEMENT_WIDTH_UNIT * 6, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
+        connectionLabel.setPosition(10, 20);
         stage.addActor(connectionLabel);
 
-        GameWebSocketClient.stateMultipleObserver observer = new GameWebSocketClient.stateMultipleObserver((state)->{
-            if (state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_SERVER)
-                connectionLabel.setText("Connected to server!");
-            else
-                connectionLabel.setText("Not connected to server! " + state);
-        });
-        game.socketClient.addStateObserver(observer);
+        if(!game.socketClient.isConnected()){
+            GameWebSocketClient.stateMultipleObserver observer = new GameWebSocketClient.stateMultipleObserver((stateChange)->{
+                if (stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_SERVER)
+                    connectionLabel.setText("Connected to server!");
+                else
+                    connectionLabel.setText("Not connected to server! " + stateChange.newState);
+            });
+            game.socketClient.addStateObserver(observer);
+        } else {
+            connectionLabel.setText("Connected to server!");
+        }
+
       
         Button createTableButton = makeCreateTableButton("Create table");
         stage.addActor(createTableButton);

@@ -23,6 +23,11 @@ public class ClientQueries {
 
     public static class LEAVE_TABLE {
         final String action = "LEAVE_TABLE";
+        String additionalInfo;
+
+        public LEAVE_TABLE(String additionalInfo) {
+            this.additionalInfo = additionalInfo;
+        }
     }
 
     public static class START_GAME {

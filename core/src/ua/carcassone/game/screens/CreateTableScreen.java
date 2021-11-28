@@ -41,7 +41,7 @@ public class CreateTableScreen implements Screen {
 
         mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
-        Label carcassoneLabel = new Label("Create Table", mySkin, "big");
+        Label carcassoneLabel = new Label("Create Table", mySkin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
@@ -84,12 +84,11 @@ public class CreateTableScreen implements Screen {
                 GameWebSocketClient.stateAcceptableObserver changeObserver = new GameWebSocketClient.stateAcceptableObserver(
                         GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE,
                         Arrays.asList(new GameWebSocketClient.ClientStateEnum[]{GameWebSocketClient.ClientStateEnum.CREATING_TABLE}),
-                        (state)->{
-                            if ( state == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE)
-                                Gdx.app.postRunnable(() -> {
-                                    System.out.println("CHANGING TO A GAME SCREEN");
-                                    game.setScreen(new GameScreen(game));
-                                });
+                        (stateChange)->{
+                            if ( stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE) {
+                                System.out.println("CHANGING TO A LOBBY SCREEN");
+                                Gdx.app.postRunnable(() -> game.setScreen(new LobbyScreen(game,  (String) stateChange.additionalInfo)));
+                            }
                         }
                 );
                 game.socketClient.addStateObserver(changeObserver);
@@ -102,7 +101,6 @@ public class CreateTableScreen implements Screen {
 
             }
         });
-
         return createButton;
     }
 

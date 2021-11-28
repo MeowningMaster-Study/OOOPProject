@@ -2,45 +2,56 @@ package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
+import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
-import ua.carcassone.game.game.Player;
-import ua.carcassone.game.game.Tile;
+import ua.carcassone.game.game.*;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
 
-import static ua.carcassone.game.Utils.*;
+import static ua.carcassone.game.Utils.ELEMENT_HEIGHT_UNIT;
+import static ua.carcassone.game.Utils.ELEMENT_WIDTH_UNIT;
 
 public class GameScreen implements Screen {
 
-    private final CarcassoneGame game;
-    private OrthographicCamera camera;
-    private Viewport viewport;
-    private Stage stage;
-    private GameHud hud;
+    public final CarcassoneGame game;
+    private final OrthographicCamera camera;
+    public Viewport viewport;
 
-    public Tile currentTile;
-    private final Tile[][] map;
-    private ArrayList<Player> players;
+    private final Stage stage;
+    public final GameHud hud;
+    private final GameField field;
+    private final String tableId;
+    private int tilesLeft;
+    public PauseGameScreen pauseScreen;
 
-    public GameScreen(final CarcassoneGame game) {
+    public final Map map;
+    public PCLPlayers players;
+    public PCLCurrentTile currentTile;
+  
+    private final Label debugLabel;
+    public boolean isPaused;
+
+    public GameScreen(final CarcassoneGame game, String tableId, int tilesLeft, PCLPlayers players) {
         this.game = game;
-        hud = new GameHud(this);
-        map = new Tile[143][143];
-        players = new ArrayList<>();
+        this.tableId = tableId;
+        this.tilesLeft = tilesLeft;
+        this.map = new Map();
+
+        pauseScreen = null;
+        isPaused = false;
+
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
@@ -49,34 +60,78 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         Skin mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
-        Label carcassoneLabel = new Label("Game", mySkin, "big");
-        carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
-        carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
-        stage.addActor(carcassoneLabel);
+        debugLabel = new Label("Debug", mySkin, "default");
+        debugLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        debugLabel.setPosition(ELEMENT_WIDTH_UNIT * 5, Utils.fromTop(ELEMENT_HEIGHT_UNIT));
+        stage.addActor(debugLabel);
 
+        Label tableIdLabel = new Label("Table ID: "+this.tableId, mySkin, "default");
+        tableIdLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        tableIdLabel.setPosition(ELEMENT_WIDTH_UNIT * 2, Utils.fromTop(ELEMENT_HEIGHT_UNIT));
+        stage.addActor(tableIdLabel);
+
+        // TODO move to hud and link to game logic
+        Label tilesLeftLabel = new Label("Tiles left: "+this.tilesLeft, mySkin, "default");
+        tilesLeftLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        tilesLeftLabel.setPosition(ELEMENT_WIDTH_UNIT * 6, (ELEMENT_HEIGHT_UNIT));
+        stage.addActor(tilesLeftLabel);
+
+
+        hud = new GameHud(this);
+        field = new GameField(this);
+
+        this.players = players;
+        this.players.addPCLListener(hud.playersObserver);
+        this.map.setRelatedPlayers(this.players);
+        currentTile = new PCLCurrentTile();
+        currentTile.addPCLListener(hud.currentTileObserver);
+        game.socketClient.setPCLCurrentTile(currentTile);
+        game.socketClient.setMap(this.map);
+
+        if (currentTile.getCurrentTile() == null){
+            currentTile.setTile(new Tile(TileTypes.get(0), 0));
+        }
     }
 
     @Override
     public void render(float delta) {
 
-        ScreenUtils.clear(250f/255, 224f/255, 145f/255, 1);
+        if(isPaused && pauseScreen == null){
+            pauseScreen = new PauseGameScreen(this);
+        }
+        else if(!isPaused && pauseScreen != null){
+            pauseScreen = null;
+        }
+
+        if(!isPaused){
+            field.handleInput(delta);
+        }
+
+        ScreenUtils.clear(1, 1, 1, 1);
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
-        game.batch.begin();
-        // Draw using game.batch
-        game.batch.end();
 
-/*        hud.batch.begin();
-        // Draw using hudBatch
-        hud.batch.end();*/
+        if(!isPaused){
+            field.stage.act(Gdx.graphics.getDeltaTime());
+        }
+        field.stage.draw();
 
-        stage.act(Gdx.graphics.getDeltaTime());
+        if(!isPaused){
+            hud.hudStage.act(Gdx.graphics.getDeltaTime());
+        }
+        hud.hudStage.draw();
+
+        if(isPaused){
+            pauseScreen.stage.act(Gdx.graphics.getDeltaTime());
+            pauseScreen.stage.draw();
+        }
+
+        if(!isPaused){
+            stage.act(Gdx.graphics.getDeltaTime());
+        }
         stage.draw();
-
-        hud.stage.act(Gdx.graphics.getDeltaTime());
-        hud.stage.draw();
     }
 
     @Override
@@ -104,4 +159,14 @@ public class GameScreen implements Screen {
     public void dispose() {
         stage.dispose();
     }
+
+
+
+
+
+    public void setDebugLabel(String val){
+        debugLabel.setText(val);
+    }
+
+
 }
