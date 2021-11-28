@@ -133,6 +133,7 @@ public class GameField {
                     public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
                         Gdx.app.postRunnable(() -> gameScreen.map.setSelectedTile((int) coordinate.x, (int) coordinate.y,
                                 gameScreen.currentTile.getCurrentTile().type));
+                        //gameScreen.currentTile.setSpotted(true);
                     }
                 });
                 stage.addActor(imageButton);
