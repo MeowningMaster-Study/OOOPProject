@@ -41,7 +41,7 @@ public class CreateTableScreen implements Screen {
 
         mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
-        Label carcassoneLabel = new Label("Create Table", mySkin, "big");
+        Label carcassoneLabel = new Label("Create Table", mySkin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
@@ -86,8 +86,8 @@ public class CreateTableScreen implements Screen {
                         Arrays.asList(new GameWebSocketClient.ClientStateEnum[]{GameWebSocketClient.ClientStateEnum.CREATING_TABLE}),
                         (stateChange)->{
                             if ( stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE) {
-                                System.out.println(stateChange.additionalInfo+" - 3");
-                                Gdx.app.postRunnable(() -> game.setScreen(new GameScreen(game, stateChange.additionalInfo)));
+                                System.out.println("CHANGING TO A LOBBY SCREEN");
+                                Gdx.app.postRunnable(() -> game.setScreen(new LobbyScreen(game,  (String) stateChange.additionalInfo)));
                             }
                         }
                 );

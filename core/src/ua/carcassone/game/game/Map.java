@@ -2,7 +2,9 @@ package ua.carcassone.game.game;
 
 import com.badlogic.gdx.math.Vector2;
 import ua.carcassone.game.Settings;
+import ua.carcassone.game.networking.ServerQueries;
 import ua.carcassone.game.screens.GameField;
+import ua.carcassone.game.screens.GameHud;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +18,8 @@ public class Map {
     private final Vector2 minOccupiedCoordinate;
     private final Vector2 maxOccupiedCoordinate;
     private final List<GameField> linkedGameFields = new LinkedList<>();
+    private final List<GameHud> linkedGameHuds = new LinkedList<>();
+    private PCLPlayers relatedPlayers;
 
     public Map(Tile tile, int columns, int rows) {
         this.map = new Tile[rows][columns];
@@ -38,6 +42,15 @@ public class Map {
         set(0, 0, tile);
     }
 
+    public Map() {
+        this.map = new Tile[(int) Settings.fieldTileCount.y][(int) Settings.fieldTileCount.x];
+        this.zeroTileXPositionInArray = (int) Settings.fieldTileCount.y/2;
+        this.zeroTileYPositionInArray = (int) Settings.fieldTileCount.x/2;
+        this.size = new Vector2((int) Settings.fieldTileCount.x, (int) Settings.fieldTileCount.y);
+        this.maxOccupiedCoordinate = new Vector2(0, 0);
+        this.minOccupiedCoordinate = new Vector2(0, 0);
+    }
+
     public Tile get(int x, int y){
         return map[zeroTileXPositionInArray-y][zeroTileYPositionInArray+x];
     }
@@ -51,9 +64,24 @@ public class Map {
         updateLinkedStages();
     }
 
+    public void set(ServerQueries.TILE_PUTTED.Tile tile){
+        set(tile.position.x, tile.position.y, new Tile(tile, null));
+    }
+
+    public void setByPlayer(int x, int y, Tile tile){
+        set(x, y, tile);
+        relatedPlayers.passTurn();
+    }
+
+    public void setByPlayer(ServerQueries.TILE_PUTTED.Tile tile){
+        set(tile.position.x, tile.position.y, new Tile(tile, relatedPlayers.getCurrentPlayer()));
+        relatedPlayers.passTurn();
+    }
+
     private void setWithoutUpdate(int x, int y, Tile tile){
         map[zeroTileXPositionInArray-y][zeroTileYPositionInArray+x] = tile;
         if(tile != null){
+            System.out.println("Setting tile "+tile.type);
             if (x < minOccupiedCoordinate.x) minOccupiedCoordinate.x = x;
             if (x > maxOccupiedCoordinate.x) maxOccupiedCoordinate.x = x;
             if (y < minOccupiedCoordinate.y) minOccupiedCoordinate.y = y;
@@ -74,6 +102,10 @@ public class Map {
                 }
             }
         }
+    }
+
+    public void setRelatedPlayers(PCLPlayers relatedPlayers) {
+        this.relatedPlayers = relatedPlayers;
     }
 
     public void set(Vector2 pos, Tile tile){
@@ -133,7 +165,7 @@ public class Map {
 
                 int tries = 0;
                 while (tries < 50){
-                    Tile tile = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
+                    Tile tile = new Tile(TileTypes.get(1+random.nextInt(24)), random.nextInt(4));
                     if (tile.canBePutBetween(this.get(i,j+1), this.get(i+1,j), this.get(i,j-1), this.get(i-1,j))) {
                         this.setWithoutUpdate(i, j, tile);
                         break;
@@ -151,9 +183,16 @@ public class Map {
         linkedGameFields.add(gameField);
     }
 
+    public void linkGameHud(GameHud gameHud){
+        linkedGameHuds.add(gameHud);
+    }
+
     private void updateLinkedStages(){
         for (GameField gameField : linkedGameFields){
             gameField.updateStage();
+        }
+        for (GameHud gameHud : linkedGameHuds){
+            gameHud.updateStage();
         }
     }
 
@@ -164,7 +203,7 @@ public class Map {
                 if (get(x, y) == null)
                     System.out.print("  ");
                 else
-                    System.out.print(TileTypes.tiles.indexOf(get(x, y).type)+"-"+get(x, y).rotation+" ");
+                    System.out.print(TileTypes.indexOf(get(x, y).type)+"-"+get(x, y).rotation+" ");
             }
             System.out.print("\n");
         }
@@ -174,7 +213,7 @@ public class Map {
                 if (map[y][x] == null)
                     System.out.print("  ");
                 else
-                    System.out.print(TileTypes.tiles.indexOf(map[y][x].type)+"-"+map[y][x].rotation+" ");
+                    System.out.print(TileTypes.indexOf(map[y][x].type)+"-"+map[y][x].rotation+" ");
             }
             System.out.print("\n");
         }

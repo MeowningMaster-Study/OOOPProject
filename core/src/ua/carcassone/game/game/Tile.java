@@ -1,6 +1,7 @@
 package ua.carcassone.game.game;
 
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.networking.ServerQueries;
 
 import java.util.Arrays;
 import java.util.List;
@@ -8,16 +9,30 @@ import java.util.List;
 class Meeple {
     public Player player;
     public int position;
+
+
+    public Meeple(Player player, int position) {
+        this.player = player;
+        this.position = position;
+    }
 }
 
 public class Tile {
     public TileType type;
-    public List<Meeple> meeples;
+    public Meeple meeple;
     public int rotation;
 
     public Tile(TileType type, int rotation) {
         this.type = type;
         this.rotation = rotation;
+    }
+
+    public Tile(ServerQueries.TILE_PUTTED.Tile serverTile, Player relatedPlayer){
+        this.type = TileTypes.get(serverTile.type);
+        this.rotation = serverTile.rotation;
+        if(serverTile.meeple != -1){
+            this.meeple = new Meeple(relatedPlayer, serverTile.meeple);
+        }
     }
 
 

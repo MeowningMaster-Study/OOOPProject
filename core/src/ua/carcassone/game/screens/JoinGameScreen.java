@@ -37,7 +37,7 @@ public class JoinGameScreen implements Screen {
 
         mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
 
-        Label carcassoneLabel = new Label("Join game", mySkin, "big");
+        Label carcassoneLabel = new Label("Join game", mySkin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
@@ -85,8 +85,8 @@ public class JoinGameScreen implements Screen {
                         (stateChange)->{
                             if ( stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE) {
                                 Gdx.app.postRunnable(() -> {
-                                    System.out.println("CHANGING TO A GAME SCREEN");
-                                    game.setScreen(new GameScreen(game, stateChange.additionalInfo));
+                                    System.out.println("CHANGING TO A LOBBY SCREEN");
+                                    game.setScreen(new LobbyScreen(game, (String) stateChange.additionalInfo));
                                 });
                             }
                             else {

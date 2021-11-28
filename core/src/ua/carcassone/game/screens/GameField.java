@@ -45,6 +45,7 @@ public class GameField {
     public void updateStage(){
         // can be updated by saving prev. field and only setting changed tiles
         // but is not needed as stage updates rarely
+        System.out.println("Stage update");
         float halfTile = tileSize/2.0f;
         stage.clear();
         for (int i = gameScreen.map.minX(); i <= gameScreen.map.maxX(); i++){ // для каждого столбца
@@ -81,7 +82,6 @@ public class GameField {
             else
                 this.zoomSpeed = Settings.maxZoomSpeed;
         }
-        this.gameScreen.setDebugLabel("zoom speed: "+this.zoomSpeed);
 
         float maxTranslationSpeed = (float) (Settings.maxTranslationSpeed
                         + Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxTranslationSpeedTilesPower));

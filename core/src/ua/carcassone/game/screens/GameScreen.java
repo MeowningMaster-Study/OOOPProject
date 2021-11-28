@@ -33,6 +33,7 @@ public class GameScreen implements Screen {
     public final GameHud hud;
     private final GameField field;
     private final String tableId;
+    private int tilesLeft;
     public PauseGameScreen pauseScreen;
 
     public final Map map;
@@ -42,11 +43,12 @@ public class GameScreen implements Screen {
     private final Label debugLabel;
     public boolean isPaused;
 
-    public GameScreen(final CarcassoneGame game, String tableId) {
+    public GameScreen(final CarcassoneGame game, String tableId, int tilesLeft, PCLPlayers players) {
         this.game = game;
         this.tableId = tableId;
-        System.out.println(tableId+" - 4");
-        this.map = new Map(new Tile(TileTypes.tiles.get(1), 0));
+        this.tilesLeft = tilesLeft;
+        this.map = new Map();
+
         pauseScreen = null;
         isPaused = false;
 
@@ -68,26 +70,26 @@ public class GameScreen implements Screen {
         tableIdLabel.setPosition(ELEMENT_WIDTH_UNIT * 2, Utils.fromTop(ELEMENT_HEIGHT_UNIT));
         stage.addActor(tableIdLabel);
 
+        Label tilesLeftLabel = new Label("Tiles left: "+this.tilesLeft, mySkin, "default");
+        tilesLeftLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        tilesLeftLabel.setPosition(ELEMENT_WIDTH_UNIT * 6, (ELEMENT_HEIGHT_UNIT));
+        stage.addActor(tilesLeftLabel);
+
 
         hud = new GameHud(this);
         field = new GameField(this);
 
-        players = new PCLPlayers();
-        players.addPCLListener(hud.playersObserver);
+        this.players = players;
+        this.players.addPCLListener(hud.playersObserver);
+        this.map.setRelatedPlayers(this.players);
         currentTile = new PCLCurrentTile();
         currentTile.addPCLListener(hud.currentTileObserver);
+        game.socketClient.setPCLCurrentTile(currentTile);
+        game.socketClient.setMap(this.map);
 
-        // ------------
-        Player[] testPlayers = {
-                new Player("firstPlayer", "111", Color.BLUE),
-                new Player("secondPlayer", "222", Color.RED),
-                new Player("thirdPlayer", "333", Color.YELLOW),
-                new Player("fourthPlayer", "444", Color.GREEN),
-                new Player("fifthPlayer", "555", Color.PINK)
-        };
-        currentTile.setTile(new Tile(TileTypes.tiles.get(1), 0));
-        players.setPlayers(new ArrayList<>(Arrays.asList(testPlayers)));
-        // ------------
+        if (currentTile.getCurrentTile() == null){
+            currentTile.setTile(new Tile(TileTypes.get(0), 0));
+        }
     }
 
     @Override
@@ -109,10 +111,6 @@ public class GameScreen implements Screen {
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
-        if(!isPaused){
-            stage.act(Gdx.graphics.getDeltaTime());
-        }
-        stage.draw();
 
         if(!isPaused){
             field.stage.act(Gdx.graphics.getDeltaTime());
@@ -128,6 +126,11 @@ public class GameScreen implements Screen {
             pauseScreen.stage.act(Gdx.graphics.getDeltaTime());
             pauseScreen.stage.draw();
         }
+
+        if(!isPaused){
+            stage.act(Gdx.graphics.getDeltaTime());
+        }
+        stage.draw();
     }
 
     @Override
@@ -156,51 +159,9 @@ public class GameScreen implements Screen {
         stage.dispose();
     }
 
-    class PCLPlayers{
-        private ArrayList<Player> players;
-        private PropertyChangeSupport support;
 
-        public PCLPlayers(){
-            support = new PropertyChangeSupport(this);
-        }
 
-        public void addPCLListener(PropertyChangeListener pcl){
-            support.addPropertyChangeListener(pcl);
-        }
 
-        public void removePCLListener(PropertyChangeListener pcl){
-            support.removePropertyChangeListener(pcl);
-        }
-
-        public void setPlayers(ArrayList<Player> newPlayers){
-            support.firePropertyChange("players", this.players, newPlayers);
-            this.players = newPlayers;
-        }
-
-    }
-
-    class PCLCurrentTile{
-        private Tile currentTile;
-        private PropertyChangeSupport support;
-
-        public PCLCurrentTile(){
-            support = new PropertyChangeSupport(this);
-        }
-
-        public void addPCLListener(PropertyChangeListener pcl){
-            support.addPropertyChangeListener(pcl);
-        }
-
-        public void removePCLListener(PropertyChangeListener pcl){
-            support.removePropertyChangeListener(pcl);
-        }
-
-        public void setTile(Tile newTile){
-            support.firePropertyChange("currentTile", this.currentTile, newTile);
-            this.currentTile = newTile;
-        }
-
-    }
 
     public void setDebugLabel(String val){
         debugLabel.setText(val);

@@ -21,7 +21,6 @@ import ua.carcassone.game.game.TileTextureManager;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import static ua.carcassone.game.Utils.ELEMENT_HEIGHT_UNIT;
 import static ua.carcassone.game.Utils.ELEMENT_WIDTH_UNIT;
 
@@ -42,6 +41,7 @@ public class GameHud {
     public GameHud(GameScreen gameScreen){
         this.gameScreen = gameScreen;
         this.textureManager = new TileTextureManager();
+        this.gameScreen.map.linkGameHud(this);
 
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera());
         hudStage = new Stage(viewport, gameScreen.game.batch);
@@ -117,7 +117,7 @@ public class GameHud {
         if(currentTileObserver.tile != null){
             drawCurrentTile();
         }
-        if(playersObserver.players != null){
+        if(gameScreen.players != null){
             drawPlayers();
         }
 
@@ -129,17 +129,22 @@ public class GameHud {
     }
 
     private void drawPlayers(){
-        float size = playersObserver.players.size();
+        float size = gameScreen.players.getPlayers().size();
+        System.out.println("drawing "+size+" players");
+
         float heightCoeff = Gdx.graphics.getHeight() / ((size + 1) * ELEMENT_HEIGHT_UNIT);
         for (int i = 0; i < size; ++i) {
-            Player player = playersObserver.players.get(i);
+            Player player = gameScreen.players.getPlayers().get(i);
 
             Image pImage = new Image(textureManager.getTexture(0, 0));
             pImage.setPosition((float)(ELEMENT_WIDTH_UNIT / 2), Utils.fromTop(ELEMENT_HEIGHT_UNIT * (heightCoeff * i + 2)));
             pImage.setSize(100, 100);
             hudStage.addActor(pImage);
 
-            Label pName = new Label(player.getName(), new Label.LabelStyle(new BitmapFont(), player.getColor()));
+            Label pName = new Label(
+                    (gameScreen.players.isTurnOf(player)?"=> ":"")+player.getName(),
+                    new Label.LabelStyle(new BitmapFont(), player.getColor())
+            );
             pName.setSize(100, 20);
             pName.setPosition(pImage.getX(), pImage.getY());
             hudStage.addActor(pName);
@@ -156,16 +161,13 @@ public class GameHud {
         hudStage.addActor(rightRotateButton);
     }
 
-    class PlayersObserver implements PropertyChangeListener{
-        private ArrayList<Player> players;
-
+    private class PlayersObserver implements PropertyChangeListener{
         public void propertyChange(PropertyChangeEvent evt){
-            this.players = (ArrayList<Player>) evt.getNewValue();
             updateStage();
         }
     }
 
-    class CurrentTileObserver implements PropertyChangeListener{
+    private class CurrentTileObserver implements PropertyChangeListener{
         private Tile tile;
         private Image tileImage;
 

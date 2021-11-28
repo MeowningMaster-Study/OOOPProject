@@ -3,10 +3,11 @@ package ua.carcassone.game.game;
 import com.badlogic.gdx.graphics.Color;
 
 public class Player {
-    private String name;
-    private String code;
+    private final String name;
+    private final String code;
     private Color color;
     private int meepleCount = 0;
+    public boolean left = false;
 
     public Player(String name, String code, Color color) {
         this.name = name;
