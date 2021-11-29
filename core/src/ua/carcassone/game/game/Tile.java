@@ -26,6 +26,7 @@ public class Tile {
     public static enum TilePurpose{
         LEGIT,
         IMAGINARY_SELECTED,
+        IMAGINARY_FOCUS,
         IMAGINARY_NOT_SELECTED
     }
 

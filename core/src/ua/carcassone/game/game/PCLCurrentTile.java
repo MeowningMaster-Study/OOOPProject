@@ -34,8 +34,9 @@ public class PCLCurrentTile{
     }
 
     public void setState(TileState state) {
-        support.firePropertyChange("state", this.currentTile, state);
+        TileState prev = this.state;
         this.state = state;
+        support.firePropertyChange("state", prev, this.state);
     }
 
     public boolean isHanging(){return state == TileState.IS_HANGING; }
@@ -43,6 +44,9 @@ public class PCLCurrentTile{
     public boolean isPlaceMeeple(){return state == TileState.IS_PLACE_MEEPLE;}
     public boolean isStabilized(){return state == TileState.IS_STABILIZED; }
 
+    public TileState getState() {
+        return state;
+    }
 
     public boolean isSet(){
         return currentTile != null && currentTile.type != null && state != null;

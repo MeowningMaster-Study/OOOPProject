@@ -35,7 +35,6 @@ public class Map {
         this.maxOccupiedCoordinate = new Vector2(0, 0);
         this.minOccupiedCoordinate = new Vector2(0, 0);
         set(0, 0, tile);
-//        print("Constructed");
     }
 
     public Map(Tile tile) {
@@ -92,9 +91,7 @@ public class Map {
 
     public void setByPlayer(ServerQueries.TILE_PUTTED.Tile tile){
         set(tile.position.x, tile.position.y, new Tile(tile, relatedPlayers.getCurrentPlayer()));
-        System.out.println("TURN PASSED FROM "+relatedPlayers.getCurrentPlayer());
         relatedPlayers.passTurn();
-        System.out.println("TURN PASSED TO "+relatedPlayers.getCurrentPlayer());
     }
 
     private void setWithoutUpdate(int x, int y, Tile tile){
@@ -110,6 +107,18 @@ public class Map {
             if (y < minOccupiedCoordinate.y) minOccupiedCoordinate.y = y;
             if (y > maxOccupiedCoordinate.y) maxOccupiedCoordinate.y = y;
         }
+    }
+
+    public void confirmSelectedTilePosition(){
+        Vector2 coordinate = this.selectedTileCoordinate;
+        Tile selected = this.get(coordinate);
+        selected.purpose = Tile.TilePurpose.IMAGINARY_FOCUS;
+    }
+
+    public void disproveSelectedTile(){
+        Vector2 coordinate = this.selectedTileCoordinate;
+        Tile selected = this.get(coordinate);
+        selected.purpose = Tile.TilePurpose.IMAGINARY_SELECTED;
     }
 
     public void confirmSelectedTile(){
@@ -133,6 +142,10 @@ public class Map {
                 }
             }
         }
+    }
+
+    public Vector2 getSelectedTilePosition() {
+        return selectedTileCoordinate;
     }
 
     public void setRelatedPlayers(PCLPlayers relatedPlayers) {
@@ -291,7 +304,6 @@ public class Map {
 
     public void setSelectedTile(int x, int y, TileType tile){
         if (this.selectedTileCoordinate != null){
-            System.out.println("SELECTED != null");
             this.set(this.selectedTileCoordinate, null);
         }
         ArrayList<Integer> availableRotations = getAvailableRotations(x, y, tile);

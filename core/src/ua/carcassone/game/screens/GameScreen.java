@@ -25,7 +25,7 @@ public class GameScreen implements Screen {
 
     public final Stage stage;
     public final GameHud hud;
-    private final GameField field;
+    public final GameField field;
     private final String tableId;
     private int tilesLeft;
     public PauseGameScreen pauseScreen;
@@ -37,6 +37,7 @@ public class GameScreen implements Screen {
   
     private final Label debugLabel;
     public boolean isPaused;
+    public GameLogic gameLogic;
 
     public GameScreen(final CarcassoneGame game, String tableId, int tilesLeft, PCLPlayers players) {
         this.game = game;
@@ -45,9 +46,8 @@ public class GameScreen implements Screen {
         this.map = new Map();
         this.players = players;
         this.currentTile = new PCLCurrentTile();
-
         this.inputMultiplexer = new InputMultiplexer();
-
+        this.gameLogic = new GameLogic(this);
 
         pauseScreen = null;
         isPaused = false;

@@ -60,13 +60,9 @@ public class GameHud {
         this.gameScreen.players.addPCLListener(this.currentPlayerObserver);
 
         menuButton = makeMenuButton("Menu");
-        stage.addActor(menuButton);
-
         confirmationButton = makeConfirmationButton("skins/icons/confirm.png");
-        stage.addActor(confirmationButton);
-
         cancelButton = makeCancelButton("skins/icons/cancel.png");
-        stage.addActor(confirmationButton);
+        updateStage();
     }
 
     private Button makeMenuButton(String name){
@@ -84,7 +80,6 @@ public class GameHud {
                 gameScreen.isPaused = true;
                 pause();
                 updateStage();
-
             }
         });
         return menuButton;
@@ -98,17 +93,17 @@ public class GameHud {
         confirmationButton.addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                if(gameScreen.currentTile.isSet()){
-                    gameScreen.currentTile.setState(PCLCurrentTile.TileState.IS_PLACE_MEEPLE);
-                }
-                else{
-                    gameScreen.currentTile.setState(PCLCurrentTile.TileState.IS_STABILIZED);
-                }
                 return true;
             }
 
             @Override
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {}
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                if(gameScreen.currentTile.isPut()){
+                    gameScreen.gameLogic.confirmSelectedTilePosition();
+                } else if(gameScreen.currentTile.isPlaceMeeple()) {
+                    gameScreen.gameLogic.confirmSelectedTileMeeples();
+                }
+            }
         });
 
         return confirmationButton;
@@ -127,7 +122,7 @@ public class GameHud {
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                gameScreen.currentTile.setState(PCLCurrentTile.TileState.IS_PUT);
+                gameScreen.gameLogic.disproveSelectedTileMeeples();
             }
         });
 
@@ -236,8 +231,9 @@ public class GameHud {
     private class CurrentTileObserver implements PropertyChangeListener{
         public void propertyChange(PropertyChangeEvent evt){
             if(Objects.equals(evt.getPropertyName(), "currentTile") ||
-                    Objects.equals(evt.getPropertyName(), "state"))
+                    Objects.equals(evt.getPropertyName(), "state")) {
                 updateStage();
+            }
         }
     }
 

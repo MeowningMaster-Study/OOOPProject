@@ -10,8 +10,9 @@ import java.util.List;
 public class TileTextureManager {
     private final List<List<Texture>> textures = new LinkedList<>();
     private int minTileSize = new Texture(Gdx.files.internal("skins/classic-tiles/1-0.png")).getWidth();
-    private Texture borderTexture, innerBorderTexture;
+    private final Texture borderTexture, innerBorderTexture, borderSilverTexture, borderWhiteTexture;
     private final List<Texture> rotateClockwiseTextures = new LinkedList<>();
+    private final Texture transparentTexture;
 
     public TileTextureManager() {
         for (int i = 0; i <= 24; i++){
@@ -26,6 +27,9 @@ public class TileTextureManager {
         }
         this.borderTexture = new Texture(Gdx.files.internal("skins/icons/tile-border.png"));
         this.innerBorderTexture = new Texture(Gdx.files.internal("skins/icons/tile-inner-border.png"));
+        this.borderSilverTexture = new Texture(Gdx.files.internal("skins/icons/tile-border-silver.png"));
+        this.borderWhiteTexture = new Texture(Gdx.files.internal("skins/icons/tile-border-white.png"));
+        this.transparentTexture = new Texture(Gdx.files.internal("skins/icons/transparent.png"));
 
         for (int i = 0; i < 4; i++) {
             this.rotateClockwiseTextures.add(new Texture(Gdx.files.internal("skins/icons/clockwiseRotate-"+i+".png")));
@@ -55,6 +59,18 @@ public class TileTextureManager {
 
     public Texture getBorderTexture() {
         return borderTexture;
+    }
+
+    public Texture getBorderSilverTexture() {
+        return borderSilverTexture;
+    }
+
+    public Texture getBorderWhiteTexture() {
+        return borderWhiteTexture;
+    }
+
+    public Texture getTransparentTexture() {
+        return transparentTexture;
     }
 
     public Texture getRotateClockwiseTexture(int rotation) {
