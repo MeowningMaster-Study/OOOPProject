@@ -25,6 +25,7 @@ public class Settings {
     public static float maxTranslationSpeed = 160f;
     public static float maxTranslationSpeedTilesPower = 1f;
     public static float translationSpeedDecrease = maxTranslationSpeed*1.35f;
+    public static float shiftTranslationCoefficient = 1.2f;
 
     public static float maxZoomSpeed = 4;
     public static float zoomSpeedDecrease = maxZoomSpeed*4.2f;
@@ -38,4 +39,7 @@ public class Settings {
 
     // процент расстояния который может занимать пустой стол
     public static final float possibleEmptyCameraPercent = 0.95f;
+
+    // the starting volume of the music. value from 0 to 1.
+    public static final float startingMusicVolume = 0.2f;
 }

@@ -1,6 +1,7 @@
 package ua.carcassone.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
 import ua.carcassone.game.game.TileType;
 import ua.carcassone.game.game.TileTypes;
@@ -32,8 +33,16 @@ public class Utils {
         return (Gdx.graphics.getDisplayMode().height-y);
     }
 
+    public static int fromRight(int x){
+        return Gdx.graphics.getDisplayMode().width-x;
+    }
+
+    public static float fromRight(float x){
+        return (Gdx.graphics.getDisplayMode().width-x);
+    }
+
     public static int getTileTypeId(TileType tileType){
-        return TileTypes.tiles.indexOf(tileType);
+        return TileTypes.indexOf(tileType);
     }
 
     public static boolean numberInRange(int number, int min, int upperBound){

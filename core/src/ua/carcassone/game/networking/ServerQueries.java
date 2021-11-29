@@ -5,67 +5,68 @@ import java.util.List;
 public class ServerQueries {
 
     public static class PLAYER_JOINED {
-        String action;
-        String playerId;
+        public String action;
+        public String playerId;
     }
 
     public static class PLAYER_LEFT {
-        String action;
-        String playerId;
+        public String action;
+        public String playerId;
     }
 
     public static class CREATE_TABLE_SUCCESS {
-        String action;
-        String tableId;
+        public String action;
+        public String tableId;
     }
 
     public static class JOIN_TABLE_SUCCESS {
-        String action;
-        String tableId;
-        List<String> players;
+        public String action;
+        public String tableId;
+        public List<String> players;
     }
 
     public static class JOIN_TABLE_FAILURE {
-        String action;
-        String tableId;
+        public String action;
+        public String tableId;
     }
 
     public static class ERROR {
-        String action;
-        Description description;
+        public String action;
+        public Description description;
 
-        static class Description{
-            List<String> action;
+        public static class Description{
+            public List<String> action;
         }
     }
 
     public static class GAME_STARTED {
-        String action;
+        public String action;
+        public int tiles;
     }
 
     public static class GAME_ENDED {
-        String action;
+        public String action;
         // ...
     }
 
     public static class TILE_DRAWN {
-        String action;
-        byte tileType;
+        public String action;
+        public int tileType;
     }
 
     public static class TILE_PUTTED {
-        String action;
-        Tile tile;
+        public String action;
+        public Tile tile;
 
-        static class Tile{
-            byte type;
-            Position position;
-            byte rotation;
-            byte meeple;
+        public static class Tile{
+            public int type;
+            public Position position;
+            public int rotation;
+            public int meeple;
 
-            static class Position{
-                int x;
-                int y;
+            public static class Position{
+                public int x;
+                public int y;
             }
         }
     }

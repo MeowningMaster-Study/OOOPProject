@@ -3,14 +3,33 @@ package ua.carcassone.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.game.PCLCurrentTile;
+import ua.carcassone.game.game.Tile;
 import ua.carcassone.game.game.TileTextureManager;
+import ua.carcassone.game.game.TileTypes;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Objects;
+
+import static ua.carcassone.game.Settings.shiftTranslationCoefficient;
+import static ua.carcassone.game.Utils.ELEMENT_HEIGHT_UNIT;
+import static ua.carcassone.game.Utils.ELEMENT_WIDTH_UNIT;
 
 public class GameField {
     public Stage stage;
@@ -23,7 +42,8 @@ public class GameField {
     private final Vector2 fieldSize;
     private final Vector2 translationSpeed;
     private float zoomSpeed;
-
+    private CurrentPlayerObserver currentPlayerObserver;
+    private CurrentTileObserver currentTileObserver;
 
     public GameField(GameScreen gameScreen){
         this.textureManager = new TileTextureManager();
@@ -35,6 +55,12 @@ public class GameField {
         this.viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), this.camera);
         this.stage = new Stage(viewport, gameScreen.game.batch);
         this.translationSpeed = new Vector2(0f, 0f);
+        gameScreen.inputMultiplexer.addProcessor(this.stage);
+
+        this.currentTileObserver = new CurrentTileObserver();
+        this.gameScreen.currentTile.addPCLListener(this.currentTileObserver);
+        this.currentPlayerObserver = new CurrentPlayerObserver();
+        this.gameScreen.players.addPCLListener(this.currentPlayerObserver);
         gameScreen.map.linkGameField(this);
         centerCameraOnTile(0,0);
     }
@@ -45,26 +71,88 @@ public class GameField {
     public void updateStage(){
         // can be updated by saving prev. field and only setting changed tiles
         // but is not needed as stage updates rarely
+        System.out.println("Updating gameField stage");
         float halfTile = tileSize/2.0f;
         stage.clear();
         for (int i = gameScreen.map.minX(); i <= gameScreen.map.maxX(); i++){ // для каждого столбца
             for (int j = gameScreen.map.maxY(); j >= gameScreen.map.minY(); j--){ // для каждой строки
                 if (gameScreen.map.get(i, j) != null){
-                    Image image = new Image(
-                            textureManager.getTexture(gameScreen.map.get(i, j).type,
-                                    gameScreen.map.get(i, j).rotation)
-                    );
+                    Tile tile = gameScreen.map.get(i, j);
+                    Image image = new Image(textureManager.getTexture(tile.type, tile.rotation));
                     image.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
                     image.setSize(tileSize, tileSize);
                     stage.addActor(image);
+
+                    if(tile.purpose == Tile.TilePurpose.IMAGINARY_SELECTED){
+                        if(gameScreen.map.getAvailableRotations(i, j, tile.type).size() > 1){
+                            Image rotateImage = new Image(textureManager.getRotateClockwiseTexture(tile.rotation));
+                            rotateImage.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
+                            rotateImage.setSize(tileSize, tileSize);
+                            stage.addActor(rotateImage);
+                        }
+
+                        Texture imageTexture = textureManager.getBorderTexture();
+                        Drawable imageDrawable = new TextureRegionDrawable(new TextureRegion(imageTexture));
+                        ImageButton imageButton = new ImageButton(imageDrawable);
+                        imageButton.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
+                        imageButton.setSize(tileSize, tileSize);
+                        imageButton.addListener(new InputListener(){
+                            @Override
+                            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                                return true;
+                            }
+
+                            @Override
+                            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                                Gdx.app.postRunnable(gameScreen.map::rotateSelectedTile);
+                            }
+                        });
+                        stage.addActor(imageButton);
+                    }
                 }
             }
         }
 
+
+        if(gameScreen.players.isCurrentPlayerClient() &&  TileTypes.isGamingTile(gameScreen.currentTile.getCurrentTile())){
+
+            ArrayList<Vector2> availableTileSpots =
+                    gameScreen.map.getAvailableSpots(gameScreen.currentTile.getCurrentTile().type);
+            for (Vector2 coordinate : availableTileSpots) {
+                Texture imageTexture = textureManager.getInnerBorderTexture();
+                Drawable imageDrawable = new TextureRegionDrawable(new TextureRegion(imageTexture));
+                ImageButton imageButton = new ImageButton(imageDrawable);
+                imageButton.setPosition(coordinate.x*tileSize-halfTile, coordinate.y*tileSize-halfTile);
+                imageButton.setSize(tileSize, tileSize);
+                imageButton.addListener(new InputListener(){
+                    @Override
+                    public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                        return true;
+                    }
+
+                    @Override
+                    public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                        Gdx.app.postRunnable(() -> gameScreen.map.setSelectedTile((int) coordinate.x, (int) coordinate.y,
+                                gameScreen.currentTile.getCurrentTile().type));
+                        gameScreen.currentTile.setState(PCLCurrentTile.TileState.IS_PUT);
+                    }
+                });
+                stage.addActor(imageButton);
+
+            }
+        }
+
+        gameScreen.setDebugLabel("Cuurent player is "+gameScreen.players.getCurrentPlayer());
     }
 
     public void handleInput(float delta) {
+        handleNewInput();
+        calculateCamera(delta);
+        descendSpeed(delta);
+    }
 
+    private void handleNewInput(){
+        float shift = Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) ? shiftTranslationCoefficient : 0f;
         // new input
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
             if(this.zoomSpeed == 0) {
@@ -81,21 +169,20 @@ public class GameField {
             else
                 this.zoomSpeed = Settings.maxZoomSpeed;
         }
-        this.gameScreen.setDebugLabel("zoom speed: "+this.zoomSpeed);
 
         float maxTranslationSpeed = (float) (Settings.maxTranslationSpeed
-                        + Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxTranslationSpeedTilesPower));
+                + Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxTranslationSpeedTilesPower));
         if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            this.translationSpeed.x = -maxTranslationSpeed;
+            this.translationSpeed.x = -maxTranslationSpeed * (1 + shift);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            this.translationSpeed.x = maxTranslationSpeed;
+            this.translationSpeed.x = maxTranslationSpeed * (1 + shift);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.S)) {
-            this.translationSpeed.y = -maxTranslationSpeed;
+            this.translationSpeed.y = -maxTranslationSpeed * (1 + shift);
         }
         if(Gdx.input.isKeyPressed(Input.Keys.W)) {
-            this.translationSpeed.y = maxTranslationSpeed;
+            this.translationSpeed.y = maxTranslationSpeed * (1 + shift);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.Z)) {
@@ -127,8 +214,9 @@ public class GameField {
             this.gameScreen.map.generateRandom(77);
             gameScreen.setDebugLabel("Generated random map size=77");
         }
+    }
 
-        // calculating camera based on input
+    private void calculateCamera(float delta){
         Vector2 translation = new Vector2(translationSpeed).cpy().scl(delta).scl(camera.zoom);
         camera.translate(translation);
 
@@ -141,14 +229,19 @@ public class GameField {
         if (camera.position.y > gameScreen.map.getMaxOccupiedCoordinate().y * tileSize  + camera.viewportHeight*camera.zoom/2 * Settings.possibleEmptyCameraPercent)
             camera.position.y = gameScreen.map.getMaxOccupiedCoordinate().y * tileSize + camera.viewportHeight*camera.zoom/2 * Settings.possibleEmptyCameraPercent;
 
-
         camera.zoom += zoomSpeed * delta;
-        if (camera.zoom > Settings.maxCameraZoom * Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxCameraZoomTilesPower))
+
+        if (camera.zoom > Settings.maxCameraZoom * Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxCameraZoomTilesPower)) {
             camera.zoom = (float) (Settings.maxCameraZoom * Math.pow(Utils.min(gameScreen.map.getOccupiedSize()), Settings.maxCameraZoomTilesPower));
-        else if (camera.zoom < Settings.minCameraZoom) camera.zoom = Settings.minCameraZoom;
+        }
+        if (camera.zoom < Settings.minCameraZoom) {
+            camera.zoom = Settings.minCameraZoom;
+        }
 
+    }
 
-        // descend the speeds
+    private void descendSpeed(float delta){
+
         if (translationSpeed.x > 0){
             translationSpeed.x = Math.max(0, translationSpeed.x-Settings.translationSpeedDecrease*delta);
         }
@@ -175,8 +268,8 @@ public class GameField {
             if (zoomSpeed > -0.001)
                 zoomSpeed = 0;
         }
+    }
 
-}
 
     /**
      * Centers the camera on tile on map[x][y]
@@ -202,6 +295,20 @@ public class GameField {
         float minScreenDimension = Math.min(camera.viewportWidth, camera.viewportHeight);
         float neededTileSize = minScreenDimension/tilesQuantity;
         camera.zoom = tileSize/neededTileSize;
+    }
+
+    private class CurrentPlayerObserver implements PropertyChangeListener {
+        public void propertyChange(PropertyChangeEvent evt){
+            if (Objects.equals(evt.getPropertyName(), "currentPlayer"))
+                updateStage();
+        }
+    }
+
+    private class CurrentTileObserver implements PropertyChangeListener{
+        public void propertyChange(PropertyChangeEvent evt){
+            if(Objects.equals(evt.getPropertyName(), "currentTile"))
+                updateStage();
+        }
     }
 
 

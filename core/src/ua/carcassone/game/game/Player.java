@@ -3,15 +3,25 @@ package ua.carcassone.game.game;
 import com.badlogic.gdx.graphics.Color;
 
 public class Player {
-    private String name;
-    private String code;
+    private final String name;
+    private final String code;
     private Color color;
-    private int meepleCount = 0;
+
+    private int meepleCount = 8;
+    private int score = 0;
+    private boolean isClient = false;
 
     public Player(String name, String code, Color color) {
         this.name = name;
         this.code = code;
         this.color = color;
+    }
+
+    public Player(String name, String code, Color color, boolean isClient) {
+        this.name = name;
+        this.code = code;
+        this.color = color;
+        this.isClient = isClient;
     }
 
 
@@ -29,5 +39,21 @@ public class Player {
 
     public void setColor(Color color) {
         this.color = color;
+    }
+
+    public boolean isClient() {
+        return isClient;
+    }
+
+    public int getMeepleCount() {
+        return meepleCount;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void addPoints(int points) {
+        this.score += points;
     }
 }

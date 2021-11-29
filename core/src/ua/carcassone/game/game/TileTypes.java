@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TileTypes {
-    public static List<TileType> tiles = Arrays.asList(
+        private static final List<TileType> tiles = Arrays.asList(
             null,
             // 1
             new TileType(
@@ -174,5 +174,21 @@ public class TileTypes {
                     false,
                     false
             )
-    );
+        );
+
+        public static TileType get(int i){
+            return tiles.get(i);
+        }
+
+        public static int indexOf(TileType o) {
+                return tiles.indexOf(o);
+        }
+
+        public static boolean isGamingTile(TileType tileType){
+            return tileType != null && tiles.indexOf(tileType) > 0;
+        }
+
+        public static boolean isGamingTile(Tile tile){
+            return tile != null && tile.type != null && tiles.indexOf(tile.type) > 0;
+        }
 }

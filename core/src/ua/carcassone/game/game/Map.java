@@ -2,8 +2,11 @@ package ua.carcassone.game.game;
 
 import com.badlogic.gdx.math.Vector2;
 import ua.carcassone.game.Settings;
+import ua.carcassone.game.networking.ServerQueries;
 import ua.carcassone.game.screens.GameField;
+import ua.carcassone.game.screens.GameHud;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -13,9 +16,13 @@ public class Map {
     private final int zeroTileXPositionInArray;
     private final int zeroTileYPositionInArray;
     private final Vector2 size;
+    private int tilesCount;
     private final Vector2 minOccupiedCoordinate;
     private final Vector2 maxOccupiedCoordinate;
+    private Vector2 selectedTileCoordinate;
     private final List<GameField> linkedGameFields = new LinkedList<>();
+    private final List<GameHud> linkedGameHuds = new LinkedList<>();
+    private PCLPlayers relatedPlayers;
 
     public Map(Tile tile, int columns, int rows) {
         this.map = new Tile[rows][columns];
@@ -38,6 +45,15 @@ public class Map {
         set(0, 0, tile);
     }
 
+    public Map() {
+        this.map = new Tile[(int) Settings.fieldTileCount.y][(int) Settings.fieldTileCount.x];
+        this.zeroTileXPositionInArray = (int) Settings.fieldTileCount.y/2;
+        this.zeroTileYPositionInArray = (int) Settings.fieldTileCount.x/2;
+        this.size = new Vector2((int) Settings.fieldTileCount.x, (int) Settings.fieldTileCount.y);
+        this.maxOccupiedCoordinate = new Vector2(0, 0);
+        this.minOccupiedCoordinate = new Vector2(0, 0);
+    }
+
     public Tile get(int x, int y){
         return map[zeroTileXPositionInArray-y][zeroTileYPositionInArray+x];
     }
@@ -51,7 +67,28 @@ public class Map {
         updateLinkedStages();
     }
 
+    public void set(ServerQueries.TILE_PUTTED.Tile tile){
+        set(tile.position.x, tile.position.y, new Tile(tile, null));
+    }
+
+    public void setByPlayer(int x, int y, Tile tile){
+        set(x, y, tile);
+        relatedPlayers.passTurn();
+    }
+
+    public void setByPlayer(ServerQueries.TILE_PUTTED.Tile tile){
+        set(tile.position.x, tile.position.y, new Tile(tile, relatedPlayers.getCurrentPlayer()));
+        System.out.println("TURN PASSED FROM "+relatedPlayers.getCurrentPlayer());
+        relatedPlayers.passTurn();
+        System.out.println("TURN PASSED TO "+relatedPlayers.getCurrentPlayer());
+    }
+
     private void setWithoutUpdate(int x, int y, Tile tile){
+        if(map[zeroTileXPositionInArray-y][zeroTileYPositionInArray+x] == null && tile != null)
+            this.tilesCount++;
+        else if(map[zeroTileXPositionInArray-y][zeroTileYPositionInArray+x] != null && tile == null)
+            this.tilesCount--;
+
         map[zeroTileXPositionInArray-y][zeroTileYPositionInArray+x] = tile;
         if(tile != null){
             if (x < minOccupiedCoordinate.x) minOccupiedCoordinate.x = x;
@@ -74,6 +111,10 @@ public class Map {
                 }
             }
         }
+    }
+
+    public void setRelatedPlayers(PCLPlayers relatedPlayers) {
+        this.relatedPlayers = relatedPlayers;
     }
 
     public void set(Vector2 pos, Tile tile){
@@ -117,7 +158,9 @@ public class Map {
     }
 
     public Vector2 getOccupiedSize(){
-        return maxOccupiedCoordinate.cpy().sub(minOccupiedCoordinate);
+        if(tilesCount == 0)
+            return new Vector2(0,0);
+        return maxOccupiedCoordinate.cpy().sub(minOccupiedCoordinate).add(1, 1);
     }
 
     public void generateRandom(int size){
@@ -132,9 +175,9 @@ public class Map {
                 }
 
                 int tries = 0;
-                while (tries < 50){
-                    Tile tile = new Tile(TileTypes.tiles.get(1+random.nextInt(24)), random.nextInt(4));
-                    if (tile.canBePutBetween(this.get(i,j+1), this.get(i+1,j), this.get(i,j-1), this.get(i-1,j))) {
+                while (tries < 96){
+                    Tile tile = new Tile(TileTypes.get(1+random.nextInt(24)), random.nextInt(4));
+                    if (tile.canBePutBetween(this.get(i,j+1), this.get(i+1,j), this.get(i,j-1), this.get(i-1,j), true)) {
                         this.setWithoutUpdate(i, j, tile);
                         break;
                     }
@@ -151,9 +194,16 @@ public class Map {
         linkedGameFields.add(gameField);
     }
 
+    public void linkGameHud(GameHud gameHud){
+        linkedGameHuds.add(gameHud);
+    }
+
     private void updateLinkedStages(){
         for (GameField gameField : linkedGameFields){
             gameField.updateStage();
+        }
+        for (GameHud gameHud : linkedGameHuds){
+            gameHud.updateStage();
         }
     }
 
@@ -164,7 +214,7 @@ public class Map {
                 if (get(x, y) == null)
                     System.out.print("  ");
                 else
-                    System.out.print(TileTypes.tiles.indexOf(get(x, y).type)+"-"+get(x, y).rotation+" ");
+                    System.out.print(TileTypes.indexOf(get(x, y).type)+"-"+get(x, y).rotation+" ");
             }
             System.out.print("\n");
         }
@@ -174,9 +224,66 @@ public class Map {
                 if (map[y][x] == null)
                     System.out.print("  ");
                 else
-                    System.out.print(TileTypes.tiles.indexOf(map[y][x].type)+"-"+map[y][x].rotation+" ");
+                    System.out.print(TileTypes.indexOf(map[y][x].type)+"-"+map[y][x].rotation+" ");
             }
             System.out.print("\n");
         }
     }
+
+    public ArrayList<Vector2> getAvailableSpots(TileType tileType){
+        ArrayList<Vector2> res = new ArrayList<>();
+        ArrayList<Tile> testTiles = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            testTiles.add(new Tile(tileType, i));
+        }
+        for (int i = (int) (minOccupiedCoordinate.x-1); i <= maxOccupiedCoordinate.x+1; i++) {
+            for (int j = (int) (minOccupiedCoordinate.y-1); j <= maxOccupiedCoordinate.y+1; j++) {
+                if (this.get(i, j) == null){
+                    boolean available = false;
+                    for (Tile tile : testTiles) {
+                        if(tile.canBePutOn(this, i, j)){
+                            available = true;
+                            break;
+                        }
+                    }
+                    if (available)
+                        res.add(new Vector2(i, j));
+                }
+            }
+        }
+        return res;
+    }
+
+    public ArrayList<Integer> getAvailableRotations(int x, int y, TileType tileType){
+        ArrayList<Integer> res = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+           if(new Tile(tileType, i).canBePutOn(this, x, y))
+               res.add(i);
+        }
+        return res;
+    }
+
+    public ArrayList<Integer> getAvailableRotations(Vector2 pos, TileType tileType){
+        return getAvailableRotations((int) pos.x, (int) pos.y, tileType);
+    }
+
+    public void setSelectedTile(int x, int y, TileType tile){
+        if (this.selectedTileCoordinate != null){
+            System.out.println("SELECTED != null");
+            this.set(this.selectedTileCoordinate, null);
+        }
+        this.set(x, y, new Tile(tile, getAvailableRotations(x, y, tile).get(0), Tile.TilePurpose.IMAGINARY_SELECTED));
+        this.selectedTileCoordinate = new Vector2(x, y);
+        updateLinkedStages();
+    }
+
+    public void rotateSelectedTile(){
+        Tile selectedTile = this.get(selectedTileCoordinate);
+        ArrayList<Integer> availableRotations = this.getAvailableRotations(selectedTileCoordinate, selectedTile.type);
+        int currentRotationIndex = availableRotations.indexOf(selectedTile.rotation);
+        selectedTile.rotation = availableRotations.get((currentRotationIndex+1)%availableRotations.size());
+        updateLinkedStages();
+    }
+
+
 }

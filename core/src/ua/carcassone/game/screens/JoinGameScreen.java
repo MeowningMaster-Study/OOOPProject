@@ -2,6 +2,7 @@ package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -12,8 +13,14 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.game.PCLPlayers;
+import ua.carcassone.game.game.Player;
 import ua.carcassone.game.networking.GameWebSocketClient;
 import ua.carcassone.game.networking.IncorrectClientActionException;
+import ua.carcassone.game.networking.ServerQueries;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 import static ua.carcassone.game.Utils.*;
 
@@ -35,9 +42,9 @@ public class JoinGameScreen implements Screen {
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
 
-        mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
+        mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
-        Label carcassoneLabel = new Label("Join game", mySkin, "big");
+        Label carcassoneLabel = new Label("Join game", mySkin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
@@ -85,12 +92,16 @@ public class JoinGameScreen implements Screen {
                         (stateChange)->{
                             if ( stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE) {
                                 Gdx.app.postRunnable(() -> {
-                                    System.out.println("CHANGING TO A GAME SCREEN");
-                                    game.setScreen(new GameScreen(game, stateChange.additionalInfo));
+                                    System.out.println(1);
+                                    String tableId = (String) stateChange.additionalInfo[0];
+                                    PCLPlayers pclPlayers = (PCLPlayers) stateChange.additionalInfo[1];
+                                    System.out.println(2);
+
+                                    game.setScreen(new LobbyScreen(game, tableId, pclPlayers));
                                 });
                             }
                             else {
-                                joinCodeField.setText("Couldn't connect");
+                                joinCodeField.setMessageText("Couldn't connect");
                                 try {
                                     game.socketClient.restoreServerConnection();
                                 } catch (IncorrectClientActionException e) {

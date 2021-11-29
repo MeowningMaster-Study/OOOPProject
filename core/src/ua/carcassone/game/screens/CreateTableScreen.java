@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.game.PCLPlayers;
 import ua.carcassone.game.networking.GameWebSocketClient;
 import ua.carcassone.game.networking.IncorrectClientActionException;
 
@@ -39,9 +40,9 @@ public class CreateTableScreen implements Screen {
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
 
-        mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
+        mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
-        Label carcassoneLabel = new Label("Create Table", mySkin, "big");
+        Label carcassoneLabel = new Label("Create Table", mySkin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
@@ -86,8 +87,13 @@ public class CreateTableScreen implements Screen {
                         Arrays.asList(new GameWebSocketClient.ClientStateEnum[]{GameWebSocketClient.ClientStateEnum.CREATING_TABLE}),
                         (stateChange)->{
                             if ( stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE) {
-                                System.out.println(stateChange.additionalInfo+" - 3");
-                                Gdx.app.postRunnable(() -> game.setScreen(new GameScreen(game, stateChange.additionalInfo)));
+                                System.out.println("CHANGING TO A LOBBY SCREEN");
+                                String tableId = (String) stateChange.additionalInfo[0];
+                                PCLPlayers pclPlayers = (PCLPlayers) stateChange.additionalInfo[1];
+                                System.out.println("Got PCL creating: "+pclPlayers);
+                                Gdx.app.postRunnable(() -> game.setScreen(
+                                        new LobbyScreen(game, tableId, pclPlayers))
+                                );
                             }
                         }
                 );
@@ -101,7 +107,6 @@ public class CreateTableScreen implements Screen {
 
             }
         });
-
         return createButton;
     }
 

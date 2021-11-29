@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.function.Consumer;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
@@ -11,23 +13,29 @@ import com.badlogic.gdx.utils.JsonWriter;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import ua.carcassone.game.Settings;
+import ua.carcassone.game.game.*;
+import ua.carcassone.game.game.Map;
 import ua.carcassone.game.networking.ServerQueries.*;
 
 public class GameWebSocketClient extends WebSocketClient {
+    private PCLPlayers pclPlayers;
+    private PCLCurrentTile pclCurrentTile;
+    private Map relatedMap;
+    private Tile cachedCurrentTile;
+    private final Queue<ServerQueries.TILE_PUTTED.Tile> cachedPuttedTiles = new ArrayDeque<>();
 
     static class ClientState extends Observable{
         private ClientStateEnum state = ClientStateEnum.NOT_CONNECTED;
 
         public void set(ClientStateChange stateChange) {
-            this.state = stateChange.newState;
             System.out.println("State changing to " + stateChange.newState);
+            this.state = stateChange.newState;
             setChanged();
-            System.out.println(stateChange.additionalInfo+" - 2");
             notifyObservers(stateChange);
         }
 
         public void set(ClientStateEnum state){
-            set(new ClientStateChange(state, null));
+            set(new ClientStateChange(state));
         }
 
         public boolean  is(ClientStateEnum state){
@@ -52,14 +60,14 @@ public class GameWebSocketClient extends WebSocketClient {
         CONNECTED_TO_TABLE,
         FAILED_TO_CONNECT_TO_TABLE,
         CREATING_TABLE,
-
+        IN_GAME
     }
 
     public static class ClientStateChange{
         public ClientStateEnum newState;
-        public String additionalInfo;
+        public Object[] additionalInfo;
 
-        public ClientStateChange(ClientStateEnum newState, String additionalInfo) {
+        public ClientStateChange(ClientStateEnum newState, Object... additionalInfo) {
             this.newState = newState;
             this.additionalInfo = additionalInfo;
         }
@@ -103,8 +111,11 @@ public class GameWebSocketClient extends WebSocketClient {
                 System.out.println("! Server sent wrong response: \n\tstate is "+this.state.string()+"\n\tserver sent: "+message);
 
             JOIN_TABLE_SUCCESS response = jsonConverter.fromJson(JOIN_TABLE_SUCCESS.class, message);
-            System.out.println(response.tableId+" - 1");
-            this.state.set(new ClientStateChange(ClientStateEnum.CONNECTED_TO_TABLE, response.tableId));
+            this.getPclPlayers().clearPlayers();
+            for (int i = 0; i < response.players.size(); i++) {
+                this.getPclPlayers().addPlayer(response.players.get(i), i == response.players.size() - 1);
+            }
+            this.state.set(new ClientStateChange(ClientStateEnum.CONNECTED_TO_TABLE, response.tableId, this.getPclPlayers()));
         }
 
         else if (Objects.equals(action, JOIN_TABLE_FAILURE.class.getSimpleName())){
@@ -120,7 +131,75 @@ public class GameWebSocketClient extends WebSocketClient {
                 System.out.println("! Server sent wrong response: \n\tstate is "+this.state.string()+"\n\tserver sent: "+message);
 
             CREATE_TABLE_SUCCESS response = jsonConverter.fromJson(CREATE_TABLE_SUCCESS.class, message);
-            this.state.set(new ClientStateChange(ClientStateEnum.CONNECTED_TO_TABLE, response.tableId));
+            this.state.set(
+                    new ClientStateChange(
+                            ClientStateEnum.CONNECTED_TO_TABLE,
+                            response.tableId,
+                            this.getPclPlayers()
+                    ));
+        }
+
+        else if (Objects.equals(action, GAME_STARTED.class.getSimpleName())) {
+            if (!this.state.is(ClientStateEnum.CONNECTED_TO_TABLE))
+                System.out.println("! Server sent wrong response: \n\tstate is " + this.state.string() + "\n\tserver sent: " + message);
+
+            GAME_STARTED response = jsonConverter.fromJson(GAME_STARTED.class, message);
+            this.state.set(new ClientStateChange(ClientStateEnum.IN_GAME, response.tiles));
+        }
+
+        else if (Objects.equals(action, PLAYER_JOINED.class.getSimpleName())) {
+            if (!(this.state.is(ClientStateEnum.CONNECTED_TO_TABLE) || this.state.is(ClientStateEnum.IN_GAME)))
+                System.out.println("! Server sent wrong response: \n\tstate is " + this.state.string() + "\n\tserver sent: " + message);
+
+            PLAYER_JOINED response = jsonConverter.fromJson(PLAYER_JOINED.class, message);
+
+            if(this.pclPlayers == null){
+                System.out.println("! WARNING: New player arrived, but not handled");
+            } else {
+                Gdx.app.postRunnable(() -> pclPlayers.addPlayer(response.playerId));
+
+            }
+        }
+
+        else if (Objects.equals(action, PLAYER_LEFT.class.getSimpleName())) {
+            if (!(this.state.is(ClientStateEnum.CONNECTED_TO_TABLE) || this.state.is(ClientStateEnum.IN_GAME)))
+                System.out.println("! Server sent wrong response: \n\tstate is " + this.state.string() + "\n\tserver sent: " + message);
+
+            PLAYER_LEFT response = jsonConverter.fromJson(PLAYER_LEFT.class, message);
+
+            if(this.pclPlayers == null){
+                System.out.println("! WARNING: Player left, but not handled");
+            } else {
+                Gdx.app.postRunnable(() -> pclPlayers.removePlayer(response.playerId));
+            }
+        }
+
+        else if (Objects.equals(action, TILE_DRAWN.class.getSimpleName())) {
+            if (!this.state.is(ClientStateEnum.IN_GAME))
+                System.out.println("! Server sent wrong response: \n\tstate is " + this.state.string() + "\n\tserver sent: " + message);
+
+            TILE_DRAWN response = jsonConverter.fromJson(TILE_DRAWN.class, message);
+            Tile tileGot = new Tile(TileTypes.get(response.tileType), 0);
+            if(this.pclCurrentTile == null){
+                System.out.println("! WARNING: Tile drawn, but not handled, caching");
+                this.cachedCurrentTile = tileGot;
+            } else {
+                Gdx.app.postRunnable(() -> pclCurrentTile.setTile(tileGot));
+            }
+        }
+
+        else if (Objects.equals(action, TILE_PUTTED.class.getSimpleName())) {
+            if (!this.state.is(ClientStateEnum.IN_GAME))
+                System.out.println("! Server sent wrong response: \n\tstate is " + this.state.string() + "\n\tserver sent: " + message);
+
+            TILE_PUTTED response = jsonConverter.fromJson(TILE_PUTTED.class, message);
+
+            if(this.relatedMap == null || this.pclPlayers == null){
+                System.out.println("! WARNING: Tile put, but not handled, caching");
+                this.cachedPuttedTiles.add(response.tile);
+            } else {
+                Gdx.app.postRunnable(() -> relatedMap.setByPlayer(response.tile));
+            }
         }
 
         else if (Objects.equals(action, ERROR.class.getSimpleName())){
@@ -145,6 +224,14 @@ public class GameWebSocketClient extends WebSocketClient {
         System.err.println("an error occurred:" + ex);
     }
 
+    private PCLPlayers getPclPlayers(){
+        if(this.pclPlayers == null) {
+            this.pclPlayers = new PCLPlayers();
+            this.pclPlayers.addPlayer("CLIENT", true);
+        }
+        return this.pclPlayers;
+    }
+
     public void connectToServer() throws IncorrectClientActionException {
         if (!this.state.is(ClientStateEnum.NOT_CONNECTED))
             throw new IncorrectClientActionException("client is already connected to a server");
@@ -161,11 +248,20 @@ public class GameWebSocketClient extends WebSocketClient {
         this.state.set(ClientStateEnum.CONNECTING_TO_TABLE);
     }
 
-    public void leaveTable() throws IncorrectClientActionException {
+    public void startGame() throws IncorrectClientActionException {
         if (!this.state.is(ClientStateEnum.CONNECTED_TO_TABLE))
+            throw new IncorrectClientActionException("can not start game as client state is " + this.state.string());
+
+        this.sendJSON(new ClientQueries.START_GAME("https://youtu.be/j5a0jTc9S10"));
+    }
+
+    public void leaveTable() throws IncorrectClientActionException {
+        if (!(this.state.is(ClientStateEnum.CONNECTED_TO_TABLE) || this.state.is(ClientStateEnum.IN_GAME)))
             throw new IncorrectClientActionException("can not leave table as client state is " + this.state.string());
 
-        this.sendJSON(new ClientQueries.LEAVE_TABLE());
+        this.pclPlayers = null;
+        this.pclCurrentTile = null;
+        this.sendJSON(new ClientQueries.LEAVE_TABLE("i am leaving"));
         this.state.set(ClientStateEnum.CONNECTED_TO_SERVER);
     }
 
@@ -197,6 +293,35 @@ public class GameWebSocketClient extends WebSocketClient {
 
     public void addStateObserver(Observer observer){
         state.addObserver(observer);
+    }
+
+    public void setPCLPlayers(PCLPlayers pclPlayers){
+        this.pclPlayers = pclPlayers;
+        if(this.relatedMap != null && !cachedPuttedTiles.isEmpty()){
+            while (!cachedPuttedTiles.isEmpty()){
+                TILE_PUTTED.Tile tile = cachedPuttedTiles.remove();
+                this.relatedMap.setByPlayer(tile);
+            }
+        }
+    }
+
+    public void setMap(Map relatedMap) {
+        this.relatedMap = relatedMap;
+        if(this.pclPlayers != null && !cachedPuttedTiles.isEmpty()){
+            while (!cachedPuttedTiles.isEmpty()){
+                TILE_PUTTED.Tile tile = cachedPuttedTiles.remove();
+                this.relatedMap.setByPlayer(tile);
+            }
+        }
+    }
+
+    public void setPCLCurrentTile(PCLCurrentTile pclCurrentTile) {
+        this.pclCurrentTile = pclCurrentTile;
+        if (cachedCurrentTile != null){
+            System.out.println("Uncaching tile to currentTile..");
+            pclCurrentTile.setTile(cachedCurrentTile);
+            cachedCurrentTile = null;
+        }
     }
 
     /**
@@ -278,5 +403,10 @@ public class GameWebSocketClient extends WebSocketClient {
     public void sendJSON(Object o){
         this.send(jsonConverter.toJson(o));
     }
-
+    public ClientStateEnum getState(){
+        return this.state.state();
+    }
+    public boolean isConnected(){
+        return !this.state.is(ClientStateEnum.NOT_CONNECTED);
+    }
 }

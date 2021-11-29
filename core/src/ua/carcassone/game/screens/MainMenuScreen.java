@@ -22,7 +22,7 @@ public class MainMenuScreen implements Screen {
     private Viewport viewport;
     private Stage stage;
 
-    private Skin mySkin;
+    private Skin skin;
 
     public MainMenuScreen(final CarcassoneGame game) {
         this.game = game;
@@ -34,25 +34,31 @@ public class MainMenuScreen implements Screen {
         stage = new Stage(viewport, game.batch);
         Gdx.input.setInputProcessor(stage);
 
-        mySkin = new Skin(Gdx.files.internal("skin/comic-ui.json"));
+        skin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
-        Label carcassoneLabel = new Label("Carcassone Game", mySkin, "big");
+        Label carcassoneLabel = new Label("Carcassone Game", skin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
 
-        Label connectionLabel = new Label("NOT Connected", mySkin, "default");
-        connectionLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
-        connectionLabel.setPosition(ELEMENT_WIDTH_UNIT * 6, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
+        Label connectionLabel = new Label("NOT Connected", skin, "default");
+        connectionLabel.setPosition(10, 20);
         stage.addActor(connectionLabel);
 
-        GameWebSocketClient.stateMultipleObserver observer = new GameWebSocketClient.stateMultipleObserver((stateChange)->{
-            if (stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_SERVER)
-                connectionLabel.setText("Connected to server!");
-            else
-                connectionLabel.setText("Not connected to server! " + stateChange.newState);
-        });
-        game.socketClient.addStateObserver(observer);
+        if(!game.socketClient.isConnected()){
+            GameWebSocketClient.stateMultipleObserver observer = new GameWebSocketClient.stateMultipleObserver((stateChange)->{
+                if (stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_SERVER)
+                    connectionLabel.setText("Connected to server!");
+                else
+                    connectionLabel.setText("Not connected to server! " + stateChange.newState);
+            });
+            game.socketClient.addStateObserver(observer);
+        } else {
+            connectionLabel.setText("Connected to server!");
+        }
+
+        Button settingsButton = makeSettingsButton("Settings");
+        stage.addActor(settingsButton);
       
         Button createTableButton = makeCreateTableButton("Create table");
         stage.addActor(createTableButton);
@@ -66,7 +72,7 @@ public class MainMenuScreen implements Screen {
     }
 
     private Button makeCreateTableButton(String name){
-        Button createTableButton = new TextButton(name, mySkin);
+        Button createTableButton = new TextButton(name, skin);
         createTableButton.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
         createTableButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 4));
         createTableButton.addListener(new InputListener(){
@@ -85,7 +91,7 @@ public class MainMenuScreen implements Screen {
     }
 
     private Button makeJoinButton(String name){
-        Button joinButton = new TextButton(name, mySkin);
+        Button joinButton = new TextButton(name, skin);
         joinButton.setSize(ELEMENT_WIDTH_UNIT * 3, ELEMENT_HEIGHT_UNIT);
         joinButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 6));
         joinButton.addListener(new InputListener(){
@@ -97,16 +103,36 @@ public class MainMenuScreen implements Screen {
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
                 game.setScreen(new JoinGameScreen(game));
+                dispose();
             }
         });
 
         return joinButton;
     }
 
+    private Button makeSettingsButton(String name){
+        Button settingsButton = new TextButton(name, skin);
+        settingsButton.setSize(ELEMENT_WIDTH_UNIT * 3,ELEMENT_HEIGHT_UNIT);
+        settingsButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 8));
+        settingsButton.addListener(new InputListener(){
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                return true;
+            }
+
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                game.setScreen(new SettingsScreen(game));
+                dispose();
+            }
+        });
+        return settingsButton;
+    }
+
     private Button makeExitButton(String name){
-        Button exitButton = new TextButton(name, mySkin);
+        Button exitButton = new TextButton(name, skin);
         exitButton.setSize(ELEMENT_WIDTH_UNIT * 3,ELEMENT_HEIGHT_UNIT);
-        exitButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 8));
+        exitButton.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 10));
         exitButton.addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
