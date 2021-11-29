@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.game.PCLCurrentTile;
 import ua.carcassone.game.game.Player;
 import ua.carcassone.game.game.Tile;
 import ua.carcassone.game.game.TileTextureManager;
@@ -31,8 +32,6 @@ public class GameHud {
     private GameScreen gameScreen;
     private Skin mySkin;
 
-    Image currentTileImage;
-
     Button menuButton;
     Button confirmationButton;
     Button cancelButton;
@@ -40,6 +39,9 @@ public class GameHud {
     TileTextureManager textureManager;
     CurrentTileObserver currentTileObserver;
     CurrentPlayerObserver currentPlayerObserver;
+
+    final float CURR_TILE_X = Gdx.graphics.getWidth() - (float) (ELEMENT_WIDTH_UNIT * 1.5);
+    final float CURR_TILE_Y = (float) (ELEMENT_HEIGHT_UNIT * 1.3);
 
     public GameHud(GameScreen gameScreen){
         this.gameScreen = gameScreen;
@@ -57,16 +59,13 @@ public class GameHud {
         this.currentPlayerObserver = new CurrentPlayerObserver();
         this.gameScreen.players.addPCLListener(this.currentPlayerObserver);
 
-        currentTileImage.setSize(170, 170);
-        currentTileImage.setPosition(Gdx.graphics.getWidth() - (float) (ELEMENT_WIDTH_UNIT * 1.5), (float) (ELEMENT_HEIGHT_UNIT * 1.3));
-
         menuButton = makeMenuButton("Menu");
         stage.addActor(menuButton);
 
         confirmationButton = makeConfirmationButton("skins/icons/confirm.png");
         stage.addActor(confirmationButton);
 
-        cancelButton = makeCancelButton("skins/icons/confirm.png");
+        cancelButton = makeCancelButton("skins/icons/cancel.png");
         stage.addActor(confirmationButton);
     }
 
@@ -93,36 +92,66 @@ public class GameHud {
 
     private Button makeConfirmationButton(String path){
         ImageButton confirmationButton = getImageButton(path);
-        confirmationButton.setSize(50, 50);
-        confirmationButton.setPosition(currentTileImage.getX() - confirmationButton.getHeight(), currentTileImage.getY());
+        confirmationButton.setSize(150, 150);
+        confirmationButton.setPosition(CURR_TILE_X, CURR_TILE_Y);
 
         confirmationButton.addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                if(gameScreen.currentTile.isSet()){
+                    gameScreen.currentTile.setState(PCLCurrentTile.TileState.IS_PLACE_MEEPLE);
+                }
+                else{
+                    gameScreen.currentTile.setState(PCLCurrentTile.TileState.IS_STABILIZED);
+                }
                 return true;
             }
 
             @Override
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                Gdx.app.postRunnable(gameScreen.map::rotateSelectedTile);
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {}
+        });
+
+        return confirmationButton;
+    }
+
+    private Button makeCancelButton(String path) {
+        ImageButton cancelButton = getImageButton(path);
+        cancelButton.setSize(150, 150);
+        cancelButton.setPosition(CURR_TILE_X - confirmationButton.getWidth() - 10, CURR_TILE_Y);
+
+        cancelButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                return true;
             }
-        })
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                gameScreen.currentTile.setState(PCLCurrentTile.TileState.IS_PUT);
+            }
+        });
+
+        return cancelButton;
     }
 
     public void updateStage(){
         stage.clear();
 
-        if(gameScreen.currentTile.getCurrentTile() != null){
-            drawCurrentTile();
+        if(gameScreen.currentTile.isSet()){
+            if(gameScreen.currentTile.isHanging()){
+                drawCurrentTile();
+            }
+            else{
+                stage.addActor(confirmationButton);
+
+                if(gameScreen.currentTile.isPlaceMeeple()){
+                    drawMeeples();
+                    stage.addActor(cancelButton);
+                }
+            }
         }
         if(gameScreen.players.getPlayers() != null){
             drawPlayers();
-        }
-
-        if(gameScreen.currentTile.isPut()){
-            drawMeeples();
-            stage.addActor(confirmationButton);
-            stage.addActor(cancelButton);
         }
 
         stage.addActor(menuButton);
@@ -148,24 +177,53 @@ public class GameHud {
             pImage.setSize(100, 100);
             stage.addActor(pImage);
 
+            Table labelsTable = new Table();
+            labelsTable.setSize(100, 60);
+            labelsTable.setPosition((float)(ELEMENT_WIDTH_UNIT / 2),
+                    Utils.fromTop(ELEMENT_HEIGHT_UNIT * (heightCoeff * i + 2)) - pImage.getHeight() / 1.5f);
+            labelsTable.setSkin(mySkin);
+
             Label pName = new Label(
                     (gameScreen.players.isTurnOf(player)?"=> ":"")+
                             player.getName()
                     ,
-//                    new Label.LabelStyle(new BitmapFont(), player.getColor())
-                    mySkin,
-                    "alt"
+                    mySkin
             );
-            pName.setSize(100, 20);
-            pName.setPosition(pImage.getX(), pImage.getY());
-            stage.addActor(pName);
+
+            Label pMeeples = new Label(
+                    "Meeples: " + player.getMeepleCount(),
+                    mySkin
+            );
+
+            Label pScore = new Label(
+                    "Score: " + player.getScore(),
+                    mySkin
+            );
+
+            labelsTable.add(pName).expandX().fillX().height(20);
+            labelsTable.row();
+            labelsTable.add(pMeeples).expandX().fillX().height(20);
+            labelsTable.row();
+            labelsTable.add(pScore).expandX().fillX().height(20);
+            labelsTable.row();
+
+            stage.addActor(labelsTable);
         }
     }
 
     private void drawCurrentTile(){
         Tile currentTile = gameScreen.currentTile.getCurrentTile();
-        currentTileImage = new Image(textureManager.getTexture(currentTile));
+        Image currentTileImage = new Image(textureManager.getTexture(currentTile));
+        currentTileImage.setPosition(CURR_TILE_X, CURR_TILE_Y);
+        currentTileImage.setSize(150, 150);
         stage.addActor(currentTileImage);
+    }
+
+    private void drawMeeples(){
+        Image mImage = new Image(new Texture("skins/meeples/meeple_castle.png"));
+        mImage.setPosition(CURR_TILE_X + 50, 3 * CURR_TILE_Y);
+        mImage.setSize(50, 50);
+        stage.addActor(mImage);
     }
 
     private class CurrentPlayerObserver implements PropertyChangeListener{
@@ -179,7 +237,7 @@ public class GameHud {
     private class CurrentTileObserver implements PropertyChangeListener{
         public void propertyChange(PropertyChangeEvent evt){
             if(Objects.equals(evt.getPropertyName(), "currentTile") ||
-                    Objects.equals(evt.getPropertyName(), "isSpotted"))
+                    Objects.equals(evt.getPropertyName(), "state"))
                 updateStage();
         }
     }

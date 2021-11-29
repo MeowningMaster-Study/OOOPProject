@@ -4,6 +4,9 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 public class PCLCurrentTile{
+    public enum TileState {IS_HANGING, IS_PUT, IS_PLACE_MEEPLE, IS_STABILIZED}
+
+    private TileState state;
     private Tile currentTile;
     private final PropertyChangeSupport support;
 
@@ -20,6 +23,7 @@ public class PCLCurrentTile{
     }
 
     public void setTile(Tile newTile){
+        state = TileState.IS_HANGING;
         support.firePropertyChange("currentTile", this.currentTile, newTile);
         this.currentTile = newTile;
     }
@@ -28,7 +32,18 @@ public class PCLCurrentTile{
         return currentTile;
     }
 
+    public void setState(TileState state) {
+        support.firePropertyChange("state", this.currentTile, state);
+        this.state = state;
+    }
+
+    public boolean isHanging(){return state == TileState.IS_HANGING; }
+    public boolean isPut(){return state == TileState.IS_PUT; }
+    public boolean isPlaceMeeple(){return state == TileState.IS_PLACE_MEEPLE;}
+    public boolean isStabilized(){return state == TileState.IS_STABILIZED; }
+
+
     public boolean isSet(){
-        return currentTile != null && currentTile.type != null;
+        return currentTile != null && currentTile.type != null && state != null;
     }
 }

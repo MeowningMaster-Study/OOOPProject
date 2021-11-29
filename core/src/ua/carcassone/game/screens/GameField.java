@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.game.PCLCurrentTile;
 import ua.carcassone.game.game.Tile;
 import ua.carcassone.game.game.TileTextureManager;
 import ua.carcassone.game.game.TileTypes;
@@ -133,7 +134,7 @@ public class GameField {
                     public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
                         Gdx.app.postRunnable(() -> gameScreen.map.setSelectedTile((int) coordinate.x, (int) coordinate.y,
                                 gameScreen.currentTile.getCurrentTile().type));
-                        //gameScreen.currentTile.setSpotted(true);
+                        gameScreen.currentTile.setState(PCLCurrentTile.TileState.IS_PUT);
                     }
                 });
                 stage.addActor(imageButton);

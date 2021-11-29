@@ -6,7 +6,9 @@ public class Player {
     private final String name;
     private final String code;
     private Color color;
-    private int meepleCount = 0;
+
+    private int meepleCount = 8;
+    private int score = 0;
     private boolean isClient = false;
 
     public Player(String name, String code, Color color) {
@@ -41,5 +43,17 @@ public class Player {
 
     public boolean isClient() {
         return isClient;
+    }
+
+    public int getMeepleCount() {
+        return meepleCount;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void addPoints(int points) {
+        this.score += points;
     }
 }
