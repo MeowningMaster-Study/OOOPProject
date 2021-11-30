@@ -1,5 +1,6 @@
 package ua.carcassone.game;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 
 import java.net.URI;
@@ -41,5 +42,10 @@ public class Settings {
     public static final float possibleEmptyCameraPercent = 0.95f;
 
     // the starting volume of the music. value from 0 to 1.
-    public static final float startingMusicVolume = 0.2f;
+    public static final float startingMusicVolume = 0.0f;
+
+    public static float pointRadius = 7;
+    public static float meepleHeight = 25;
+
+    public static final Color meepleGreenscreenColor = new Color(0.0f, 1.0f, 0.0f, 1.0f);
 }

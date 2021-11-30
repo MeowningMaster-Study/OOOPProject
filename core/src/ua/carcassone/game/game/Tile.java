@@ -1,29 +1,19 @@
 package ua.carcassone.game.game;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.networking.ServerQueries;
 
 import java.util.Arrays;
 import java.util.List;
 
-class Meeple {
-    public Player player;
-    public int position;
-
-
-    public Meeple(Player player, int position) {
-        this.player = player;
-        this.position = position;
-    }
-}
-
 public class Tile {
     public TileType type;
-    public Meeple meeple;
+    private Meeple meeple;
     public int rotation;
     public TilePurpose purpose = TilePurpose.LEGIT;
 
-    public static enum TilePurpose{
+    public enum TilePurpose{
         LEGIT,
         IMAGINARY_SELECTED,
         IMAGINARY_FOCUS,
@@ -107,5 +97,27 @@ public class Tile {
                 "sides=" + (type != null ? Arrays.toString(type.sides) : "null" )+
                 ", rotation=" + rotation +
                 '}';
+    }
+
+    public boolean hasMeeple(){
+        return this.meeple != null && this.meeple.getPosition() != 0 && this.meeple.getPlayer() != null;
+    }
+
+    public void setMeeple(Meeple meeple){
+        this.meeple = meeple;
+    }
+
+    public void setMeeple(Player player, int position){
+        this.meeple = new Meeple(player, position);
+    }
+
+    public void unsetMeeple(){
+        this.meeple = new Meeple(null, 0);
+    }
+
+    public Meeple getMeeple(){
+        if(!hasMeeple())
+            return null;
+        return this.meeple;
     }
 }

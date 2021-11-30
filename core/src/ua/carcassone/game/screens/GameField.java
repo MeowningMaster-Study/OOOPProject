@@ -17,10 +17,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
-import ua.carcassone.game.game.PCLCurrentTile;
-import ua.carcassone.game.game.Tile;
-import ua.carcassone.game.game.TileTextureManager;
-import ua.carcassone.game.game.TileTypes;
+import ua.carcassone.game.game.*;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -120,21 +117,63 @@ public class GameField {
                             });
                         }
                         else if(gameScreen.currentTile.isPlaceMeeple()){
-                            imageButton.addListener(new InputListener(){
+                            for (MeeplePosition meeplePosition: MeeplePosition.get(tile)) {
+                                ImageButton pointButton = new ImageButton(
+                                        new TextureRegionDrawable(new TextureRegion(textureManager.getPointDarkerTexture())),
+                                        new TextureRegionDrawable(new TextureRegion(textureManager.getPointDarkTexture()))
+                                        );
+                                pointButton.setPosition(
+                                        tileSize*meeplePosition.position.x-Settings.pointRadius,
+                                        tileSize*meeplePosition.position.y-Settings.pointRadius
+                                );
+                                pointButton.setSize(Settings.pointRadius*2, Settings.pointRadius*2);
+
+                                pointButton.addListener(new InputListener(){
+                                    @Override
+                                    public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {return true;}
+
+                                    @Override
+                                    public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                                        Gdx.app.postRunnable(()-> gameScreen.gameLogic.setMeepleOnSelectedTile(meeplePosition.entityId));
+                                    }
+                                });
+                                imageButton.addActor(pointButton);
+                            }
+                        }
+
+
+                        stage.addActor(imageButton);
+                    }
+
+                    if (tile.hasMeeple()){
+                        ImageButton meepleActor = new ImageButton(
+                                new TextureRegionDrawable(new TextureRegion(
+                                        textureManager.getMeepleTexture(tile.getMeeple().getPlayer().getColor())
+                                ))
+                        );
+                        Vector2 position = MeeplePosition.getPosition(tile.getMeeple(), tile);
+                        assert position != null;
+                        System.out.println(position);
+                        float hwCoefficient = meepleActor.getHeight()/meepleActor.getWidth();
+                        meepleActor.setSize(Settings.meepleHeight/hwCoefficient, Settings.meepleHeight);
+                        meepleActor.setPosition(
+                                (i+position.x)*tileSize-halfTile-meepleActor.getWidth()/2,
+                                (j+position.y)*tileSize-halfTile-meepleActor.getHeight()/2
+                        );
+
+
+                        if(gameScreen.currentTile.isPlaceMeeple()){
+                            meepleActor.addListener(new InputListener(){
                                 @Override
                                 public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {return true;}
 
                                 @Override
                                 public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                                    Gdx.app.postRunnable(()->{
-                                        System.out.println("CLICK ON "+x+", "+y);
-                                    });
+                                    Gdx.app.postRunnable(()-> gameScreen.gameLogic.unsetMeepleOnSelectedTile());
                                 }
                             });
                         }
-
-
-                        stage.addActor(imageButton);
+                        stage.addActor(meepleActor);
                     }
 
                 }

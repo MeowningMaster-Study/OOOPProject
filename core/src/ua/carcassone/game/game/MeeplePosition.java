@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class MeeplePosition {
@@ -22,7 +23,7 @@ public class MeeplePosition {
 
     private static List<List<MeeplePosition>> tileTypesMeeples = Arrays.asList(
             // 0
-            new ArrayList<MeeplePosition>(),
+            new ArrayList<>(),
             // 1
             Arrays.asList(
                     new MeeplePosition(13, 0.5f, 0.5f),
@@ -179,5 +180,49 @@ public class MeeplePosition {
                     new MeeplePosition(12, 0.77f, 0.22f)
             )
             );
+
+    public MeeplePosition copy(){
+        return new MeeplePosition(this.entityId, this.position.cpy());
+    }
+
+    public void rotate(int times){
+        if(times <= 0) return;
+        for (int i = 0; i < times; i++) {
+            this.position.set(this.position.y, 1-this.position.x);
+        }
+    }
+
+    public MeeplePosition rotated(int times){
+        if(times == 0) return this;
+        if (times < 0) times = 4-Math.abs(times)%4;
+
+        MeeplePosition res = this.copy();
+        for (int i = 0; i < times; i++) {
+            res.position.set(res.position.y, 1-res.position.x);
+        }
+        return res;
+    }
+
+    public static List<MeeplePosition> get(TileType tileType, int rotation){
+        List<MeeplePosition> res = new ArrayList<>();
+        for (MeeplePosition meeplePosition: MeeplePosition.tileTypesMeeples.get(TileTypes.indexOf(tileType))) {
+            res.add(meeplePosition.copy().rotated(rotation));
+        }
+        return res;
+    }
+
+    public static List<MeeplePosition> get(Tile tile){
+        if(tile == null) return Collections.emptyList();
+        return get(tile.type, tile.rotation);
+    }
+
+    public static Vector2 getPosition(Meeple meeple, Tile tile){
+        List<MeeplePosition> positions = get(tile.type, tile.rotation);
+        for (MeeplePosition position : positions){
+            if (position.entityId == meeple.getPosition())
+                return position.position;
+        }
+        return null;
+    }
 
 }

@@ -77,7 +77,7 @@ public class Map {
         set(x, y, tile);
         if(relatedPlayers.isCurrentPlayerClient()){
             try {
-                relatedClient.putTile(x, y, tile.rotation, tile.meeple.position);
+                relatedClient.putTile(x, y, tile.rotation, tile.getMeeple().getPosition());
             } catch (IncorrectClientActionException e) {
                 e.printStackTrace();
             }
@@ -332,5 +332,15 @@ public class Map {
 
     public boolean hasSelectedTile(){
         return this.selectedTileCoordinate != null;
+    }
+
+    public void setMeepleOnSelectedTile(int instanceId){
+        this.get(this.selectedTileCoordinate).setMeeple(new Meeple(relatedPlayers.getCurrentPlayer(), instanceId));
+        updateLinkedStages();
+    }
+
+    public void unsetMeepleOnSelectedTile(){
+        this.get(this.selectedTileCoordinate).unsetMeeple();
+        updateLinkedStages();
     }
 }

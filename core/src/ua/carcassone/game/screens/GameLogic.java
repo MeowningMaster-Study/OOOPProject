@@ -51,4 +51,17 @@ public class GameLogic {
         }
     }
 
+    public void setMeepleOnSelectedTile(int instanceId){
+        if(instanceId == 0) unsetMeepleOnSelectedTile();
+        else if(gameScreen.map.hasSelectedTile() && gameScreen.currentTile.isPlaceMeeple()){
+            gameScreen.map.setMeepleOnSelectedTile(instanceId);
+        }
+    }
+
+    public void unsetMeepleOnSelectedTile(){
+        if(gameScreen.map.hasSelectedTile() && gameScreen.currentTile.isPlaceMeeple()){
+            gameScreen.map.unsetMeepleOnSelectedTile();
+        }
+    }
+
 }
