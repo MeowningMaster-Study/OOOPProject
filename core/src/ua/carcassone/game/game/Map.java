@@ -56,6 +56,9 @@ public class Map {
         this.minOccupiedCoordinate = new Vector2(0, 0);
     }
 
+    /**
+     * Получить tile по позиции х, у.
+     * */
     public Tile get(int x, int y){
         return map[zeroTileXPositionInArray-y][zeroTileYPositionInArray+x];
     }
@@ -64,6 +67,9 @@ public class Map {
         return get((int) pos.x, (int) pos.y);
     }
 
+    /**
+     * Ставит tile на позиции x, y и обновляет игровые поля всех пользователей.
+     * */
     public void set(int x, int y, Tile tile){
         setWithoutUpdate(x, y, tile);
         updateLinkedStages();
@@ -73,6 +79,9 @@ public class Map {
         set(tile.position.x, tile.position.y, new Tile(tile, null));
     }
 
+    /**
+     * Ставит tile текущего relatedPlayers на позиции х, у.
+     * */
     public void setByPlayer(int x, int y, Tile tile){
         set(x, y, tile);
         if(relatedPlayers.isCurrentPlayerClient()){
@@ -94,6 +103,9 @@ public class Map {
         relatedPlayers.passTurn();
     }
 
+    /**
+     * Ставит tile на позиции х, у, не обновляя игровые поля.
+     * */
     private void setWithoutUpdate(int x, int y, Tile tile){
         if(map[zeroTileXPositionInArray-y][zeroTileYPositionInArray+x] == null && tile != null)
             this.tilesCount++;
@@ -109,18 +121,31 @@ public class Map {
         }
     }
 
+    /**
+     * Переводит поставленный на свободное место tile с selectedTileCoordinate
+     * в состояние IMAGINARY_FOCUS.
+     * */
     public void confirmSelectedTilePosition(){
         Vector2 coordinate = this.selectedTileCoordinate;
         Tile selected = this.get(coordinate);
         selected.purpose = Tile.TilePurpose.IMAGINARY_FOCUS;
     }
 
+    /**
+     * Переводит поставленный на свободное место tile с selectedTileCoordinate
+     * IMAGINARY_FOCUS(скорее всего) в состояние IMAGINARY_SELECTED.
+     * */
     public void disproveSelectedTile(){
         Vector2 coordinate = this.selectedTileCoordinate;
         Tile selected = this.get(coordinate);
         selected.purpose = Tile.TilePurpose.IMAGINARY_SELECTED;
     }
 
+    /**
+     * Фиксирует tile на координатах selectedTileCoordinate,
+     * добавляет на map
+     * и переводит в состояние LEGIT.
+     * */
     public void confirmSelectedTile(){
         Vector2 coordinate = this.selectedTileCoordinate;
         Tile selected = this.get(coordinate);
@@ -129,6 +154,9 @@ public class Map {
         setByPlayer(coordinate, selected);
     }
 
+    /***
+     * Для данного map пересчитывает minOccupiedCoordinate и maxOccupiedCoordinate.
+     */
     private void recalculateOccupiedCoordinates(){
         minOccupiedCoordinate.setZero();
         maxOccupiedCoordinate.setZero();
@@ -192,6 +220,9 @@ public class Map {
         return maxOccupiedCoordinate;
     }
 
+    /**
+     * @return разница между maxOccupiedCoordinate и minOccupiedCoordinate.
+     * */
     public Vector2 getOccupiedSize(){
         if(tilesCount == 0)
             return new Vector2(0,0);
@@ -225,14 +256,24 @@ public class Map {
         updateLinkedStages();
     }
 
+
+    /**
+     * Добавляет gameField конкретного игрока к gameField других игроков.
+     * */
     public void linkGameField(GameField gameField){
         linkedGameFields.add(gameField);
     }
 
+    /**
+     * Добавляет gameHud конкретного игрока к gameHud других игроков.
+     * */
     public void linkGameHud(GameHud gameHud){
         linkedGameHuds.add(gameHud);
     }
 
+    /**
+     * Обновляет gameField и gameHud сцен всех игроков.
+     * */
     private void updateLinkedStages(){
         for (GameField gameField : linkedGameFields){
             gameField.updateStage();
@@ -265,6 +306,9 @@ public class Map {
         }
     }
 
+    /**
+     * @return res - все возможные свободные позиции для tileType.
+     * */
     public ArrayList<Vector2> getAvailableSpots(TileType tileType){
         ArrayList<Vector2> res = new ArrayList<>();
         ArrayList<Tile> testTiles = new ArrayList<>();
@@ -289,6 +333,9 @@ public class Map {
         return res;
     }
 
+    /**
+     * @return res - все возможные повороты для tileType на позиции x, y.
+     * */
     public ArrayList<Integer> getAvailableRotations(int x, int y, TileType tileType){
         ArrayList<Integer> res = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
@@ -302,6 +349,9 @@ public class Map {
         return getAvailableRotations((int) pos.x, (int) pos.y, tileType);
     }
 
+    /**
+     * Ставит tile на позиции х,у запоминает его координаты и помечает IMAGINARY_SELECTED.
+     * */
     public void setSelectedTile(int x, int y, TileType tile){
         if (this.selectedTileCoordinate != null){
             this.set(this.selectedTileCoordinate, null);
@@ -315,6 +365,9 @@ public class Map {
         updateLinkedStages();
     }
 
+    /**
+     * Вращает текущий поставленный тайл по часовой стрелке.
+     * */
     public void rotateSelectedTile(){
         if(selectedTileCoordinate == null)
             return;

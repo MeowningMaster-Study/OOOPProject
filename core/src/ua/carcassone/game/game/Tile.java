@@ -59,6 +59,10 @@ public class Tile {
 
 
     // temporary solution
+    /**
+     * @return можно ли поставить tile с его tileActingSide
+     * к соответствующей thisActingSide соседнего tile.
+     * */
     public boolean canBePutTo(Tile tile, Utils.SpacialRelation relation){
         if (tile == null || tile.type == null || tile.purpose != TilePurpose.LEGIT) return true;
         int tileActingSide = tile.type.getSide(relation.ordinal(), tile.rotation);
@@ -66,6 +70,9 @@ public class Tile {
         return TileType.sidesMatch(tileActingSide, thisActingSide);
     }
 
+    /**
+     * @return можно ли поставить tile между  upper, right, below, left,если они не null.
+     * */
     public boolean canBePutBetween(Tile upper, Tile right, Tile below, Tile left, boolean canBePutBetweenNull){
         if(!canBePutBetweenNull && upper ==  null && right == null && below == null && left == null)
             return false;
@@ -87,6 +94,9 @@ public class Tile {
         return canBePutBetween(upper, right, below, left, false);
     }
 
+    /**
+     * @return можно ли поставить tile на map.
+     * */
     public boolean canBePutOn(Map map, int x, int y){
         return canBePutBetween(map.get(x, y+1), map.get(x+1, y), map.get(x, y-1), map.get(x-1, y));
     }
@@ -116,8 +126,6 @@ public class Tile {
     }
 
     public Meeple getMeeple(){
-        if(!hasMeeple())
-            return null;
         return this.meeple;
     }
 }

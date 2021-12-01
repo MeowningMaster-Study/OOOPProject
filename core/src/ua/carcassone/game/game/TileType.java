@@ -25,6 +25,9 @@ public class TileType {
     }
 
     // temporary solution
+    /**
+     * @return соответствуют ли стороны тайлов друг-другу.
+     * */
     public static boolean sidesMatch(int side1, int side2){
         return  (side1 == side2) ||
                 (Utils.numberInRange(side1, 1, 5) && Utils.numberInRange(side2, 1, 5)) ||

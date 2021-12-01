@@ -30,9 +30,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import static ua.carcassone.game.Utils.*;
 
@@ -46,7 +43,6 @@ public class LobbyScreen implements Screen {
     private Skin mySkin;
     private PCLPlayers players;
     private PlayersObserver playersObserver;
-
 
     public LobbyScreen(final CarcassoneGame game, String tableId, PCLPlayers pclPlayers) {
         this.game = game;
@@ -217,13 +213,13 @@ public class LobbyScreen implements Screen {
         codeLabel.setPosition(carcassoneLabel.getX(), carcassoneLabel.getY()-ELEMENT_HEIGHT_UNIT);
         stage.addActor(codeLabel);
 
+        Button copyButton = makeCopyButton("skins/utils/copy.png");
+        stage.addActor(copyButton);
+
         Label code = new Label(this.tableId, mySkin, "half-tone");
         code.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         code.setPosition(codeLabel.getX()+codeLabel.getWidth()+20, codeLabel.getY());
         stage.addActor(code);
-
-        ImageButton copyButton = makeCopyButton("skins/icons/copy.png");
-        stage.addActor(copyButton);
 
         Button startGameButton = makeStartGameButton("Start game");
         stage.addActor(startGameButton);

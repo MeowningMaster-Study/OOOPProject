@@ -13,6 +13,10 @@ public class GameLogic {
         this.gameScreen = gameScreen;
     }
 
+    /**
+     * Проводит все нужные операции для перевода текущего тайла
+     * чтобы перевести из нулевого состояния в IS_PUT
+     * */
     public void setSelection(int x, int y){
         gameScreen.currentTile.setState(PCLCurrentTile.TileState.IS_PUT);
         gameScreen.map.setSelectedTile(x, y, gameScreen.currentTile.getCurrentTile().type);
@@ -22,6 +26,10 @@ public class GameLogic {
         setSelection((int) pos.x, (int) pos.y);
     }
 
+    /**
+     * Проводит все нужные операции для перевода текущего тайла
+     * чтобы перевести из состояния IS_PUT в IS_PLACE_MEEPLE
+     * */
     public void confirmSelectedTilePosition(){
         if (gameScreen.map.hasSelectedTile() && gameScreen.currentTile.isPut()) {
             gameScreen.map.confirmSelectedTilePosition();
@@ -33,6 +41,10 @@ public class GameLogic {
         }
     }
 
+    /**
+     * Проводит все необходимые операции для текущего тайла
+     * чтобы перевести из состояния IS_PLACE_MEEPLE в IS_PUT.
+     * */
     public void disproveSelectedTileMeeples(){
         if (gameScreen.map.hasSelectedTile() && gameScreen.currentTile.isPlaceMeeple()) {
             gameScreen.map.disproveSelectedTile();
@@ -42,6 +54,10 @@ public class GameLogic {
         }
     }
 
+    /**
+     * Проводит все необходимые операции для текущего тайла
+     * чтобы перевести из состояния IS_PLACE_MEEPLE в IS_STABILIZED.
+     * */
     public void confirmSelectedTileMeeples(){
         if(gameScreen.map.hasSelectedTile() && gameScreen.currentTile.isPlaceMeeple()){
             gameScreen.currentTile.setState(PCLCurrentTile.TileState.IS_STABILIZED);
@@ -51,6 +67,9 @@ public class GameLogic {
         }
     }
 
+    /**
+     * Проводит нужные операции для установки мипла на тайл.
+     * */
     public void setMeepleOnSelectedTile(int instanceId){
         if(instanceId == 0) unsetMeepleOnSelectedTile();
         else if(gameScreen.map.hasSelectedTile() && gameScreen.currentTile.isPlaceMeeple()){
@@ -58,6 +77,9 @@ public class GameLogic {
         }
     }
 
+    /**
+     * Проводит нужные операции для снятия мипла с поставленной позиции.
+     * */
     public void unsetMeepleOnSelectedTile(){
         if(gameScreen.map.hasSelectedTile() && gameScreen.currentTile.isPlaceMeeple()){
             gameScreen.map.unsetMeepleOnSelectedTile();

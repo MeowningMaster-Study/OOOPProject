@@ -63,7 +63,7 @@ public class GameField {
     }
 
     /**
-     * Updates the stage, using map
+     * Updates the stage, using map.
      */
     public void updateStage(){
         // can be updated by saving prev. field and only setting changed tiles
@@ -74,6 +74,8 @@ public class GameField {
         for (int i = gameScreen.map.minX(); i <= gameScreen.map.maxX(); i++){ // для каждого столбца
             for (int j = gameScreen.map.maxY(); j >= gameScreen.map.minY(); j--){ // для каждой строки
                 if (gameScreen.map.get(i, j) != null){
+                    // Если тайл не нулевой, то создаем для него текстуру
+
                     Tile tile = gameScreen.map.get(i, j);
                     Image image = new Image(textureManager.getTexture(tile.type, tile.rotation));
                     image.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
@@ -81,6 +83,7 @@ public class GameField {
                     stage.addActor(image);
 
                     if(tile.purpose != Tile.TilePurpose.LEGIT){
+                        // Если тайл уже установлен на карту - отрисовываем его.
 
                         if(gameScreen.currentTile.isPut()){
                             if(gameScreen.map.getAvailableRotations(i, j, tile.type).size() > 1){
@@ -91,6 +94,7 @@ public class GameField {
                             }
                         }
 
+                        // Отрисовка контекстных границ тайлов.
                         Texture borderTexture;
                         if(tile.purpose == Tile.TilePurpose.IMAGINARY_SELECTED){
                             borderTexture = textureManager.getBorderTexture();
@@ -106,6 +110,8 @@ public class GameField {
                         imageButton.setSize(tileSize, tileSize);
 
                         if(gameScreen.currentTile.isPut()){
+                            // Поворот текущего тайла, поставленного на карту.
+
                             imageButton.addListener(new InputListener(){
                                 @Override
                                 public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {return true;}
@@ -117,6 +123,8 @@ public class GameField {
                             });
                         }
                         else if(gameScreen.currentTile.isPlaceMeeple()){
+                            // Установка мипла на текущий тайл, поставленный на карту.
+
                             for (MeeplePosition meeplePosition: MeeplePosition.get(tile)) {
                                 ImageButton pointButton = new ImageButton(
                                         new TextureRegionDrawable(new TextureRegion(textureManager.getPointDarkerTexture())),
@@ -146,6 +154,8 @@ public class GameField {
                     }
 
                     if (tile.hasMeeple()){
+                        // Отрисовка уже поставленного мипла на карте.
+
                         ImageButton meepleActor = new ImageButton(
                                 new TextureRegionDrawable(new TextureRegion(
                                         textureManager.getMeepleTexture(tile.getMeeple().getPlayer().getColor())
@@ -163,6 +173,8 @@ public class GameField {
 
 
                         if(gameScreen.currentTile.isPlaceMeeple()){
+                            // Снятие мипла с текущего тайла.
+
                             meepleActor.addListener(new InputListener(){
                                 @Override
                                 public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {return true;}
@@ -181,6 +193,7 @@ public class GameField {
         }
 
         if(gameScreen.players.isCurrentPlayerClient() &&  TileTypes.isGamingTile(gameScreen.currentTile.getCurrentTile())){
+            // Отрисовка доступных мест для установки текущего тайла.
 
             ArrayList<Vector2> availableTileSpots =
                     gameScreen.map.getAvailableSpots(gameScreen.currentTile.getCurrentTile().type);
@@ -191,6 +204,8 @@ public class GameField {
                 imageButton.setPosition(coordinate.x*tileSize-halfTile, coordinate.y*tileSize-halfTile);
                 imageButton.setSize(tileSize, tileSize);
                 imageButton.addListener(new InputListener(){
+                    // Установка текцщего тайла на доступное место.
+
                     @Override
                     public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
                         return true;
