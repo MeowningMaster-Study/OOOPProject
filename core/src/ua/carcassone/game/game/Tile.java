@@ -116,8 +116,6 @@ public class Tile {
     }
 
     public Meeple getMeeple(){
-        if(!hasMeeple())
-            return null;
         return this.meeple;
     }
 }
