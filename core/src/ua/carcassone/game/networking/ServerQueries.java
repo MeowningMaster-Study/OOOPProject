@@ -65,6 +65,8 @@ public class ServerQueries {
             public Position position;
             public int rotation;
             public int meeple;
+            public int seed;
+
 
             public static class Position{
                 public int x;
