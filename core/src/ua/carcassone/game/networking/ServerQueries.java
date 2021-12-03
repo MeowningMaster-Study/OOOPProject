@@ -51,7 +51,13 @@ public class ServerQueries {
 
     public static class TILE_DRAWN {
         public String action;
-        public int tileType;
+        public Tile tile;
+
+        public static class Tile{
+            public int type;
+            public int seed;
+        }
+
     }
 
     public static class TILE_PUTTED {

@@ -211,7 +211,7 @@ public class Map {
 
                 int tries = 0;
                 while (tries < 96){
-                    Tile tile = new Tile(TileTypes.get(1+random.nextInt(24)), random.nextInt(4));
+                    Tile tile = new Tile(TileTypes.get(1+random.nextInt(24)), random.nextInt(4), new Random().nextInt());
                     if (tile.canBePutBetween(this.get(i,j+1), this.get(i+1,j), this.get(i,j-1), this.get(i-1,j), true)) {
                         this.setWithoutUpdate(i, j, tile);
                         break;
@@ -269,7 +269,7 @@ public class Map {
         ArrayList<Vector2> res = new ArrayList<>();
         ArrayList<Tile> testTiles = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            testTiles.add(new Tile(tileType, i));
+            testTiles.add(new Tile(tileType, i, 0));
         }
         for (int i = (int) (minOccupiedCoordinate.x-1); i <= maxOccupiedCoordinate.x+1; i++) {
             for (int j = (int) (minOccupiedCoordinate.y-1); j <= maxOccupiedCoordinate.y+1; j++) {
@@ -292,7 +292,7 @@ public class Map {
     public ArrayList<Integer> getAvailableRotations(int x, int y, TileType tileType){
         ArrayList<Integer> res = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-           if(new Tile(tileType, i).canBePutOn(this, x, y))
+           if(new Tile(tileType, i, 0).canBePutOn(this, x, y))
                res.add(i);
         }
         return res;
@@ -302,7 +302,7 @@ public class Map {
         return getAvailableRotations((int) pos.x, (int) pos.y, tileType);
     }
 
-    public void setSelectedTile(int x, int y, TileType tile){
+    public void setSelectedTile(int x, int y, TileType tile, int seed){
         if (this.selectedTileCoordinate != null){
             this.set(this.selectedTileCoordinate, null);
         }
@@ -310,7 +310,7 @@ public class Map {
         if (availableRotations.size() == 0){
             availableRotations = getAvailableRotations(x, y, tile);
         }
-        this.set(x, y, new Tile(tile, availableRotations.get(0), Tile.TilePurpose.IMAGINARY_SELECTED));
+        this.set(x, y, new Tile(tile, availableRotations.get(0), seed, Tile.TilePurpose.IMAGINARY_SELECTED));
         this.selectedTileCoordinate = new Vector2(x, y);
         updateLinkedStages();
     }

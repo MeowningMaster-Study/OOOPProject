@@ -24,13 +24,12 @@ public class TileType {
             return this.sides[4-(rotation-number)];
     }
 
-    // temporary solution
     public static boolean sidesMatch(int side1, int side2){
         return  (side1 == side2) ||
                 (Utils.numberInRange(side1, 1, 5) && Utils.numberInRange(side2, 1, 5)) ||
                 (Utils.numberInRange(side1, 5, 9) && Utils.numberInRange(side2, 5, 9));
-
     }
+
 
     @Override
     public String toString() {
@@ -38,5 +37,6 @@ public class TileType {
                 "sides=" + Arrays.toString(sides) +
                 '}';
     }
+
 
 }

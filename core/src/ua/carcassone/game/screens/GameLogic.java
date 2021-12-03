@@ -15,7 +15,7 @@ public class GameLogic {
 
     public void setSelection(int x, int y){
         gameScreen.currentTile.setState(PCLCurrentTile.TileState.IS_PUT);
-        gameScreen.map.setSelectedTile(x, y, gameScreen.currentTile.getCurrentTile().type);
+        gameScreen.map.setSelectedTile(x, y, gameScreen.currentTile.getCurrentTile().type, gameScreen.currentTile.getCurrentTile().getSeed());
     }
 
     public void setSelection(Vector2 pos){

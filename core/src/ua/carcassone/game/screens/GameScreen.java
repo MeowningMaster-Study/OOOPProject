@@ -87,7 +87,7 @@ public class GameScreen implements Screen {
         game.socketClient.setMap(this.map);
 
         if (currentTile.getCurrentTile() == null){
-            currentTile.setTile(new Tile(TileTypes.get(0), 0));
+            currentTile.setTile(new Tile(TileTypes.get(0), 0, 0));
         }
         Gdx.input.setInputProcessor(this.inputMultiplexer);
     }

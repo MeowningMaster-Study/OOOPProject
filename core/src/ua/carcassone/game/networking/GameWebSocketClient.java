@@ -179,7 +179,7 @@ public class GameWebSocketClient extends WebSocketClient {
                 System.out.println("! Server sent wrong response: \n\tstate is " + this.state.string() + "\n\tserver sent: " + message);
 
             TILE_DRAWN response = jsonConverter.fromJson(TILE_DRAWN.class, message);
-            Tile tileGot = new Tile(TileTypes.get(response.tileType), 0);
+            Tile tileGot = new Tile(TileTypes.get(response.tile.type), 0, response.tile.seed);
             if(this.pclCurrentTile == null){
                 System.out.println("! WARNING: Tile drawn, but not handled, caching");
                 this.cachedCurrentTile = tileGot;

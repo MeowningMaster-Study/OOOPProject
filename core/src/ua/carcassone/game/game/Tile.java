@@ -12,6 +12,7 @@ public class Tile {
     private Meeple meeple;
     public int rotation;
     public TilePurpose purpose = TilePurpose.LEGIT;
+    private final int seed;
 
     public enum TilePurpose{
         LEGIT,
@@ -26,6 +27,7 @@ public class Tile {
         this.rotation = tile.rotation;
         this.purpose = tile.purpose;
         this.meeple = new Meeple(null, 0);
+        this.seed = tile.seed;
     }
 
     public Tile(Tile tile, TilePurpose purpose){
@@ -33,25 +35,29 @@ public class Tile {
         this.rotation = tile.rotation;
         this.purpose = purpose;
         this.meeple = new Meeple(null, 0);
+        this.seed = tile.seed;
     }
 
-    public Tile(TileType type, int rotation) {
+    public Tile(TileType type, int rotation, int seed) {
         this.type = type;
         this.rotation = rotation;
         this.meeple = new Meeple(
                 null, 0);
+        this.seed = seed;
     }
 
-    public Tile(TileType type, int rotation, TilePurpose purpose) {
+    public Tile(TileType type, int rotation, int seed, TilePurpose purpose) {
         this.type = type;
         this.rotation = rotation;
         this.purpose = purpose;
         this.meeple = new Meeple(null, 0);
+        this.seed = seed;
     }
 
     public Tile(ServerQueries.TILE_PUTTED.Tile serverTile, Player relatedPlayer){
         this.type = TileTypes.get(serverTile.type);
         this.rotation = serverTile.rotation;
+        this.seed = serverTile.seed;
         if(serverTile.meeple != -1){
             this.meeple = new Meeple(relatedPlayer, serverTile.meeple);
         }
@@ -117,5 +123,9 @@ public class Tile {
 
     public Meeple getMeeple(){
         return this.meeple;
+    }
+
+    public int getSeed() {
+        return seed;
     }
 }
