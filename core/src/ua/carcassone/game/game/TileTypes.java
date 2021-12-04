@@ -332,8 +332,8 @@ public class TileTypes {
                     false,
                     false,
                     new SpritePolygon(
-                            new int[]{0, 0, 100, 100, 73, 32},
-                            new int[]{0, 100, 100, 0, 36, 36},
+                            new int[]{0, 0, 26, 66, 100, 100},
+                            new int[]{0, 100, 71, 71, 100, 0},
                             6,
                             SpriteType.FIELD
                     ),

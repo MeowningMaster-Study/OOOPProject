@@ -15,7 +15,15 @@ public class SpriteManager {
                         new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/cactus1.png", 0.07f),
                         new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/cactus2.png", 0.10f),
                         new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/cactus3.png", 0.05f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/cactus4.png", 0.03f)
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/cactus4.png", 0.03f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/plant1.png", 0.20f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/plant2.png", 0.13f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/plant3.png", 0.01f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/plant4.png", 0.05f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/plant5.png", 0.08f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/skull.png", 0.20f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/stone1.png", 0.35f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/stone2.png", 0.01f)
                         )
                 );
     }

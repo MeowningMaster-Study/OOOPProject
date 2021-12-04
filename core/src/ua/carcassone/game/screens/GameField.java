@@ -90,7 +90,7 @@ public class GameField {
                     group.setSize(tileSize, tileSize);
 
                     List<PointTypeSprite> generatedSprites =
-                            TileTypeSpritesGenerator.generatePointTypeSprites(tile.type, tile.getSeed());
+                            TileTypeSpritesGenerator.generatePointTypeSprites(tile.type, tile.getSeed(), tileSize);
                     for (PointTypeSprite sprite : generatedSprites) {
                         Image spriteImage = sprite.getImage(tile.rotation, tileSize);
                         group.addActor(spriteImage);

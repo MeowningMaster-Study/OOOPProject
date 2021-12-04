@@ -6,14 +6,13 @@ import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.TileType;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
 public class TileTypeSpritesGenerator {
     private static final SpriteManager spriteManager = new SpriteManager();
 
-    public static List<PointTypeSprite> generatePointTypeSprites(TileType tileType, int seed){
+    public static List<PointTypeSprite> generatePointTypeSprites(TileType tileType, int seed, float tileSize){
         Random random = new Random(seed);
         List<Vector2> points = new ArrayList<>();
         double areasSize = 0;
@@ -21,7 +20,6 @@ public class TileTypeSpritesGenerator {
             areasSize += Utils.polygonArea(poly, 1);
         }
 
-        System.out.println("GEN "+areasSize * Settings.spritesPerTile+" POINTS");
         for (int i = 0; i < areasSize * Settings.spritesPerTile; i++) {
             points.add(new Vector2(random.nextFloat(), random.nextFloat()));
         }
@@ -42,8 +40,8 @@ public class TileTypeSpritesGenerator {
 
                     TypeSprite chosenSprite = availableSprites.get(random.nextInt(availableSprites.size()));
                     double halfWidth = chosenSprite.getImage().getWidth()/2;
-                    if(!polygon.contains(point.x * Settings.polygonScale-halfWidth, point.y * Settings.polygonScale) ||
-                            !polygon.contains(point.x * Settings.polygonScale+halfWidth, point.y * Settings.polygonScale)) {
+                    if(!polygon.contains(((point.x * tileSize)-halfWidth)*(Settings.polygonScale/tileSize), point.y * Settings.polygonScale) ||
+                            !polygon.contains(((point.x * tileSize)+halfWidth)*(Settings.polygonScale/tileSize), point.y * Settings.polygonScale)) {
                         continue;
                     }
                     PointTypeSprite pointTypeSprite = new PointTypeSprite(

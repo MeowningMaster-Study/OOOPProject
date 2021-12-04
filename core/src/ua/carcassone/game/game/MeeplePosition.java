@@ -75,15 +75,15 @@ public class MeeplePosition {
             ),
             // 10
             Arrays.asList(
-                    new MeeplePosition(1, 0.54f, 0.47f),
-                    new MeeplePosition(9, 0.9f, 0.75f),
+                    new MeeplePosition(1, 0.60f, 0.36f),
+                    new MeeplePosition(9, 0.84f, 0.71f),
                     new MeeplePosition(5, 0.18f, 0.8f),
                     new MeeplePosition(10, 0.8f, 0.25f)
             ),
             // 11
             Arrays.asList(
-                    new MeeplePosition(1, 0.54f, 0.47f),
-                    new MeeplePosition(9, 0.9f, 0.75f),
+                    new MeeplePosition(1, 0.60f, 0.36f),
+                    new MeeplePosition(9, 0.84f, 0.71f),
                     new MeeplePosition(5, 0.18f, 0.8f),
                     new MeeplePosition(10, 0.8f, 0.25f)
             ),
@@ -102,8 +102,8 @@ public class MeeplePosition {
             // 14
             Arrays.asList(
                     new MeeplePosition(9, 0.64f, 0.41f),
-                    new MeeplePosition(5, 0.06f, 0.47f),
-                    new MeeplePosition(6, 0.46f, 0.91f)
+                    new MeeplePosition(5, 0.11f, 0.50f),
+                    new MeeplePosition(6, 0.47f, 0.89f)
             ),
             // 15
             Arrays.asList(
@@ -118,23 +118,23 @@ public class MeeplePosition {
             ),
             // 17
             Arrays.asList(
-                    new MeeplePosition(1, 0.41f, 0.32f),
+                    new MeeplePosition(1, 0.37f, 0.37f),
                     new MeeplePosition(9, 0.18f, 0.18f),
-                    new MeeplePosition(10, 0.77f, 0.49f),
+                    new MeeplePosition(10, 0.74f, 0.46f),
                     new MeeplePosition(5, 0.52f, 0.90f)
             ),
             // 18
             Arrays.asList(
-                    new MeeplePosition(1, 0.62f, 0.36f),
-                    new MeeplePosition(9, 0.24f, 0.44f),
+                    new MeeplePosition(1, 0.60f, 0.36f),
+                    new MeeplePosition(9, 0.26f, 0.44f),
                     new MeeplePosition(10, 0.81f, 0.20f),
                     new MeeplePosition(5, 0.52f, 0.90f)
             ),
             // 19
             Arrays.asList(
-                    new MeeplePosition(1, 0.15f, 0.49f),
-                    new MeeplePosition(2, 0.87f, 0.45f),
-                    new MeeplePosition(3, 0.46f, 0.10f),
+                    new MeeplePosition(1, 0.20f, 0.50f),
+                    new MeeplePosition(2, 0.85f, 0.50f),
+                    new MeeplePosition(3, 0.53f, 0.24f),
                     new MeeplePosition(5, 0.52f, 0.88f),
                     new MeeplePosition(9, 0.16f, 0.17f),
                     new MeeplePosition(10, 0.57f, 0.53f),
@@ -142,20 +142,20 @@ public class MeeplePosition {
             ),
             // 20
             Arrays.asList(
-                    new MeeplePosition(1, 0.44f, 0.49f),
+                    new MeeplePosition(1, 0.45f, 0.57f),
                     new MeeplePosition(9, 0.64f, 0.20f),
                     new MeeplePosition(10, 0.12f, 0.64f),
                     new MeeplePosition(5, 0.52f, 0.90f)
             ),
             // 21
             Arrays.asList(
-                    new MeeplePosition(1, 0.57f, 0.45f),
+                    new MeeplePosition(1, 0.45f, 0.47f),
                     new MeeplePosition(9, 0.20f, 0.36f),
                     new MeeplePosition(10, 0.82f, 0.74f)
             ),
             // 22
             Arrays.asList(
-                    new MeeplePosition(1, 0.47f, 0.52f),
+                    new MeeplePosition(1, 0.39f, 0.44f),
                     new MeeplePosition(9, 0.23f, 0.23f),
                     new MeeplePosition(10, 0.69f, 0.79f)
             ),

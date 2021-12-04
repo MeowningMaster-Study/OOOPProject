@@ -47,7 +47,7 @@ public class Settings {
     public static float pointRadius = 0.07f;
     public static float meepleHeight = 0.25f;
 
-    public static float spritesPerTile = 30;
+    public static float spritesPerTile = 10;
     public static float polygonScale = 100;
 
     public static final Color meepleGreenscreenColor = new Color(0.0f, 1.0f, 0.0f, 1.0f);
