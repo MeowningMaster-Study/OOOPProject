@@ -21,6 +21,8 @@ public class SpriteManager {
     }
 
     public List<TypeSprite> getAvailableSprites(SpriteType spriteType){
+        if(!availableSprites.containsKey(spriteType))
+            return new ArrayList<>();
         return new ArrayList<>(availableSprites.get(spriteType));
     }
 

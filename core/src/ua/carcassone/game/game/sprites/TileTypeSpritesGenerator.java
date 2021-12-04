@@ -35,8 +35,9 @@ public class TileTypeSpritesGenerator {
         List<PointTypeSprite> res = new ArrayList<>();
         for (SpritePolygon polygon : tileType.getSpritePolygons()) {
             List<TypeSprite> availableSprites = spriteManager.getAvailableSprites(polygon.getSpriteType());
+            if(availableSprites.size() == 0)
+                continue;
             for (Vector2 point : points) {
-                System.out.println("POINT: "+point+", CONTAINED: "+polygon.contains(point.x * Settings.polygonScale, point.y * Settings.polygonScale));
                 if (polygon.contains(point.x * Settings.polygonScale, point.y * Settings.polygonScale)){
 
                     TypeSprite chosenSprite = availableSprites.get(random.nextInt(availableSprites.size()));
