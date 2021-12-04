@@ -24,8 +24,15 @@ public class TileTextureManager {
             List<Texture> tileTextures = new LinkedList<>();
             for (int j = 0; j <= 3; j++){
                 Texture texture = new Texture(Gdx.files.internal("skins/wildwest-tiles/"+i+"-"+j+".png"));
-                if (texture.getHeight() < minTileSize) minTileSize = texture.getHeight();
-                if  (texture.getWidth() < minTileSize) minTileSize = texture.getWidth();
+                if (texture.getHeight() < minTileSize) {
+                    System.out.println("skins/wildwest-tiles/"+i+"-"+j+".png"+" IS H "+texture.getHeight());
+                    minTileSize = texture.getHeight();
+                }
+                if  (texture.getWidth() < minTileSize) {
+                    System.out.println("skins/wildwest-tiles/"+i+"-"+j+".png"+" IS W "+texture.getWidth());
+
+                    minTileSize = texture.getWidth();
+                }
                 tileTextures.add(j, texture);
             }
             textures.add(i, tileTextures);
@@ -59,6 +66,7 @@ public class TileTextureManager {
     }
 
     public int getMinTileSize() {
+        System.out.println("MIN TILE SIZE: "+minTileSize);
         return minTileSize;
     }
 

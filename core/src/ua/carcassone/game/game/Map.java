@@ -118,6 +118,7 @@ public class Map {
     public void disproveSelectedTile(){
         Vector2 coordinate = this.selectedTileCoordinate;
         Tile selected = this.get(coordinate);
+        selected.unsetMeeple();
         selected.purpose = Tile.TilePurpose.IMAGINARY_SELECTED;
     }
 

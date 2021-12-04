@@ -36,6 +36,7 @@ public class GameLogic {
     public void disproveSelectedTileMeeples(){
         if (gameScreen.map.hasSelectedTile() && gameScreen.currentTile.isPlaceMeeple()) {
             gameScreen.map.disproveSelectedTile();
+
             gameScreen.currentTile.setState(PCLCurrentTile.TileState.IS_PUT);
         } else {
             System.out.println("WARNING: No tile position selected to disprove it (or tile is not PLACE MEEPLE)");

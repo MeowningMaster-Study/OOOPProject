@@ -193,6 +193,7 @@ public class MeeplePosition {
     }
 
     public MeeplePosition rotated(int times){
+        // TODO with Utils.rotated
         if(times == 0) return this;
         if (times < 0) times = 4-Math.abs(times)%4;
 

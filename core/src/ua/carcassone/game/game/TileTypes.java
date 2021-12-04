@@ -1,5 +1,8 @@
 package ua.carcassone.game.game;
 
+import ua.carcassone.game.game.sprites.SpritePolygon;
+import ua.carcassone.game.game.sprites.SpriteType;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -144,7 +147,20 @@ public class TileTypes {
                     new int[]{1, 5, 1, 0},
                     new int[]{9, 10, 0, 0, 10, 9, 9, 9},
                     false,
-                    false
+                    false,
+                    new SpritePolygon(
+                            new int[]{0, 0, 31, 68, 100, 100, 45},
+                            new int[]{60, 84, 71, 69, 88, 62, 65},
+                            7,
+                            SpriteType.FIELD
+                    ),
+                    new SpritePolygon(
+                            new int[]{0, 0, 43, 100, 100},
+                            new int[]{0, 39, 43, 39, 0},
+                            5,
+                            SpriteType.FIELD
+                    )
+
             ),
             //21
             new TileType(

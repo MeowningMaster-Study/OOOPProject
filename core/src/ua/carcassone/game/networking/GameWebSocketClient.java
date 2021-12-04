@@ -87,6 +87,19 @@ public class GameWebSocketClient extends WebSocketClient {
         //    throw new IncorrectClientActionException("connection opened but the client is in state "+this.state.string());
         System.out.println("OPENED");
         this.state.set(ClientStateEnum.CONNECTED_TO_SERVER);
+        GameWebSocketClient gameWebSocketClient = this;
+        new Timer().schedule(new TimerTask(){
+                           @Override
+                           public void run () {
+                               if(gameWebSocketClient.isConnected()){
+                                   // System.out.println("PING");
+                                   gameWebSocketClient.sendPing();
+                               }
+                           }
+                       }
+                , 10 * 1000        //    (delay)
+                , 10 * 1000     //    (seconds)
+        );
     }
 
     @Override

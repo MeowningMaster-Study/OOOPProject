@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -13,15 +14,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.*;
+import ua.carcassone.game.game.sprites.PointTypeSprite;
+import ua.carcassone.game.game.sprites.TileTypeSpritesGenerator;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static ua.carcassone.game.Settings.shiftTranslationCoefficient;
@@ -80,6 +85,18 @@ public class GameField {
                     image.setSize(tileSize, tileSize);
                     stage.addActor(image);
 
+                    Group group = new Group();
+                    group.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
+                    group.setSize(tileSize, tileSize);
+
+                    List<PointTypeSprite> generatedSprites =
+                            TileTypeSpritesGenerator.generatePointTypeSprites(tile.type, tile.getSeed());
+                    for (PointTypeSprite sprite : generatedSprites) {
+                        Image spriteImage = sprite.getImage(tile.rotation, tileSize);
+                        group.addActor(spriteImage);
+                    }
+                    stage.addActor(group);
+
                     if(tile.purpose != Tile.TilePurpose.LEGIT){
 
                         if(gameScreen.currentTile.isPut()){
@@ -105,6 +122,8 @@ public class GameField {
                         imageButton.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
                         imageButton.setSize(tileSize, tileSize);
 
+
+
                         if(gameScreen.currentTile.isPut()){
                             imageButton.addListener(new InputListener(){
                                 @Override
@@ -122,11 +141,13 @@ public class GameField {
                                         new TextureRegionDrawable(new TextureRegion(textureManager.getPointDarkerTexture())),
                                         new TextureRegionDrawable(new TextureRegion(textureManager.getPointDarkTexture()))
                                         );
+
+                                pointButton.setSize(tileSize*Settings.pointRadius*2, tileSize*Settings.pointRadius*2);
                                 pointButton.setPosition(
-                                        tileSize*meeplePosition.position.x-Settings.pointRadius,
-                                        tileSize*meeplePosition.position.y-Settings.pointRadius
+                                        tileSize*meeplePosition.position.x,
+                                        tileSize*meeplePosition.position.y,
+                                        Align.center
                                 );
-                                pointButton.setSize(Settings.pointRadius*2, Settings.pointRadius*2);
 
                                 pointButton.addListener(new InputListener(){
                                     @Override
@@ -134,6 +155,7 @@ public class GameField {
 
                                     @Override
                                     public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                                        System.out.println("FSAAAAAAAAAAAAAAAAAAAAA");
                                         Gdx.app.postRunnable(()-> gameScreen.gameLogic.setMeepleOnSelectedTile(meeplePosition.entityId));
                                     }
                                 });
@@ -145,6 +167,7 @@ public class GameField {
                         stage.addActor(imageButton);
                     }
 
+
                     if (tile.hasMeeple()){
                         ImageButton meepleActor = new ImageButton(
                                 new TextureRegionDrawable(new TextureRegion(
@@ -155,10 +178,11 @@ public class GameField {
                         assert position != null;
                         System.out.println(position);
                         float hwCoefficient = meepleActor.getHeight()/meepleActor.getWidth();
-                        meepleActor.setSize(Settings.meepleHeight/hwCoefficient, Settings.meepleHeight);
+                        meepleActor.setSize(tileSize * Settings.meepleHeight/hwCoefficient, tileSize * Settings.meepleHeight);
                         meepleActor.setPosition(
-                                (i+position.x)*tileSize-halfTile-meepleActor.getWidth()/2,
-                                (j+position.y)*tileSize-halfTile-meepleActor.getHeight()/2
+                                (i+position.x)*tileSize-halfTile,
+                                (j+position.y)*tileSize-halfTile,
+                                Align.center
                         );
 
 
@@ -175,6 +199,9 @@ public class GameField {
                         }
                         stage.addActor(meepleActor);
                     }
+
+
+
 
                 }
             }

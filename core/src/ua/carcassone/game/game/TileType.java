@@ -1,20 +1,34 @@
 package ua.carcassone.game.game;
 
 import ua.carcassone.game.Utils;
+import ua.carcassone.game.game.sprites.SpritePolygon;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class TileType {
-    int[] sides = new int[4];
-    int[] halves = new int[8];
-    boolean monastery;
-    boolean shield;
+    private int[] sides = new int[4];
+    private int[] halves = new int[8];
+    private final boolean monastery;
+    private final boolean shield;
+    private final List<SpritePolygon> spritePolygons;
 
-    TileType(int[] sides, int[] halves, boolean monastery, boolean shield) {
+
+    public TileType(int[] sides, int[] halves, boolean monastery, boolean shield) {
         this.sides = sides;
         this.halves = halves;
         this.monastery = monastery;
         this.shield = shield;
+        this.spritePolygons = new ArrayList<>();
+    }
+
+    public TileType(int[] sides, int[] halves, boolean monastery, boolean shield, SpritePolygon... polygons) {
+        this.sides = sides;
+        this.halves = halves;
+        this.monastery = monastery;
+        this.shield = shield;
+        this.spritePolygons = Arrays.asList(polygons);
     }
 
     public int getSide(int number, int rotation) {
@@ -30,13 +44,17 @@ public class TileType {
                 (Utils.numberInRange(side1, 5, 9) && Utils.numberInRange(side2, 5, 9));
     }
 
+    public List<SpritePolygon> getSpritePolygons() {
+        return spritePolygons;
+    }
 
     @Override
     public String toString() {
         return "TileType{" +
                 "sides=" + Arrays.toString(sides) +
+                ", halves=" + Arrays.toString(halves) +
+                ", monastery=" + monastery +
+                ", shield=" + shield +
                 '}';
     }
-
-
 }

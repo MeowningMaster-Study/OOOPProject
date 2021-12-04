@@ -100,7 +100,7 @@ public class Tile {
     @Override
     public String toString() {
         return "Tile{" +
-                "sides=" + (type != null ? Arrays.toString(type.sides) : "null" )+
+                "type=" + (type != null ? type.toString() : "null" )+
                 ", rotation=" + rotation +
                 '}';
     }
