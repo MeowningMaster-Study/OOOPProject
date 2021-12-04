@@ -12,20 +12,34 @@ public class SpriteManager {
         availableSprites = new HashMap<>();
         setValue(SpriteType.FIELD,
                 Arrays.asList(
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/cactus1.png", 0.07f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/cactus2.png", 0.10f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/cactus3.png", 0.05f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/cactus4.png", 0.03f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/plant1.png", 0.20f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/plant2.png", 0.13f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/plant3.png", 0.01f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/plant4.png", 0.05f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/plant5.png", 0.08f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/skull.png", 0.20f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/stone1.png", 0.35f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/stone2.png", 0.01f)
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/FIELD/cactus1.png", 0.07f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/FIELD/cactus2.png", 0.10f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/FIELD/cactus3.png", 0.05f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/FIELD/cactus4.png", 0.03f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/FIELD/plant1.png", 0.20f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/FIELD/plant2.png", 0.13f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/FIELD/plant3.png", 0.01f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/FIELD/plant4.png", 0.05f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/FIELD/plant5.png", 0.08f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/FIELD/skull.png", 0.20f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/FIELD/stone1.png", 0.35f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/FIELD/stone2.png", 0.01f)
                         )
                 );
+
+        setValue(SpriteType.TOWN,
+                Arrays.asList(
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/bank.png", 0.05f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/hotel1.png", 0.05f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store1.png", 0.05f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store2.png", 0.05f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store3.png", 0.05f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store4.png", 0.05f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store5.png", 0.05f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store6.png", 0.05f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store7.png", 0.05f)
+                )
+        );
     }
 
     public List<TypeSprite> getAvailableSprites(SpriteType spriteType){
