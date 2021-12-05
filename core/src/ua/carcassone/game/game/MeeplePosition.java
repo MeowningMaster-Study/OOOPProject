@@ -137,7 +137,7 @@ public class MeeplePosition {
                     new MeeplePosition(3, 0.53f, 0.24f),
                     new MeeplePosition(5, 0.52f, 0.88f),
                     new MeeplePosition(9, 0.16f, 0.17f),
-                    new MeeplePosition(10, 0.57f, 0.53f),
+                    new MeeplePosition(10, 0.18f, 0.64f),
                     new MeeplePosition(11, 0.79f, 0.17f)
             ),
             // 20

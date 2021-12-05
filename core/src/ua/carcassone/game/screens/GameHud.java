@@ -4,10 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -18,9 +15,12 @@ import ua.carcassone.game.game.PCLCurrentTile;
 import ua.carcassone.game.game.Player;
 import ua.carcassone.game.game.Tile;
 import ua.carcassone.game.game.TileTextureManager;
+import ua.carcassone.game.game.sprites.PointTypeSprite;
+import ua.carcassone.game.game.sprites.TileTypeSpritesGenerator;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 import java.util.Objects;
 
 import static ua.carcassone.game.Utils.ELEMENT_HEIGHT_UNIT;
@@ -206,11 +206,36 @@ public class GameHud {
     }
 
     private void drawCurrentTile(){
+        final float tileSize = 150;
+
         Tile currentTile = gameScreen.currentTile.getCurrentTile();
+        Group toDraw = new Group();
+        toDraw.setPosition(CURR_TILE_X, CURR_TILE_Y);
+        toDraw.setSize(tileSize, tileSize);
+
         Image currentTileImage = new Image(textureManager.getTexture(currentTile));
-        currentTileImage.setPosition(CURR_TILE_X, CURR_TILE_Y);
-        currentTileImage.setSize(150, 150);
-        stage.addActor(currentTileImage);
+        currentTileImage.setPosition(0,0);
+        currentTileImage.setSize(tileSize, tileSize);
+        toDraw.addActor(currentTileImage);
+
+        List<PointTypeSprite> generatedSprites =
+                TileTypeSpritesGenerator.generatePointTypeSprites(currentTile.type, currentTile.getSeed(), tileSize);
+
+        generatedSprites.addAll(TileTypeSpritesGenerator.generateMandatorySprites(
+                currentTile.type, currentTile.rotation, currentTile.getSeed())
+        );
+
+        generatedSprites.sort((o1, o2)->{
+            if(o1.getY() == o2.getY()) return 0;
+            return (o1.getY() < o1.getY() ? 1 : -1);
+        });
+
+        for (PointTypeSprite sprite : generatedSprites) {
+            Image spriteImage = sprite.getImage(currentTile.rotation, tileSize, tileSize/textureManager.getMinTileSize());
+            toDraw.addActor(spriteImage);
+        }
+
+        stage.addActor(toDraw);
     }
 
     private void drawMeeples(){

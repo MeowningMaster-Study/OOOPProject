@@ -215,6 +215,33 @@ public class GameWebSocketClient extends WebSocketClient {
             }
         }
 
+        else if (Objects.equals(action, OBJECT_FINISHED.class.getSimpleName())) {
+            if (!this.state.is(ClientStateEnum.IN_GAME))
+                System.out.println("! Server sent wrong response: \n\tstate is " + this.state.string() + "\n\tserver sent: " + message);
+
+            OBJECT_FINISHED response = jsonConverter.fromJson(OBJECT_FINISHED.class, message);
+
+            if(this.relatedMap == null || this.pclPlayers == null){
+                System.out.println("! WARNING: Object finished, but not handled");
+            } else {
+                for (OBJECT_FINISHED.Object.Position position: response.object.tiles) {
+                    Tile finishedTile = relatedMap.get(position.x, position.y);
+                    if(finishedTile.hasMeeple()){
+                        Meeple meepleToUnset = finishedTile.getMeeple();
+                        meepleToUnset.getPlayer().alterMeeples(1);
+                        finishedTile.unsetMeeple();
+                    }
+                }
+                for (OBJECT_FINISHED.Object.Score score: response.object.scores) {
+                    Player scoredPlayer = pclPlayers.getPlayer(score.playerId);
+                    if(scoredPlayer == null)
+                        scoredPlayer = pclPlayers.getClient();
+                    scoredPlayer.alterScore(score.amount);
+                }
+                relatedMap.updateLinkedStages();
+            }
+        }
+
         else if (Objects.equals(action, ERROR.class.getSimpleName())){
             ERROR response = jsonConverter.fromJson(ERROR.class, message);
             System.out.println("ERROR\n"+response.description.action);

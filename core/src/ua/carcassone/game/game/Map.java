@@ -82,6 +82,8 @@ public class Map {
                 e.printStackTrace();
             }
         }
+        if(tile.hasMeeple())
+            relatedPlayers.getCurrentPlayer().alterMeeples(-1);
         relatedPlayers.passTurn();
     }
 
@@ -90,8 +92,7 @@ public class Map {
     }
 
     public void setByPlayer(ServerQueries.TILE_PUTTED.Tile tile){
-        set(tile.position.x, tile.position.y, new Tile(tile, relatedPlayers.getCurrentPlayer()));
-        relatedPlayers.passTurn();
+        setByPlayer(tile.position.x, tile.position.y, new Tile(tile, relatedPlayers.getCurrentPlayer()));
     }
 
     private void setWithoutUpdate(int x, int y, Tile tile){
@@ -234,7 +235,7 @@ public class Map {
         linkedGameHuds.add(gameHud);
     }
 
-    private void updateLinkedStages(){
+    public void updateLinkedStages(){
         for (GameField gameField : linkedGameFields){
             gameField.updateStage();
         }

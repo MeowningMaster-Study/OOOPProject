@@ -66,7 +66,6 @@ public class TileTextureManager {
     }
 
     public int getMinTileSize() {
-        System.out.println("MIN TILE SIZE: "+minTileSize);
         return minTileSize;
     }
 

@@ -25,6 +25,22 @@ public class PointTypeSprite extends TypeSprite {
         return image;
     }
 
+    public Image getImage(int rotations, float relativeSize, float sizeMultiplier) {
+        Vector2 rotatedPoint = Utils.rotatedIn1_1(new Vector2(x, y), rotations);
+
+        Image image = super.getImage();
+        image.setSize(image.getWidth()*sizeMultiplier, image.getHeight()*sizeMultiplier);
+        image.setPosition(
+                relativeSize*(rotatedPoint.x)-this.texture.getWidth()/2.0f,
+                relativeSize*(rotatedPoint.y)-this.texture.getHeight()*this.bottomStart
+        );
+        return image;
+    }
+
+    public float getY() {
+        return y;
+    }
+
     @Override
     public Image getImage() {
         return getImage(0, 1);

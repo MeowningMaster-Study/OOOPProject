@@ -48,6 +48,14 @@ public class TileType {
         return spritePolygons;
     }
 
+    public boolean hasMonastery() {
+        return monastery;
+    }
+
+    public boolean hasShield() {
+        return shield;
+    }
+
     @Override
     public String toString() {
         return "TileType{" +

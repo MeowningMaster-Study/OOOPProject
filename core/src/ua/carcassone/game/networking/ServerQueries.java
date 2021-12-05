@@ -80,4 +80,25 @@ public class ServerQueries {
             }
         }
     }
+
+    public static class OBJECT_FINISHED{
+        String action;
+        Object object;
+
+        public static class Object{
+            int type;
+            List<Position> tiles;
+            List<Score> scores;
+
+            public static class Position{
+                int x;
+                int y;
+            }
+
+            public static class Score{
+                String playerId;
+                int amount;
+            }
+        }
+    }
 }

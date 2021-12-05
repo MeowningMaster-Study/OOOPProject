@@ -24,6 +24,14 @@ public class Player {
         this.isClient = isClient;
     }
 
+    public void alterMeeples(int delta) {
+        this.meepleCount += delta;
+    }
+
+    public void alterScore(int delta) {
+        this.score += delta;
+    }
+
 
     public String getName() {
         return name;
