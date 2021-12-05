@@ -265,12 +265,12 @@ public class GameHud {
 
         Table mTable = new Table(skin);
         mTable.setSize(100, 50);
-        mTable.add(mImage).colspan(3).expand();
+        mTable.add(mImage).colspan(3).expand().width(mImage.getWidth()).height(mImage.getHeight());
         mTable.add(stack).colspan(5).expand();
 
         mTable.setPosition(CURR_TILE_X, CURR_TILE_Y + 200);
 
-        //mTable.setDebug(true);
+        mTable.setDebug(true);
         stage.addActor(mTable);
     }
 

@@ -86,8 +86,6 @@ public class PauseGameScreen {
 
         tableContainer.setActor(table);
         stage.addActor(tableContainer);
-
-        Gdx.input.setInputProcessor(stage);
     }
 
     private Button makeResumeButton(String name){
