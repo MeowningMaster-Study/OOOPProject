@@ -31,10 +31,13 @@ public class PointTypeSprite extends TypeSprite {
         Image image = super.getImage();
         image.setSize(image.getWidth()*sizeMultiplier, image.getHeight()*sizeMultiplier);
         image.setPosition(
-                relativeSize*(rotatedPoint.x)-this.texture.getWidth()/2.0f,
-                relativeSize*(rotatedPoint.y)-this.texture.getHeight()*this.bottomStart
+                relativeSize*(rotatedPoint.x)-image.getWidth()/2.0f,
+                relativeSize*(rotatedPoint.y)-image.getHeight()*this.bottomStart
         );
         return image;
+    }
+    public float getX() {
+        return x;
     }
 
     public float getY() {

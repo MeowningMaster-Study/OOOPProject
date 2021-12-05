@@ -79,8 +79,7 @@ public class GameField {
         addBaseTiles();
 
         if(gameScreen.players.isCurrentPlayerClient() &&
-                TileTypes.isGamingTile(gameScreen.currentTile.getCurrentTile()) &&
-                (gameScreen.players.getCurrentPlayer().getMeepleCount() > 0))
+                TileTypes.isGamingTile(gameScreen.currentTile.getCurrentTile()))
             addAvailableTileSpots();
         addSprites();
         addControls();
@@ -147,12 +146,15 @@ public class GameField {
 
                     generatedSprites.sort((o1, o2)->{
                         if(o1.getY() == o2.getY()) return 0;
-                        return (o1.getY() > o1.getY() ? 1 : -1);
+                        return (o1.getY() < o2.getY() ? 1 : -1);
                     });
 
+                    int c = 0;
                     for (PointTypeSprite sprite : generatedSprites) {
                         Image spriteImage = sprite.getImage(tile.rotation, tileSize);
+                        spriteImage.setZIndex(c);
                         group.addActor(spriteImage);
+                        c++;
                     }
                     stage.addActor(group);
                 }
@@ -189,7 +191,7 @@ public class GameField {
                         imageButton.setSize(tileSize, tileSize);
 
                         // points
-                        if (gameScreen.currentTile.isPlaceMeeple()) {
+                        if (gameScreen.currentTile.isPlaceMeeple() &&  (gameScreen.players.getCurrentPlayer().getMeepleCount() > 0)) {
                             for (MeeplePosition meeplePosition : MeeplePosition.get(tile)) {
                                 ImageButton pointButton = new ImageButton(
                                         new TextureRegionDrawable(new TextureRegion(textureManager.getPointDarkerTexture())),

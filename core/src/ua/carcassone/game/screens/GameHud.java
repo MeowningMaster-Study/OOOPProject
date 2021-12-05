@@ -227,11 +227,12 @@ public class GameHud {
 
         generatedSprites.sort((o1, o2)->{
             if(o1.getY() == o2.getY()) return 0;
-            return (o1.getY() < o1.getY() ? 1 : -1);
+            return (o1.getY() < o2.getY() ? 1 : -1);
         });
 
         for (PointTypeSprite sprite : generatedSprites) {
             Image spriteImage = sprite.getImage(currentTile.rotation, tileSize, tileSize/textureManager.getMinTileSize());
+            System.out.println(spriteImage.getX()+", "+spriteImage.getY()+"|"+sprite.getX()+","+sprite.getY());
             toDraw.addActor(spriteImage);
         }
 

@@ -37,10 +37,10 @@ public class TileTypeSpritesGenerator {
 
                     TypeSprite chosenSprite = availableSprites.get(random.nextInt(availableSprites.size()));
                     double halfWidth = chosenSprite.getImage().getWidth()/2;
-                    if(!polygon.contains(((point.x * tileSize)-halfWidth)*(Settings.polygonScale/tileSize), point.y * Settings.polygonScale) ||
-                            !polygon.contains(((point.x * tileSize)+halfWidth)*(Settings.polygonScale/tileSize), point.y * Settings.polygonScale)) {
-                        continue;
-                    }
+//                    if(!polygon.contains(((point.x * tileSize)-halfWidth)*(Settings.polygonScale/tileSize), point.y * Settings.polygonScale) ||
+//                            !polygon.contains(((point.x * tileSize)+halfWidth)*(Settings.polygonScale/tileSize), point.y * Settings.polygonScale)) {
+//                        continue;
+//                    }
                     PointTypeSprite pointTypeSprite = new PointTypeSprite(
                             chosenSprite.texture,
                             chosenSprite.bottomStart,

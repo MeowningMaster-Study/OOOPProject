@@ -41,14 +41,14 @@ public class SpriteManager {
                 availableSprites,
                 SpriteType.TOWN,
                 Arrays.asList(
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/hotel1.png", 0.05f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store1.png", 0.05f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store2.png", 0.05f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store3.png", 0.05f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store4.png", 0.05f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store5.png", 0.05f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store6.png", 0.05f),
-                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store7.png", 0.05f)
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/hotel1.png", 0.0f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store1.png", 0.0f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store2.png", 0.0f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store3.png", 0.0f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store4.png", 0.0f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store5.png", 0.0f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store6.png", 0.0f),
+                        new AbstractMap.SimpleEntry<>("skins/decorations/trimmed/TOWN/store7.png", 0.0f)
                 )
         );
 
