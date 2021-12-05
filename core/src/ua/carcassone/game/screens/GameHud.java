@@ -173,8 +173,6 @@ public class GameHud {
         int infoHeight = 60;
         int padding = 10;
 
-        //playersTable.setDebug(true);
-
         playersTable.setWidth(iconWidth);
         playersTable.setHeight((iconHeight + iconWidth + infoHeight + padding)* size);
 
@@ -199,7 +197,7 @@ public class GameHud {
                 stack.add(pImage);
                 stack.add(borderImage);
 
-                playersTable.add(stack).fillX();
+                playersTable.add(stack).fillX().width(pImage.getWidth()).height(pImage.getHeight());
             }
             else {
                 playersTable.add(pImage).fillX();
