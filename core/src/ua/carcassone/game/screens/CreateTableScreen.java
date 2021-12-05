@@ -3,6 +3,7 @@ package ua.carcassone.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -42,6 +43,8 @@ public class CreateTableScreen implements Screen {
 
         mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
+        addImages();
+
         Label carcassoneLabel = new Label("Create Table", mySkin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
@@ -55,6 +58,15 @@ public class CreateTableScreen implements Screen {
 
         Button backButton = makeBackButton("Back");
         stage.addActor(backButton);
+    }
+
+    private void addImages(){
+        Image image1 = new Image(new Texture("skins/images/poster1.png"));
+        float hwCoefficient = image1.getHeight()/image1.getWidth();
+        image1.setWidth(Math.min(Gdx.graphics.getDisplayMode().width*0.6f, image1.getWidth()));
+        image1.setHeight(image1.getWidth()*hwCoefficient);
+        image1.setPosition((Gdx.graphics.getDisplayMode().width - image1.getWidth())+15, (Gdx.graphics.getDisplayMode().height - image1.getHeight())/2.0f);
+        stage.addActor(image1);
     }
 
     // TODO find new font

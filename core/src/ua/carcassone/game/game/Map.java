@@ -8,10 +8,7 @@ import ua.carcassone.game.networking.ServerQueries;
 import ua.carcassone.game.screens.GameField;
 import ua.carcassone.game.screens.GameHud;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Map {
     private final Tile[][] map;
@@ -35,7 +32,6 @@ public class Map {
         this.maxOccupiedCoordinate = new Vector2(0, 0);
         this.minOccupiedCoordinate = new Vector2(0, 0);
         set(0, 0, tile);
-//        print("Constructed");
     }
 
     public Map(Tile tile) {
@@ -78,11 +74,13 @@ public class Map {
         set(x, y, tile);
         if(relatedPlayers.isCurrentPlayerClient()){
             try {
-                relatedClient.putTile(x, y, tile.rotation, tile.meeple.position);
+                relatedClient.putTile(x, y, tile.rotation, tile.getMeeple().getPosition());
             } catch (IncorrectClientActionException e) {
                 e.printStackTrace();
             }
         }
+        if(tile.hasMeeple())
+            relatedPlayers.getCurrentPlayer().alterMeeples(-1);
         relatedPlayers.passTurn();
     }
 
@@ -91,10 +89,7 @@ public class Map {
     }
 
     public void setByPlayer(ServerQueries.TILE_PUTTED.Tile tile){
-        set(tile.position.x, tile.position.y, new Tile(tile, relatedPlayers.getCurrentPlayer()));
-        System.out.println("TURN PASSED FROM "+relatedPlayers.getCurrentPlayer());
-        relatedPlayers.passTurn();
-        System.out.println("TURN PASSED TO "+relatedPlayers.getCurrentPlayer());
+        setByPlayer(tile.position.x, tile.position.y, new Tile(tile, relatedPlayers.getCurrentPlayer()));
     }
 
     private void setWithoutUpdate(int x, int y, Tile tile){
@@ -110,6 +105,19 @@ public class Map {
             if (y < minOccupiedCoordinate.y) minOccupiedCoordinate.y = y;
             if (y > maxOccupiedCoordinate.y) maxOccupiedCoordinate.y = y;
         }
+    }
+
+    public void confirmSelectedTilePosition(){
+        Vector2 coordinate = this.selectedTileCoordinate;
+        Tile selected = this.get(coordinate);
+        selected.purpose = Tile.TilePurpose.IMAGINARY_FOCUS;
+    }
+
+    public void disproveSelectedTile(){
+        Vector2 coordinate = this.selectedTileCoordinate;
+        Tile selected = this.get(coordinate);
+        selected.unsetMeeple();
+        selected.purpose = Tile.TilePurpose.IMAGINARY_SELECTED;
     }
 
     public void confirmSelectedTile(){
@@ -133,6 +141,10 @@ public class Map {
                 }
             }
         }
+    }
+
+    public Vector2 getSelectedTilePosition() {
+        return selectedTileCoordinate;
     }
 
     public void setRelatedPlayers(PCLPlayers relatedPlayers) {
@@ -198,7 +210,7 @@ public class Map {
 
                 int tries = 0;
                 while (tries < 96){
-                    Tile tile = new Tile(TileTypes.get(1+random.nextInt(24)), random.nextInt(4));
+                    Tile tile = new Tile(TileTypes.get(1+random.nextInt(24)), random.nextInt(4), new Random().nextInt());
                     if (tile.canBePutBetween(this.get(i,j+1), this.get(i+1,j), this.get(i,j-1), this.get(i-1,j), true)) {
                         this.setWithoutUpdate(i, j, tile);
                         break;
@@ -220,7 +232,7 @@ public class Map {
         linkedGameHuds.add(gameHud);
     }
 
-    private void updateLinkedStages(){
+    public void updateLinkedStages(){
         for (GameField gameField : linkedGameFields){
             gameField.updateStage();
         }
@@ -256,7 +268,7 @@ public class Map {
         ArrayList<Vector2> res = new ArrayList<>();
         ArrayList<Tile> testTiles = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            testTiles.add(new Tile(tileType, i));
+            testTiles.add(new Tile(tileType, i, 0));
         }
         for (int i = (int) (minOccupiedCoordinate.x-1); i <= maxOccupiedCoordinate.x+1; i++) {
             for (int j = (int) (minOccupiedCoordinate.y-1); j <= maxOccupiedCoordinate.y+1; j++) {
@@ -279,7 +291,7 @@ public class Map {
     public ArrayList<Integer> getAvailableRotations(int x, int y, TileType tileType){
         ArrayList<Integer> res = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-           if(new Tile(tileType, i).canBePutOn(this, x, y))
+           if(new Tile(tileType, i, 0).canBePutOn(this, x, y))
                res.add(i);
         }
         return res;
@@ -289,16 +301,15 @@ public class Map {
         return getAvailableRotations((int) pos.x, (int) pos.y, tileType);
     }
 
-    public void setSelectedTile(int x, int y, TileType tile){
+    public void setSelectedTile(int x, int y, TileType tile, int seed){
         if (this.selectedTileCoordinate != null){
-            System.out.println("SELECTED != null");
             this.set(this.selectedTileCoordinate, null);
         }
         ArrayList<Integer> availableRotations = getAvailableRotations(x, y, tile);
         if (availableRotations.size() == 0){
             availableRotations = getAvailableRotations(x, y, tile);
         }
-        this.set(x, y, new Tile(tile, availableRotations.get(0), Tile.TilePurpose.IMAGINARY_SELECTED));
+        this.set(x, y, new Tile(tile, availableRotations.get(0), seed, Tile.TilePurpose.IMAGINARY_SELECTED));
         this.selectedTileCoordinate = new Vector2(x, y);
         updateLinkedStages();
     }
@@ -321,4 +332,152 @@ public class Map {
     public boolean hasSelectedTile(){
         return this.selectedTileCoordinate != null;
     }
+
+    public void setMeepleOnSelectedTile(int instanceId){
+        this.get(this.selectedTileCoordinate).setMeeple(new Meeple(relatedPlayers.getCurrentPlayer(), instanceId));
+        updateLinkedStages();
+    }
+
+    public void unsetMeepleOnSelectedTile(){
+        this.get(this.selectedTileCoordinate).unsetMeeple();
+        updateLinkedStages();
+    }
+
+    public boolean meepleCanBePutOnSide(int entityId, int x, int y){
+        List<Tile> tilesDone = new ArrayList<>();
+        Stack<AbstractMap.SimpleImmutableEntry<Vector2, Integer>> toCheck = new Stack<>();
+
+        for (int i = 0; i < 4; i++) {
+            if (this.get(x, y).type.getSide(i, this.get(x, y).rotation) == entityId) {
+                toCheck.push(new AbstractMap.SimpleImmutableEntry<>(new Vector2(x, y), i));
+                break;
+            }
+        }
+
+        boolean hasMeeple = false;
+        while (!toCheck.empty()){
+            AbstractMap.SimpleImmutableEntry<Vector2, Integer> stackElement = toCheck.pop();
+
+            Vector2 tilePos = stackElement.getKey();
+            Tile tile = this.get(tilePos);
+            int side = stackElement.getValue();
+            System.out.println("GOT "+tile+", side "+side+", =side: "+tile.type.getSide(side, tile.rotation));
+
+            if (tilesDone.contains(tile)) {
+                System.out.println("already was");
+                continue;
+            }
+
+            if (tile.hasMeeple() && tile.getMeeple().getPosition() == tile.type.getSide(side, tile.rotation) && tile.purpose == Tile.TilePurpose.LEGIT){
+                System.out.println("HAS A MEEPLE");
+                hasMeeple = true;
+                break;
+            }
+
+            tilesDone.add(tile);
+
+            for (int i = 0; i < 4; i++) {
+                System.out.println("Checking abs side "+tile.type.getSide(i, tile.rotation)+" == "+tile.type.getSide(side, tile.rotation));
+                if (tile.type.getSide(i, tile.rotation) == tile.type.getSide(side, tile.rotation)) {
+                    Vector2 nextTilePos;
+
+                    switch (i){
+                        case 0:
+                            nextTilePos = new Vector2(tilePos.x-1, tilePos.y);
+                            break;
+                        case 1:
+                            nextTilePos = new Vector2(tilePos.x, tilePos.y+1);
+                            break;
+                        case 2:
+                            nextTilePos = new Vector2(tilePos.x+1, tilePos.y);
+                            break;
+                        case 3:
+                            nextTilePos = new Vector2(tilePos.x, tilePos.y-1);
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected value: " + i);
+                    }
+                    if (this.get(nextTilePos) != null) {
+                        System.out.println("PUSHING "+this.get(nextTilePos)+", side "+(i + 2) % 4);
+                        toCheck.push(new AbstractMap.SimpleImmutableEntry<>(nextTilePos, (i + 2) % 4));
+                    }
+
+                }
+            }
+
+
+        }
+
+        return !hasMeeple;
+    }
+
+    public boolean meepleCanBePutOnHalfSide(int entityId, int x, int y){
+        List<Tile> tilesDone = new ArrayList<>();
+        Stack<AbstractMap.SimpleImmutableEntry<Vector2, Integer>> toCheck = new Stack<>();
+
+        for (int i = 0; i < 8; i++) {
+            if (this.get(x, y).type.getHalfSide(i, this.get(x, y).rotation) == entityId) {
+                toCheck.push(new AbstractMap.SimpleImmutableEntry<>(new Vector2(x, y), i));
+                break;
+            }
+        }
+
+        boolean hasMeeple = false;
+        while (!toCheck.empty()){
+            AbstractMap.SimpleImmutableEntry<Vector2, Integer> stackElement = toCheck.pop();
+
+            Vector2 tilePos = stackElement.getKey();
+            Tile tile = this.get(tilePos);
+            int side = stackElement.getValue();
+            System.out.println("GOT "+tile+", side "+side+", =side: "+tile.type.getHalfSide(side, tile.rotation));
+
+            if (tilesDone.contains(tile)) {
+                System.out.println("already was");
+                continue;
+            }
+
+            if (tile.hasMeeple() && tile.getMeeple().getPosition() == tile.type.getHalfSide(side, tile.rotation) && tile.purpose == Tile.TilePurpose.LEGIT){
+                System.out.println("HAS A MEEPLE");
+                hasMeeple = true;
+                break;
+            }
+
+            tilesDone.add(tile);
+
+            for (int i = 0; i < 8; i++) {
+                System.out.println("Checking abs side "+tile.type.getHalfSide(i, tile.rotation)+" == "+tile.type.getHalfSide(side, tile.rotation));
+                if (tile.type.getHalfSide(i, tile.rotation) == tile.type.getHalfSide(side, tile.rotation)) {
+                    Vector2 nextTilePos;
+                    switch (i/2){
+                        case 0:
+                            nextTilePos = new Vector2(tilePos.x-1, tilePos.y);
+                            break;
+                        case 1:
+                            nextTilePos = new Vector2(tilePos.x, tilePos.y+1);
+                            break;
+                        case 2:
+                            nextTilePos = new Vector2(tilePos.x+1, tilePos.y);
+                            break;
+                        case 3:
+                            nextTilePos = new Vector2(tilePos.x, tilePos.y-1);
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected value: " + i);
+                    }
+
+                    if (this.get(nextTilePos) != null) {
+                        System.out.println("PUSHING "+this.get(nextTilePos)+", side "+(2*((i/2 + 2) % 4)+(i+1)%2));
+                        toCheck.push(new AbstractMap.SimpleImmutableEntry<>(nextTilePos, 2*((i/2 + 2) % 4)+(i+1)%2 ));
+                    }
+
+                }
+            }
+
+
+        }
+
+        return !hasMeeple;
+    }
+
+
 }

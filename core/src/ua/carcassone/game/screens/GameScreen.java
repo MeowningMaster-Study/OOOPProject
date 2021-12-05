@@ -3,7 +3,6 @@ package ua.carcassone.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -12,15 +11,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
 
-import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.*;
-
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
 
 import static ua.carcassone.game.Utils.ELEMENT_HEIGHT_UNIT;
 import static ua.carcassone.game.Utils.ELEMENT_WIDTH_UNIT;
@@ -33,7 +25,7 @@ public class GameScreen implements Screen {
 
     public final Stage stage;
     public final GameHud hud;
-    private final GameField field;
+    public final GameField field;
     private final String tableId;
     private int tilesLeft;
     public PauseGameScreen pauseScreen;
@@ -45,6 +37,7 @@ public class GameScreen implements Screen {
   
     private final Label debugLabel;
     public boolean isPaused;
+    public GameLogic gameLogic;
 
     public GameScreen(final CarcassoneGame game, String tableId, int tilesLeft, PCLPlayers players) {
         this.game = game;
@@ -53,9 +46,8 @@ public class GameScreen implements Screen {
         this.map = new Map();
         this.players = players;
         this.currentTile = new PCLCurrentTile();
-
         this.inputMultiplexer = new InputMultiplexer();
-
+        this.gameLogic = new GameLogic(this);
 
         pauseScreen = null;
         isPaused = false;
@@ -88,14 +80,14 @@ public class GameScreen implements Screen {
         field = new GameField(this);
 
 
-        this.players.addPCLListener(hud.playersObserver);
+        this.players.addPCLListener(hud.currentPlayerObserver);
         this.map.setRelatedPlayers(this.players);
         currentTile.addPCLListener(hud.currentTileObserver);
         game.socketClient.setPCLCurrentTile(currentTile);
         game.socketClient.setMap(this.map);
 
         if (currentTile.getCurrentTile() == null){
-            currentTile.setTile(new Tile(TileTypes.get(0), 0));
+            currentTile.setTile(new Tile(TileTypes.get(0), 0, 0));
         }
         Gdx.input.setInputProcessor(this.inputMultiplexer);
     }
@@ -126,9 +118,9 @@ public class GameScreen implements Screen {
         field.stage.draw();
 
         if(!isPaused){
-            hud.hudStage.act(Gdx.graphics.getDeltaTime());
+            hud.stage.act(Gdx.graphics.getDeltaTime());
         }
-        hud.hudStage.draw();
+        hud.stage.draw();
 
         if(isPaused){
             pauseScreen.stage.act(Gdx.graphics.getDeltaTime());

@@ -51,7 +51,13 @@ public class ServerQueries {
 
     public static class TILE_DRAWN {
         public String action;
-        public int tileType;
+        public Tile tile;
+
+        public static class Tile{
+            public int type;
+            public int seed;
+        }
+
     }
 
     public static class TILE_PUTTED {
@@ -65,10 +71,33 @@ public class ServerQueries {
             public Position position;
             public int rotation;
             public int meeple;
+            public int seed;
+
 
             public static class Position{
                 public int x;
                 public int y;
+            }
+        }
+    }
+
+    public static class OBJECT_FINISHED{
+        String action;
+        Object object;
+
+        public static class Object{
+            int type;
+            List<Position> tiles;
+            List<Score> scores;
+
+            public static class Position{
+                int x;
+                int y;
+            }
+
+            public static class Score{
+                String playerId;
+                int amount;
             }
         }
     }

@@ -1,31 +1,23 @@
 package ua.carcassone.game.game;
 
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.networking.ServerQueries;
 
 import java.util.Arrays;
 import java.util.List;
 
-class Meeple {
-    public Player player;
-    public int position;
-
-
-    public Meeple(Player player, int position) {
-        this.player = player;
-        this.position = position;
-    }
-}
-
 public class Tile {
     public TileType type;
-    public Meeple meeple;
+    private Meeple meeple;
     public int rotation;
     public TilePurpose purpose = TilePurpose.LEGIT;
+    private final int seed;
 
-    public static enum TilePurpose{
+    public enum TilePurpose{
         LEGIT,
         IMAGINARY_SELECTED,
+        IMAGINARY_FOCUS,
         IMAGINARY_NOT_SELECTED
     }
 
@@ -35,6 +27,7 @@ public class Tile {
         this.rotation = tile.rotation;
         this.purpose = tile.purpose;
         this.meeple = new Meeple(null, 0);
+        this.seed = tile.seed;
     }
 
     public Tile(Tile tile, TilePurpose purpose){
@@ -42,25 +35,29 @@ public class Tile {
         this.rotation = tile.rotation;
         this.purpose = purpose;
         this.meeple = new Meeple(null, 0);
+        this.seed = tile.seed;
     }
 
-    public Tile(TileType type, int rotation) {
+    public Tile(TileType type, int rotation, int seed) {
         this.type = type;
         this.rotation = rotation;
         this.meeple = new Meeple(
                 null, 0);
+        this.seed = seed;
     }
 
-    public Tile(TileType type, int rotation, TilePurpose purpose) {
+    public Tile(TileType type, int rotation, int seed, TilePurpose purpose) {
         this.type = type;
         this.rotation = rotation;
         this.purpose = purpose;
         this.meeple = new Meeple(null, 0);
+        this.seed = seed;
     }
 
     public Tile(ServerQueries.TILE_PUTTED.Tile serverTile, Player relatedPlayer){
         this.type = TileTypes.get(serverTile.type);
         this.rotation = serverTile.rotation;
+        this.seed = serverTile.seed;
         if(serverTile.meeple != -1){
             this.meeple = new Meeple(relatedPlayer, serverTile.meeple);
         }
@@ -103,8 +100,32 @@ public class Tile {
     @Override
     public String toString() {
         return "Tile{" +
-                "sides=" + (type != null ? Arrays.toString(type.sides) : "null" )+
+                "type=" + (type != null ? type.toString() : "null" )+
                 ", rotation=" + rotation +
                 '}';
+    }
+
+    public boolean hasMeeple(){
+        return this.meeple != null && this.meeple.getPosition() != 0 && this.meeple.getPlayer() != null;
+    }
+
+    public void setMeeple(Meeple meeple){
+        this.meeple = meeple;
+    }
+
+    public void setMeeple(Player player, int position){
+        this.meeple = new Meeple(player, position);
+    }
+
+    public void unsetMeeple(){
+        this.meeple = new Meeple(null, 0);
+    }
+
+    public Meeple getMeeple(){
+        return this.meeple;
+    }
+
+    public int getSeed() {
+        return seed;
     }
 }

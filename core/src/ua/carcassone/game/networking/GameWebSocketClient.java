@@ -87,6 +87,19 @@ public class GameWebSocketClient extends WebSocketClient {
         //    throw new IncorrectClientActionException("connection opened but the client is in state "+this.state.string());
         System.out.println("OPENED");
         this.state.set(ClientStateEnum.CONNECTED_TO_SERVER);
+        GameWebSocketClient gameWebSocketClient = this;
+        new Timer().schedule(new TimerTask(){
+                           @Override
+                           public void run () {
+                               if(gameWebSocketClient.isConnected()){
+                                   // System.out.println("PING");
+                                   gameWebSocketClient.sendPing();
+                               }
+                           }
+                       }
+                , 10 * 1000        //    (delay)
+                , 10 * 1000     //    (seconds)
+        );
     }
 
     @Override
@@ -179,7 +192,7 @@ public class GameWebSocketClient extends WebSocketClient {
                 System.out.println("! Server sent wrong response: \n\tstate is " + this.state.string() + "\n\tserver sent: " + message);
 
             TILE_DRAWN response = jsonConverter.fromJson(TILE_DRAWN.class, message);
-            Tile tileGot = new Tile(TileTypes.get(response.tileType), 0);
+            Tile tileGot = new Tile(TileTypes.get(response.tile.type), 0, response.tile.seed);
             if(this.pclCurrentTile == null){
                 System.out.println("! WARNING: Tile drawn, but not handled, caching");
                 this.cachedCurrentTile = tileGot;
@@ -199,6 +212,33 @@ public class GameWebSocketClient extends WebSocketClient {
                 this.cachedPuttedTiles.add(response.tile);
             } else {
                 Gdx.app.postRunnable(() -> relatedMap.setByPlayer(response.tile));
+            }
+        }
+
+        else if (Objects.equals(action, OBJECT_FINISHED.class.getSimpleName())) {
+            if (!this.state.is(ClientStateEnum.IN_GAME))
+                System.out.println("! Server sent wrong response: \n\tstate is " + this.state.string() + "\n\tserver sent: " + message);
+
+            OBJECT_FINISHED response = jsonConverter.fromJson(OBJECT_FINISHED.class, message);
+
+            if(this.relatedMap == null || this.pclPlayers == null){
+                System.out.println("! WARNING: Object finished, but not handled");
+            } else {
+                for (OBJECT_FINISHED.Object.Position position: response.object.tiles) {
+                    Tile finishedTile = relatedMap.get(position.x, position.y);
+                    if(finishedTile.hasMeeple()){
+                        Meeple meepleToUnset = finishedTile.getMeeple();
+                        meepleToUnset.getPlayer().alterMeeples(1);
+                        finishedTile.unsetMeeple();
+                    }
+                }
+                for (OBJECT_FINISHED.Object.Score score: response.object.scores) {
+                    Player scoredPlayer = pclPlayers.getPlayer(score.playerId);
+                    if(scoredPlayer == null)
+                        scoredPlayer = pclPlayers.getClient();
+                    scoredPlayer.alterScore(score.amount);
+                }
+                relatedMap.updateLinkedStages();
             }
         }
 
