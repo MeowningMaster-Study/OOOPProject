@@ -224,12 +224,23 @@ public class GameWebSocketClient extends WebSocketClient {
             if(this.relatedMap == null || this.pclPlayers == null){
                 System.out.println("! WARNING: Object finished, but not handled");
             } else {
+                List<MeeplePosition.INSTANCE> instances = Arrays.asList
+                        (MeeplePosition.INSTANCE.NONE,
+                                MeeplePosition.INSTANCE.ROAD,
+                                MeeplePosition.INSTANCE.TOWN,
+                                MeeplePosition.INSTANCE.FIELD,
+                                MeeplePosition.INSTANCE.MONASTERY);
                 for (OBJECT_FINISHED.Object.Position position: response.object.tiles) {
                     Tile finishedTile = relatedMap.get(position.x, position.y);
                     if(finishedTile.hasMeeple()){
-                        Meeple meepleToUnset = finishedTile.getMeeple();
-                        meepleToUnset.getPlayer().alterMeeples(1);
-                        finishedTile.unsetMeeple();
+                        MeeplePosition.INSTANCE instance = instances.get(response.object.type);
+
+                        if(MeeplePosition.getInstance(finishedTile.getMeeple().getPosition()) == instance){
+                            Meeple meepleToUnset = finishedTile.getMeeple();
+                            meepleToUnset.getPlayer().alterMeeples(1);
+                            finishedTile.unsetMeeple();
+                        }
+
                     }
                 }
                 for (OBJECT_FINISHED.Object.Score score: response.object.scores) {
