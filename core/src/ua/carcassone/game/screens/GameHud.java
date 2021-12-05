@@ -232,7 +232,6 @@ public class GameHud {
 
         for (PointTypeSprite sprite : generatedSprites) {
             Image spriteImage = sprite.getImage(currentTile.rotation, tileSize, tileSize/textureManager.getMinTileSize());
-            System.out.println(spriteImage.getX()+", "+spriteImage.getY()+"|"+sprite.getX()+","+sprite.getY());
             toDraw.addActor(spriteImage);
         }
 

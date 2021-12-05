@@ -38,6 +38,13 @@ public class TileType {
             return this.sides[4-(rotation-number)];
     }
 
+    public int getHalfSide(int number, int rotation) {
+        if (rotation*2 <= number)
+            return this.halves[number-rotation*2];
+        else
+            return this.halves[8-(rotation*2-number)];
+    }
+
     public static boolean sidesMatch(int side1, int side2){
         return  (side1 == side2) ||
                 (Utils.numberInRange(side1, 1, 5) && Utils.numberInRange(side2, 1, 5)) ||

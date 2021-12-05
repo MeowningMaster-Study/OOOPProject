@@ -1,9 +1,15 @@
 package ua.carcassone.game.screens;
 
 import com.badlogic.gdx.math.Vector2;
+import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.PCLCurrentTile;
 import ua.carcassone.game.game.Tile;
 import ua.carcassone.game.game.TileTypes;
+
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
 public class GameLogic {
     private final GameScreen gameScreen;
@@ -62,6 +68,15 @@ public class GameLogic {
     public void unsetMeepleOnSelectedTile(){
         if(gameScreen.map.hasSelectedTile() && gameScreen.currentTile.isPlaceMeeple()){
             gameScreen.map.unsetMeepleOnSelectedTile();
+        }
+    }
+
+    public boolean meepleCanBePut(int entityId, int x, int y){
+        if(entityId == 0) return true;
+        if (Utils.numberInRange(entityId, 9, 13)){
+            return gameScreen.map.meepleCanBePutOnHalfSide(entityId, x, y);
+        } else {
+            return gameScreen.map.meepleCanBePutOnSide(entityId, x, y);
         }
     }
 

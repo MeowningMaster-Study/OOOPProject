@@ -79,7 +79,8 @@ public class GameField {
         addBaseTiles();
 
         if(gameScreen.players.isCurrentPlayerClient() &&
-                TileTypes.isGamingTile(gameScreen.currentTile.getCurrentTile()))
+                TileTypes.isGamingTile(gameScreen.currentTile.getCurrentTile()) &&
+                    !gameScreen.currentTile.isStabilized())
             addAvailableTileSpots();
         addSprites();
         addControls();
@@ -193,6 +194,8 @@ public class GameField {
                         // points
                         if (gameScreen.currentTile.isPlaceMeeple() &&  (gameScreen.players.getCurrentPlayer().getMeepleCount() > 0)) {
                             for (MeeplePosition meeplePosition : MeeplePosition.get(tile)) {
+                                if(!gameScreen.gameLogic.meepleCanBePut(meeplePosition.entityId, i, j))
+                                    continue;
                                 ImageButton pointButton = new ImageButton(
                                         new TextureRegionDrawable(new TextureRegion(textureManager.getPointDarkerTexture())),
                                         new TextureRegionDrawable(new TextureRegion(textureManager.getPointDarkTexture()))
@@ -265,7 +268,6 @@ public class GameField {
                         );
                         Vector2 position = MeeplePosition.getPosition(tile.getMeeple(), tile);
                         assert position != null;
-                        System.out.println(position);
                         float hwCoefficient = meepleActor.getHeight()/meepleActor.getWidth();
                         meepleActor.setSize(tileSize * Settings.meepleHeight/hwCoefficient, tileSize * Settings.meepleHeight);
                         meepleActor.setPosition(

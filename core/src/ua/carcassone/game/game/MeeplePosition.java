@@ -162,7 +162,7 @@ public class MeeplePosition {
             // 23
             Arrays.asList(
                     new MeeplePosition(1, 0.17f, 0.47f),
-                    new MeeplePosition(2, 0.87f, 0.44f),
+                    new MeeplePosition(2, 0.85f, 0.53f),
                     new MeeplePosition(3, 0.47f, 0.11f),
                     new MeeplePosition(9, 0.18f, 0.20f),
                     new MeeplePosition(10, 0.56f, 0.75f),
