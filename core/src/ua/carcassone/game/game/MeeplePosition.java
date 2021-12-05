@@ -1,6 +1,7 @@
 package ua.carcassone.game.game;
 
 import com.badlogic.gdx.math.Vector2;
+import ua.carcassone.game.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -225,5 +226,27 @@ public class MeeplePosition {
         }
         return null;
     }
+
+    public enum INSTANCE{
+        NONE,
+        FIELD,
+        TOWN,
+        ROAD,
+        MONASTERY
+    }
+
+    public static INSTANCE getInstance(int instanceId){
+        if(instanceId == 0) return INSTANCE.NONE;
+        if(Utils.numberInRange(instanceId, 1, 5))
+            return INSTANCE.ROAD;
+        if(Utils.numberInRange(instanceId, 5, 9))
+            return INSTANCE.TOWN;
+        if(Utils.numberInRange(instanceId, 9, 12))
+            return INSTANCE.FIELD;
+        if(instanceId == 13)
+            return INSTANCE.MONASTERY;
+        return INSTANCE.NONE;
+    }
+
 
 }

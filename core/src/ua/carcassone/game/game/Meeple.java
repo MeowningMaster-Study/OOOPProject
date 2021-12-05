@@ -17,4 +17,5 @@ public class Meeple {
     public int getPosition() {
         return position;
     }
+
 }

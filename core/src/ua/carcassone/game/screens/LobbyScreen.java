@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -85,10 +86,21 @@ public class LobbyScreen implements Screen {
         updateStage();
     }
 
-    private ImageButton makeCopyButton(String path){
+    private void addImages(){
+        Image image1 = new Image(new Texture("skins/images/cowboy.png"));
+        float hwCoefficient = image1.getHeight()/image1.getWidth();
+        image1.setHeight(Math.min(Gdx.graphics.getDisplayMode().height*0.65f, image1.getHeight()));
+        image1.setWidth(image1.getHeight()/hwCoefficient);
+        image1.setPosition((Gdx.graphics.getDisplayMode().width*0.55f - image1.getWidth()*0.5f), (Gdx.graphics.getDisplayMode().height * 0.05f));
+        stage.addActor(image1);
+    }
+
+    private ImageButton makeCopyButton(String path, String pathClicked){
         Texture copyTexture = new Texture(Gdx.files.internal(path));
         Drawable copyDrawable = new TextureRegionDrawable(new TextureRegion(copyTexture));
-        ImageButton copyButton = new ImageButton(copyDrawable);
+        Texture copyTextureCl = new Texture(Gdx.files.internal(pathClicked));
+        Drawable copyDrawableCl = new TextureRegionDrawable(new TextureRegion(copyTextureCl));
+        ImageButton copyButton = new ImageButton(copyDrawable, copyDrawableCl);
 
         copyButton.setPosition(3* ELEMENT_WIDTH_UNIT + 40, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         copyButton.setSize(50, 50);
@@ -207,6 +219,8 @@ public class LobbyScreen implements Screen {
     private void updateStage(){
         stage.clear();
 
+        addImages();
+
         Label carcassoneLabel = new Label("Lobby", mySkin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
@@ -222,7 +236,7 @@ public class LobbyScreen implements Screen {
         code.setPosition(codeLabel.getX()+codeLabel.getWidth()+20, codeLabel.getY());
         stage.addActor(code);
 
-        ImageButton copyButton = makeCopyButton("skins/icons/copy.png");
+        ImageButton copyButton = makeCopyButton("skins/icons/copy.png", "skins/icons/copyClicked.png");
         stage.addActor(copyButton);
 
         Button startGameButton = makeStartGameButton("Start game");

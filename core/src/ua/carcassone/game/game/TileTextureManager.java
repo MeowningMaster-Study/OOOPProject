@@ -8,53 +8,52 @@ import com.badlogic.gdx.graphics.TextureData;
 import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
 public class TileTextureManager {
-    private final List<List<Texture>> textures = new LinkedList<>();
-    private int minTileSize = new Texture(Gdx.files.internal("skins/wildwest-tiles/1-0.png")).getWidth();
-    private final Texture borderTexture, innerBorderTexture, borderSilverTexture, borderWhiteTexture, pointTexture;
-    private final Texture pointDarkerTexture, pointDarkTexture, meepleTexture;
-    private final List<Texture> rotateClockwiseTextures = new LinkedList<>();
-    private final Texture transparentTexture;
+    private final List<List<PreparableTexture>> textures = new LinkedList<>();
+    private final PreparableTexture borderTexture, innerBorderTexture, borderSilverTexture, borderWhiteTexture, pointTexture;
+    private final PreparableTexture pointDarkerTexture, pointDarkTexture, nullTileTexture;
+    private final List<PreparableTexture> rotateClockwiseTextures = new LinkedList<>();
+    private final java.util.Map<MeeplePosition.INSTANCE, PreparableTexture> meepleTextures = new HashMap<>();
+
+    private final PreparableTexture transparentTexture;
 
     public TileTextureManager() {
         for (int i = 0; i <= 24; i++){
-            List<Texture> tileTextures = new LinkedList<>();
+            List<PreparableTexture> tileTextures = new LinkedList<>();
             for (int j = 0; j <= 3; j++){
-                Texture texture = new Texture(Gdx.files.internal("skins/wildwest-tiles/"+i+"-"+j+".png"));
-                if (texture.getHeight() < minTileSize) {
-                    System.out.println("skins/wildwest-tiles/"+i+"-"+j+".png"+" IS H "+texture.getHeight());
-                    minTileSize = texture.getHeight();
-                }
-                if  (texture.getWidth() < minTileSize) {
-                    System.out.println("skins/wildwest-tiles/"+i+"-"+j+".png"+" IS W "+texture.getWidth());
-
-                    minTileSize = texture.getWidth();
-                }
+                PreparableTexture texture = new PreparableTexture("skins/wildwest-tiles/"+i+"-"+j+".png");
                 tileTextures.add(j, texture);
             }
             textures.add(i, tileTextures);
         }
-        this.borderTexture = new Texture(Gdx.files.internal("skins/icons/tile-border.png"));
-        this.innerBorderTexture = new Texture(Gdx.files.internal("skins/icons/tile-inner-border.png"));
-        this.borderSilverTexture = new Texture(Gdx.files.internal("skins/icons/tile-border-silver.png"));
-        this.borderWhiteTexture = new Texture(Gdx.files.internal("skins/icons/tile-border-white.png"));
-        this.transparentTexture = new Texture(Gdx.files.internal("skins/icons/transparent.png"));
-        this.pointTexture = new Texture(Gdx.files.internal("skins/icons/blue-point.png"));
-        this.pointDarkerTexture = new Texture(Gdx.files.internal("skins/icons/blue-point-darker.png"));
-        this.pointDarkTexture = new Texture(Gdx.files.internal("skins/icons/blue-point-dark.png"));
-        this.meepleTexture = new Texture(Gdx.files.internal("skins/meeples/meeple-greenscreen.png"));
+        this.borderTexture = new PreparableTexture("skins/icons/tile-border.png");
+        this.innerBorderTexture = new PreparableTexture("skins/icons/tile-inner-border.png");
+        this.borderSilverTexture = new PreparableTexture("skins/icons/tile-border-silver.png");
+        this.borderWhiteTexture = new PreparableTexture("skins/icons/tile-border-white.png");
+        this.transparentTexture = new PreparableTexture("skins/icons/transparent.png");
+        this.pointTexture = new PreparableTexture("skins/icons/blue-point.png");
+        this.pointDarkerTexture = new PreparableTexture("skins/icons/blue-point-darker.png");
+        this.pointDarkTexture = new PreparableTexture("skins/icons/blue-point-dark.png");
+        this.nullTileTexture = new PreparableTexture("skins/wildwest-tiles/Null.png");
 
         for (int i = 0; i < 4; i++) {
-            this.rotateClockwiseTextures.add(new Texture(Gdx.files.internal("skins/icons/clockwiseRotate-"+i+".png")));
+            this.rotateClockwiseTextures.add(new PreparableTexture("skins/icons/clockwiseRotate-"+i+".png"));
         }
+
+        meepleTextures.put(MeeplePosition.INSTANCE.NONE, new PreparableTexture("skins/meeples/meeple-greenscreen.png"));
+        meepleTextures.put(MeeplePosition.INSTANCE.FIELD, new PreparableTexture("skins/meeples/meeple-greenscreen-FIELD.png"));
+        meepleTextures.put(MeeplePosition.INSTANCE.TOWN, new PreparableTexture("skins/meeples/meeple-greenscreen-TOWN.png"));
+        meepleTextures.put(MeeplePosition.INSTANCE.MONASTERY, new PreparableTexture("skins/meeples/meeple-greenscreen-MONASTERY.png"));
+        meepleTextures.put(MeeplePosition.INSTANCE.ROAD, new PreparableTexture("skins/meeples/meeple-greenscreen-ROAD.png"));
 
     }
 
     public Texture getTexture(int tileTypeId, int rotation){
-        return textures.get(tileTypeId).get(rotation);
+        return textures.get(tileTypeId).get(rotation).getTexture();
     }
 
     public Texture getTexture(TileType tileType, int rotation){
@@ -66,51 +65,63 @@ public class TileTextureManager {
     }
 
     public int getMinTileSize() {
+        int minTileSize = Settings.minTileResolution;
         return minTileSize;
     }
 
     public Texture getInnerBorderTexture() {
-        return innerBorderTexture;
+        return innerBorderTexture.getTexture();
     }
 
     public Texture getBorderTexture() {
-        return borderTexture;
+        return borderTexture.getTexture();
     }
 
     public Texture getBorderSilverTexture() {
-        return borderSilverTexture;
+        return borderSilverTexture.getTexture();
     }
 
     public Texture getBorderWhiteTexture() {
-        return borderWhiteTexture;
+        return borderWhiteTexture.getTexture();
     }
 
     public Texture getTransparentTexture() {
-        return transparentTexture;
+        return transparentTexture.getTexture();
     }
 
     public Texture getPointTexture() {
-        return pointTexture;
+        return pointTexture.getTexture();
     }
 
     public Texture getPointDarkerTexture() {
-        return pointDarkerTexture;
+        return pointDarkerTexture.getTexture();
     }
 
     public Texture getPointDarkTexture() {
-        return pointDarkTexture;
+        return pointDarkTexture.getTexture();
     }
 
     public Texture getRotateClockwiseTexture(int rotation) {
-        return rotateClockwiseTextures.get(rotation%4);
+        return rotateClockwiseTextures.get(rotation%4).getTexture();
     }
 
     public Texture getMeepleTexture() {
-        return meepleTexture;
+        return meepleTextures.get(MeeplePosition.INSTANCE.NONE).getTexture();
     }
 
-    public Texture getMeepleTexture(Color color) {
-        return TileTextureManager.fillTexture(meepleTexture, Settings.meepleGreenscreenColor, color);
+    public Texture getMeepleTexture(int instance) {
+        return meepleTextures.get(MeeplePosition.getInstance(instance)).getTexture();
+    }
+
+    public Texture getMeepleTexture(Color color, int instance) {
+        return TileTextureManager.fillTexture(
+                meepleTextures.get(MeeplePosition.getInstance(instance)).getTexture(),
+                Settings.meepleGreenscreenColor, color
+        );
+    }
+
+    public Texture getNullTileTexture() {
+        return nullTileTexture.getTexture();
     }
 
     public static Texture fillTexture(Texture source, Color colorReplaced, Color newColor){
@@ -139,4 +150,23 @@ public class TileTextureManager {
         pixmap.dispose();
         return res;
     }
+
+    private static class PreparableTexture{
+        private final String path;
+        private Texture texture;
+
+        public PreparableTexture(String path) {
+            this.path = path;
+        }
+
+        public Texture getTexture() {
+            if (texture == null) {
+                this.texture = new Texture(Gdx.files.internal(path));
+
+            }
+            return this.texture;
+        }
+    }
+
+
 }

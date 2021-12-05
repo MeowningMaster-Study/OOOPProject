@@ -50,5 +50,9 @@ public class Settings {
     public static float spritesPerTile = 10;
     public static float polygonScale = 100;
 
+    public static final int minTileResolution = 400;
+
     public static final Color meepleGreenscreenColor = new Color(0.0f, 1.0f, 0.0f, 1.0f);
+
+
 }

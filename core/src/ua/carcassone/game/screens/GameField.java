@@ -98,6 +98,12 @@ public class GameField {
                     image.setPosition(i * tileSize - halfTile, j * tileSize - halfTile);
                     image.setSize(tileSize, tileSize);
                     stage.addActor(image);
+                } else {
+//                    Image image = new Image(textureManager.getNullTileTexture());
+//                    image.setPosition(i * tileSize - halfTile, j * tileSize - halfTile);
+//                    image.setSize(tileSize, tileSize);
+//                    stage.addActor(image);
+
                 }
             }
         }
@@ -263,7 +269,7 @@ public class GameField {
                     if (tile.hasMeeple()){
                         ImageButton meepleActor = new ImageButton(
                                 new TextureRegionDrawable(new TextureRegion(
-                                        textureManager.getMeepleTexture(tile.getMeeple().getPlayer().getColor())
+                                        textureManager.getMeepleTexture(tile.getMeeple().getPlayer().getColor(), tile.getMeeple().getPosition())
                                 ))
                         );
                         Vector2 position = MeeplePosition.getPosition(tile.getMeeple(), tile);

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -20,6 +21,7 @@ import ua.carcassone.game.networking.IncorrectClientActionException;
 import ua.carcassone.game.networking.ServerQueries;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Random;
 
 import static ua.carcassone.game.Utils.*;
@@ -44,9 +46,11 @@ public class JoinGameScreen implements Screen {
 
         mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
+        addImages();
+
         Label carcassoneLabel = new Label("Join game", mySkin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
-        carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
+        carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT*1.6f, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
 
         final TextField joinCodeField = makeJoinCodeField("Connection code...");
@@ -57,6 +61,12 @@ public class JoinGameScreen implements Screen {
 
         Button backButton = makeBackButton("Back");
         stage.addActor(backButton);
+    }
+
+    private void addImages(){
+        Image image1 = new Image(new Texture("skins/images/pig.png"));
+        image1.setPosition((Gdx.graphics.getDisplayMode().width*0.7f - image1.getWidth()/2f), (Gdx.graphics.getDisplayMode().height - image1.getHeight())/2.0f);
+        stage.addActor(image1);
     }
 
     // TODO find new font
@@ -82,7 +92,7 @@ public class JoinGameScreen implements Screen {
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
                 try {
-                    game.socketClient.connectToTable(joinCodeField.getText());
+                    game.socketClient.connectToTable(joinCodeField.getText().toUpperCase(Locale.ROOT));
                 } catch (IncorrectClientActionException e) {
                     e.printStackTrace();
                 }
