@@ -277,7 +277,7 @@ public class GameHud {
     private void drawMeeples(){
         Image mImage = new Image(
                 new TextureRegionDrawable(new TextureRegion(
-                        textureManager.getMeepleTexture(gameScreen.players.getCurrentPlayer().getColor())
+                        textureManager.getMeepleTexture(gameScreen.players.getCurrentPlayer().getColor(), 0)
                 ))
         );
         mImage.setSize(50, 50);
@@ -298,7 +298,6 @@ public class GameHud {
 
         mTable.setPosition(CURR_TILE_X, CURR_TILE_Y + 200);
 
-        mTable.setDebug(true);
         stage.addActor(mTable);
     }
 

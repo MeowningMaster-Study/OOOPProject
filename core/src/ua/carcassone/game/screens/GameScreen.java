@@ -126,6 +126,7 @@ public class GameScreen implements Screen {
         }
 
         field.stage.draw();
+        hud.stage.draw();
 
         if(isPaused){
             pauseScreen.stage.act(Gdx.graphics.getDeltaTime());
