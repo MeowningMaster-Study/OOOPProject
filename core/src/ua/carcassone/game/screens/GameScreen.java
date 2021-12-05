@@ -3,6 +3,7 @@ package ua.carcassone.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -13,6 +14,10 @@ import ua.carcassone.game.CarcassoneGame;
 
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 
 import static ua.carcassone.game.Utils.ELEMENT_HEIGHT_UNIT;
 import static ua.carcassone.game.Utils.ELEMENT_WIDTH_UNIT;
@@ -29,6 +34,7 @@ public class GameScreen implements Screen {
     private final String tableId;
     private int tilesLeft;
     public PauseGameScreen pauseScreen;
+    private EndGameScreen endGameScreen;
 
     public final Map map;
     public PCLPlayers players;
@@ -37,6 +43,7 @@ public class GameScreen implements Screen {
   
     private final Label debugLabel;
     public boolean isPaused;
+    public boolean isGameOver;
     public GameLogic gameLogic;
 
     public GameScreen(final CarcassoneGame game, String tableId, int tilesLeft, PCLPlayers players) {
@@ -50,7 +57,9 @@ public class GameScreen implements Screen {
         this.gameLogic = new GameLogic(this);
 
         pauseScreen = null;
+        endGameScreen = null;
         isPaused = false;
+        isGameOver = false;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
@@ -102,35 +111,61 @@ public class GameScreen implements Screen {
             pauseScreen = null;
         }
 
-        if(!isPaused){
-            field.handleInput(delta);
-        }
-
         ScreenUtils.clear(1, 1, 1, 1);
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
-
-        if(!isPaused){
+        if(!isPaused && !isGameOver){
+            field.handleInput(delta);
             field.stage.act(Gdx.graphics.getDeltaTime());
-        }
-        field.stage.draw();
-
-        if(!isPaused){
             hud.stage.act(Gdx.graphics.getDeltaTime());
+            stage.act(Gdx.graphics.getDeltaTime());
+
+            hud.stage.draw();
         }
-        hud.stage.draw();
+
+        field.stage.draw();
 
         if(isPaused){
             pauseScreen.stage.act(Gdx.graphics.getDeltaTime());
             pauseScreen.stage.draw();
         }
 
-        if(!isPaused){
-            stage.act(Gdx.graphics.getDeltaTime());
+        if(isGameOver){
+            if(endGameScreen == null){
+                // test
+                endGameScreen = new EndGameScreen(this, playersAndScore(5));
+            }
+            endGameScreen.stage.act(Gdx.graphics.getDeltaTime());
+            endGameScreen.stage.draw();
         }
+
         stage.draw();
+    }
+
+    // test
+    private java.util.Map<Player, Score> playersAndScore(int amount){
+        java.util.Map <Player, Score> result = new HashMap<>();
+        for(int i = 0; i < amount; i++){
+            String name = "name_" + i;
+            String code = Integer.toString(i);
+
+            Player player = new Player(name, code, Color.BLACK);
+
+            Random random = new Random();
+
+            int r = random.nextInt(amount);
+            int c = random.nextInt(amount);
+            int m = random.nextInt(amount);
+            int f = random.nextInt(amount);
+            int summary = r + c + m + f;
+
+            Score score = new Score(r, c, m, f, summary);
+
+            result.put(player, score);
+        }
+        return result;
     }
 
     @Override

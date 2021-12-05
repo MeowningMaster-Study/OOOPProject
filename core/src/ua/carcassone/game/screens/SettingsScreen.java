@@ -151,7 +151,6 @@ public class SettingsScreen implements Screen {
 
             private void update(){
                 game.setMusicVolume(volumeSlider.getValue() / 100);
-                System.out.println(volumeSlider.getValue());
 
                 boolean isZero = volumeSlider.getValue() == 0;
                 noVolumeBox.setChecked(isZero);

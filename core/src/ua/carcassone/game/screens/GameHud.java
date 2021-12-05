@@ -6,12 +6,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.utils.*;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.Utils;
-import ua.carcassone.game.game.PCLCurrentTile;
 import ua.carcassone.game.game.Player;
 import ua.carcassone.game.game.Tile;
 import ua.carcassone.game.game.TileTextureManager;
@@ -30,11 +31,13 @@ public class GameHud {
     public Stage stage;
     private Viewport viewport;
     private GameScreen gameScreen;
-    private Skin mySkin;
+    private Skin skin;
 
     Button menuButton;
     Button confirmationButton;
     Button cancelButton;
+    boolean isOverThePlayers;
+
 
     TileTextureManager textureManager;
     CurrentTileObserver currentTileObserver;
@@ -51,13 +54,15 @@ public class GameHud {
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera());
         stage = new Stage(viewport, gameScreen.game.batch);
         gameScreen.inputMultiplexer.addProcessor(this.stage);
-        mySkin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
+        skin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
         currentTileObserver = new CurrentTileObserver();
         this.gameScreen.currentTile.addPCLListener(this.currentTileObserver);
 
         this.currentPlayerObserver = new CurrentPlayerObserver();
         this.gameScreen.players.addPCLListener(this.currentPlayerObserver);
+
+        isOverThePlayers = false;
 
         menuButton = makeMenuButton("Menu");
         confirmationButton = makeConfirmationButton("skins/icons/confirm.png");
@@ -66,7 +71,7 @@ public class GameHud {
     }
 
     private Button makeMenuButton(String name){
-        Button menuButton = new TextButton(name, mySkin);
+        Button menuButton = new TextButton(name, skin);
         menuButton.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         menuButton.setPosition(Gdx.graphics.getWidth() - (float)(ELEMENT_WIDTH_UNIT * 1.5), Utils.fromTop((float) (ELEMENT_HEIGHT_UNIT * 1.5)));
         menuButton.addListener(new InputListener(){
@@ -145,6 +150,7 @@ public class GameHud {
                 }
             }
         }
+
         if(gameScreen.players.getPlayers() != null){
             drawPlayers();
         }
@@ -161,48 +167,78 @@ public class GameHud {
 
     private void drawPlayers(){
         float size = gameScreen.players.getPlayers().size();
+        Table playersTable = new Table(skin);
+        int iconWidth = 100;
+        int iconHeight = 100;
+        int infoHeight = 60;
+        int padding = 10;
 
-        float heightCoeff = Gdx.graphics.getHeight() / ((size + 1) * ELEMENT_HEIGHT_UNIT);
+        //playersTable.setDebug(true);
+
+        playersTable.setWidth(iconWidth);
+        playersTable.setHeight((iconHeight + iconWidth + infoHeight + padding)* size);
+
         for (int i = 0; i < size; ++i) {
+
+            if(i != 0){
+                playersTable.row();
+                playersTable.pad(padding);
+            }
+
             Player player = gameScreen.players.getPlayers().get(i);
 
             Image pImage = new Image(textureManager.getTexture(0, 0));
-            pImage.setPosition((float)(ELEMENT_WIDTH_UNIT / 2), Utils.fromTop(ELEMENT_HEIGHT_UNIT * (heightCoeff * i + 2)));
-            pImage.setSize(100, 100);
-            stage.addActor(pImage);
+            pImage.setSize(iconWidth, iconHeight);
 
-            Table labelsTable = new Table();
-            labelsTable.setSize(100, 60);
-            labelsTable.setPosition((float)(ELEMENT_WIDTH_UNIT / 2),
-                    Utils.fromTop(ELEMENT_HEIGHT_UNIT * (heightCoeff * i + 2)) - pImage.getHeight() / 1.5f);
-            labelsTable.setSkin(mySkin);
+            // длбавляем рамку для игрока, чей ход сейчас.
+            if(gameScreen.players.isTurnOf(player)){
+                Image borderImage = new Image(textureManager.getBorderSilverTexture());
+                borderImage.setSize(pImage.getWidth(), pImage.getHeight());
+
+                Stack stack = new Stack();
+                stack.add(pImage);
+                stack.add(borderImage);
+
+                playersTable.add(stack).fillX();
+            }
+            else {
+                playersTable.add(pImage).fillX();
+            }
 
             Label pName = new Label(
-                    (gameScreen.players.isTurnOf(player)?"=> ":"")+
+                    (gameScreen.players.isTurnOf(player) ? "=> " : "") +
                             player.getName()
                     ,
-                    mySkin
+                    skin
             );
 
             Label pMeeples = new Label(
                     "Meeples: " + player.getMeepleCount(),
-                    mySkin
+                    skin
             );
 
             Label pScore = new Label(
                     "Score: " + player.getScore(),
-                    mySkin
+                    skin
             );
+
+            Table labelsTable = new Table(skin);
+            labelsTable.setWidth(iconWidth);
+            labelsTable.setHeight(infoHeight);
 
             labelsTable.add(pName).expandX().fillX().height(20);
             labelsTable.row();
             labelsTable.add(pMeeples).expandX().fillX().height(20);
             labelsTable.row();
             labelsTable.add(pScore).expandX().fillX().height(20);
-            labelsTable.row();
 
-            stage.addActor(labelsTable);
+            playersTable.row();
+            playersTable.add(labelsTable).fillX();
         }
+
+        playersTable.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(playersTable.getHeight() + 40));
+        stage.addActor(playersTable);
+
     }
 
     private void drawCurrentTile(){
@@ -239,10 +275,31 @@ public class GameHud {
     }
 
     private void drawMeeples(){
-        Image mImage = new Image(new Texture("skins/meeples/meeple_castle.png"));
-        mImage.setPosition(CURR_TILE_X + 50, 3 * CURR_TILE_Y);
+        Image mImage = new Image(
+                new TextureRegionDrawable(new TextureRegion(
+                        textureManager.getMeepleTexture(gameScreen.players.getCurrentPlayer().getColor())
+                ))
+        );
         mImage.setSize(50, 50);
-        stage.addActor(mImage);
+
+        Label mCount = new Label(
+                "x " + gameScreen.players.getCurrentPlayer().getMeepleCount(),
+                skin,
+                "big"
+                );
+
+        Stack stack = new Stack();
+        stack.add(mCount);
+
+        Table mTable = new Table(skin);
+        mTable.setSize(100, 50);
+        mTable.add(mImage).colspan(3).expand().width(mImage.getWidth()).height(mImage.getHeight());
+        mTable.add(stack).colspan(5).expand();
+
+        mTable.setPosition(CURR_TILE_X, CURR_TILE_Y + 200);
+
+        mTable.setDebug(true);
+        stage.addActor(mTable);
     }
 
     private class CurrentPlayerObserver implements PropertyChangeListener{

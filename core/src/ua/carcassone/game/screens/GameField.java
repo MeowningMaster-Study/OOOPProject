@@ -355,6 +355,9 @@ public class GameField {
         if(Gdx.input.isKeyPressed(Input.Keys.V)) {
             this.setZoomToSeeTiles(5);
         }
+        if(Gdx.input.isKeyPressed(Input.Keys.NUMPAD_0)){
+            this.gameScreen.isGameOver = true;
+        }
 
         if(Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
             gameScreen.gameLogic.confirmSelectedTilePosition();
