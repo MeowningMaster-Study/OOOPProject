@@ -75,6 +75,22 @@ public class PCLPlayers{
         return currentPlayer;
     }
 
+    public Player getPlayer(String playerId){
+        for (Player player :
+                this.players) {
+            if (Objects.equals(player.getCode(), playerId))return player;
+        }
+        return null;
+    }
+
+    public Player getClient(){
+        for (Player player :
+                this.players) {
+            if (player.isClient()) return player;
+        }
+        return null;
+    }
+
     public boolean isCurrentPlayerClient(){
         return currentPlayer != null && currentPlayer.isClient();
     }

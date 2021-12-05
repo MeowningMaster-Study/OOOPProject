@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -13,17 +14,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.Settings;
 import ua.carcassone.game.Utils;
-import ua.carcassone.game.game.Tile;
-import ua.carcassone.game.game.TileTextureManager;
-import ua.carcassone.game.game.TileTypes;
+import ua.carcassone.game.game.*;
+import ua.carcassone.game.game.sprites.PointTypeSprite;
+import ua.carcassone.game.game.sprites.TileTypeSpritesGenerator;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static ua.carcassone.game.Settings.shiftTranslationCoefficient;
@@ -70,79 +73,235 @@ public class GameField {
     public void updateStage(){
         // can be updated by saving prev. field and only setting changed tiles
         // but is not needed as stage updates rarely
-        // System.out.println("Updating gameField stage");
-        float halfTile = tileSize/2.0f;
+
         stage.clear();
+
+        addBaseTiles();
+
+        if(gameScreen.players.isCurrentPlayerClient() &&
+                TileTypes.isGamingTile(gameScreen.currentTile.getCurrentTile()) &&
+                    !gameScreen.currentTile.isStabilized())
+            addAvailableTileSpots();
+        addSprites();
+        addControls();
+        addMeeples();
+
+    }
+
+    private void addBaseTiles(){
+        float halfTile = tileSize/2.0f;
         for (int i = gameScreen.map.minX(); i <= gameScreen.map.maxX(); i++){ // для каждого столбца
             for (int j = gameScreen.map.maxY(); j >= gameScreen.map.minY(); j--){ // для каждой строки
-                if (gameScreen.map.get(i, j) != null){
+                if (gameScreen.map.get(i, j) != null) {
                     Tile tile = gameScreen.map.get(i, j);
                     Image image = new Image(textureManager.getTexture(tile.type, tile.rotation));
-                    image.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
+                    image.setPosition(i * tileSize - halfTile, j * tileSize - halfTile);
                     image.setSize(tileSize, tileSize);
                     stage.addActor(image);
+                } else {
+//                    Image image = new Image(textureManager.getNullTileTexture());
+//                    image.setPosition(i * tileSize - halfTile, j * tileSize - halfTile);
+//                    image.setSize(tileSize, tileSize);
+//                    stage.addActor(image);
 
-                    if(tile.purpose == Tile.TilePurpose.IMAGINARY_SELECTED){
-                        if(gameScreen.map.getAvailableRotations(i, j, tile.type).size() > 1){
-                            Image rotateImage = new Image(textureManager.getRotateClockwiseTexture(tile.rotation));
-                            rotateImage.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
-                            rotateImage.setSize(tileSize, tileSize);
-                            stage.addActor(rotateImage);
+                }
+            }
+        }
+    }
+
+    private void addAvailableTileSpots(){
+        float halfTile = tileSize/2.0f;
+
+        ArrayList<Vector2> availableTileSpots = gameScreen.map.getAvailableSpots(gameScreen.currentTile.getCurrentTile().type);
+        for (Vector2 coordinate : availableTileSpots) {
+            Texture imageTexture = textureManager.getInnerBorderTexture();
+            Drawable imageDrawable = new TextureRegionDrawable(new TextureRegion(imageTexture));
+            ImageButton imageButton = new ImageButton(imageDrawable);
+            imageButton.setPosition(coordinate.x*tileSize-halfTile, coordinate.y*tileSize-halfTile);
+            imageButton.setSize(tileSize, tileSize);
+            imageButton.addListener(new InputListener(){
+                @Override
+                public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                    return true;
+                }
+
+                @Override
+                public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                    Gdx.app.postRunnable(() -> gameScreen.gameLogic.setSelection(coordinate));
+                }
+            });
+            stage.addActor(imageButton);
+
+        }
+    }
+
+    private void addSprites(){
+        float halfTile = tileSize/2.0f;
+
+        for (int i = gameScreen.map.minX(); i <= gameScreen.map.maxX(); i++) { // для каждого столбца
+            for (int j = gameScreen.map.maxY(); j >= gameScreen.map.minY(); j--) { // для каждой строки
+                if (gameScreen.map.get(i, j) != null) {
+                    Tile tile = gameScreen.map.get(i, j);
+                    Group group = new Group();
+                    group.setPosition(i * tileSize - halfTile, j * tileSize - halfTile);
+                    group.setSize(tileSize, tileSize);
+
+                    List<PointTypeSprite> generatedSprites =
+                            TileTypeSpritesGenerator.generatePointTypeSprites(tile.type, tile.getSeed(), tileSize);
+
+                    generatedSprites.addAll(TileTypeSpritesGenerator.generateMandatorySprites(gameScreen.map, i, j, tile.getSeed()));
+
+                    generatedSprites.sort((o1, o2)->{
+                        if(o1.getY() == o2.getY()) return 0;
+                        return (o1.getY() < o2.getY() ? 1 : -1);
+                    });
+
+                    int c = 0;
+                    for (PointTypeSprite sprite : generatedSprites) {
+                        Image spriteImage = sprite.getImage(tile.rotation, tileSize);
+                        spriteImage.setZIndex(c);
+                        group.addActor(spriteImage);
+                        c++;
+                    }
+                    stage.addActor(group);
+                }
+            }
+        }
+    }
+
+
+
+
+    private void addControls(){
+        float halfTile = tileSize/2.0f;
+
+        for (int i = gameScreen.map.minX(); i <= gameScreen.map.maxX(); i++) { // для каждого столбца
+            for (int j = gameScreen.map.maxY(); j >= gameScreen.map.minY(); j--) { // для каждой строки
+                if (gameScreen.map.get(i, j) != null) {
+                    Tile tile = gameScreen.map.get(i, j);
+
+                    if (tile.purpose != Tile.TilePurpose.LEGIT) {
+
+                        // border
+                        Texture borderTexture;
+                        if (tile.purpose == Tile.TilePurpose.IMAGINARY_SELECTED) {
+                            borderTexture = textureManager.getBorderTexture();
+                        } else if (tile.purpose == Tile.TilePurpose.IMAGINARY_FOCUS) {
+                            borderTexture = textureManager.getBorderWhiteTexture();
+                        } else {
+                            borderTexture = textureManager.getTransparentTexture();
                         }
 
-                        Texture imageTexture = textureManager.getBorderTexture();
-                        Drawable imageDrawable = new TextureRegionDrawable(new TextureRegion(imageTexture));
+                        Drawable imageDrawable = new TextureRegionDrawable(new TextureRegion(borderTexture));
                         ImageButton imageButton = new ImageButton(imageDrawable);
-                        imageButton.setPosition(i*tileSize-halfTile, j*tileSize-halfTile);
+                        imageButton.setPosition(i * tileSize - halfTile, j * tileSize - halfTile);
                         imageButton.setSize(tileSize, tileSize);
-                        imageButton.addListener(new InputListener(){
-                            @Override
-                            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                                return true;
+
+                        // points
+                        if (gameScreen.currentTile.isPlaceMeeple() &&  (gameScreen.players.getCurrentPlayer().getMeepleCount() > 0)) {
+                            for (MeeplePosition meeplePosition : MeeplePosition.get(tile)) {
+                                if(!gameScreen.gameLogic.meepleCanBePut(meeplePosition.entityId, i, j))
+                                    continue;
+                                ImageButton pointButton = new ImageButton(
+                                        new TextureRegionDrawable(new TextureRegion(textureManager.getPointDarkerTexture())),
+                                        new TextureRegionDrawable(new TextureRegion(textureManager.getPointDarkTexture()))
+                                );
+
+                                pointButton.setSize(tileSize * Settings.pointRadius * 2, tileSize * Settings.pointRadius * 2);
+                                pointButton.setPosition(
+                                        tileSize * meeplePosition.position.x,
+                                        tileSize * meeplePosition.position.y,
+                                        Align.center
+                                );
+
+                                pointButton.addListener(new InputListener() {
+                                    @Override
+                                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                                        return true;
+                                    }
+
+                                    @Override
+                                    public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                                        Gdx.app.postRunnable(() -> gameScreen.gameLogic.setMeepleOnSelectedTile(meeplePosition.entityId));
+                                    }
+                                });
+                                imageButton.addActor(pointButton);
+                            }
+                        }
+
+                        // rotate
+                        if (gameScreen.currentTile.isPut()) {
+                            if (gameScreen.map.getAvailableRotations(i, j, tile.type).size() > 1) {
+                                Image rotateImage = new Image(textureManager.getRotateClockwiseTexture(tile.rotation));
+                                rotateImage.setPosition(i * tileSize - halfTile / 2.0f, j * tileSize - halfTile / 2.0f);
+                                rotateImage.setSize(tileSize / 2.0f, tileSize / 2.0f);
+                                stage.addActor(rotateImage);
+
+                                imageButton.addListener(new InputListener() {
+                                    @Override
+                                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                                        return true;
+                                    }
+
+                                    @Override
+                                    public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                                        Gdx.app.postRunnable(gameScreen.map::rotateSelectedTile);
+                                    }
+                                });
                             }
 
-                            @Override
-                            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                                Gdx.app.postRunnable(gameScreen.map::rotateSelectedTile);
-                            }
-                        });
+                        }
                         stage.addActor(imageButton);
                     }
                 }
             }
         }
+    }
 
-        System.out.println(gameScreen.currentTile.getCurrentTile());
-        System.out.println(TileTypes.isGamingTile(gameScreen.currentTile.getCurrentTile()));
-        if(gameScreen.players.isCurrentPlayerClient() &&  TileTypes.isGamingTile(gameScreen.currentTile.getCurrentTile())){
+    private void addMeeples(){
+        float halfTile = tileSize/2.0f;
 
-            ArrayList<Vector2> availableTileSpots =
-                    gameScreen.map.getAvailableSpots(gameScreen.currentTile.getCurrentTile().type);
-            for (Vector2 coordinate : availableTileSpots) {
-                Texture imageTexture = textureManager.getInnerBorderTexture();
-                Drawable imageDrawable = new TextureRegionDrawable(new TextureRegion(imageTexture));
-                ImageButton imageButton = new ImageButton(imageDrawable);
-                imageButton.setPosition(coordinate.x*tileSize-halfTile, coordinate.y*tileSize-halfTile);
-                imageButton.setSize(tileSize, tileSize);
-                imageButton.addListener(new InputListener(){
-                    @Override
-                    public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                        return true;
+        for (int i = gameScreen.map.minX(); i <= gameScreen.map.maxX(); i++) { // для каждого столбца
+            for (int j = gameScreen.map.maxY(); j >= gameScreen.map.minY(); j--) { // для каждой строки
+                if (gameScreen.map.get(i, j) != null) {
+                    Tile tile = gameScreen.map.get(i, j);
+
+                    if (tile.hasMeeple()){
+                        ImageButton meepleActor = new ImageButton(
+                                new TextureRegionDrawable(new TextureRegion(
+                                        textureManager.getMeepleTexture(tile.getMeeple().getPlayer().getColor(), tile.getMeeple().getPosition())
+                                ))
+                        );
+                        Vector2 position = MeeplePosition.getPosition(tile.getMeeple(), tile);
+                        assert position != null;
+                        float hwCoefficient = meepleActor.getHeight()/meepleActor.getWidth();
+                        meepleActor.setSize(tileSize * Settings.meepleHeight/hwCoefficient, tileSize * Settings.meepleHeight);
+                        meepleActor.setPosition(
+                                (i+position.x)*tileSize-halfTile,
+                                (j+position.y)*tileSize-halfTile,
+                                Align.center
+                        );
+
+
+                        if(gameScreen.currentTile.isPlaceMeeple()){
+                            meepleActor.addListener(new InputListener(){
+                                @Override
+                                public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {return true;}
+
+                                @Override
+                                public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                                    Gdx.app.postRunnable(()-> gameScreen.gameLogic.unsetMeepleOnSelectedTile());
+                                }
+                            });
+                        }
+                        stage.addActor(meepleActor);
                     }
 
-                    @Override
-                    public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                        Gdx.app.postRunnable(() -> gameScreen.map.setSelectedTile((int) coordinate.x, (int) coordinate.y,
-                                gameScreen.currentTile.getCurrentTile().type));
-                    }
-                });
-                stage.addActor(imageButton);
-
+                }
             }
         }
-
-        gameScreen.setDebugLabel("Cuurent player is "+gameScreen.players.getCurrentPlayer());
     }
+
 
     public void handleInput(float delta) {
         handleNewInput();
@@ -197,28 +356,8 @@ public class GameField {
             this.setZoomToSeeTiles(5);
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
-            this.gameScreen.map.generateRandom(3);
-            gameScreen.setDebugLabel("Generated random map size=3");
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
-            this.gameScreen.map.generateRandom(7);
-            gameScreen.setDebugLabel("Generated random map size=7");
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.NUM_3)) {
-            this.gameScreen.map.generateRandom(21);
-            gameScreen.setDebugLabel("Generated random map size=21");
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.NUM_4)) {
-            this.gameScreen.map.generateRandom(77);
-            gameScreen.setDebugLabel("Generated random map size=77");
-        }
-
         if(Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
-            if (gameScreen.map.hasSelectedTile()) {
-                gameScreen.currentTile.setTile(new Tile(TileTypes.get(0), 0));
-                gameScreen.map.confirmSelectedTile();
-            }
+            gameScreen.gameLogic.confirmSelectedTilePosition();
         }
     }
 
@@ -312,7 +451,8 @@ public class GameField {
 
     private class CurrentTileObserver implements PropertyChangeListener{
         public void propertyChange(PropertyChangeEvent evt){
-            if(Objects.equals(evt.getPropertyName(), "currentTile"))
+            if(Objects.equals(evt.getPropertyName(), "currentTile") ||
+                    Objects.equals(evt.getPropertyName(), "state") )
                 updateStage();
         }
     }

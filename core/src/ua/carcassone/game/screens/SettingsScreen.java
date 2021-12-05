@@ -3,6 +3,7 @@ package ua.carcassone.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -15,6 +16,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import ua.carcassone.game.CarcassoneGame;
+
+import static ua.carcassone.game.Utils.ELEMENT_HEIGHT_UNIT;
 
 public class SettingsScreen implements Screen {
 
@@ -39,6 +42,8 @@ public class SettingsScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
 
         skin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
+
+        addImages();
 
         Container<Table> tableContainer = new Container<>();
 
@@ -76,6 +81,16 @@ public class SettingsScreen implements Screen {
 
         Gdx.input.setInputProcessor(stage);
 
+    }
+
+    private void addImages(){
+        Image image1 = new Image(new Texture("skins/images/bandit.png"));
+        image1.setPosition((Gdx.graphics.getDisplayMode().width*0.2f - image1.getWidth()/2f), (Gdx.graphics.getDisplayMode().height - image1.getHeight())/2.0f);
+        stage.addActor(image1);
+
+        Image image2 = new Image(new Texture("skins/images/bandit2.png"));
+        image2.setPosition((Gdx.graphics.getDisplayMode().width*0.8f - image2.getWidth()/2f), (Gdx.graphics.getDisplayMode().height - image2.getHeight())/2.0f);
+        stage.addActor(image2);
     }
 
     private Button makeBackButton(String name){
@@ -152,7 +167,7 @@ public class SettingsScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(250f/255, 224f/255, 145f/255, 1);
+        ScreenUtils.clear(246f/255, 222f/255, 174f/255, 1);
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);

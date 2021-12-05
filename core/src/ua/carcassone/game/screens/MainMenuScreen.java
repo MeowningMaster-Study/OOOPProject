@@ -3,6 +3,7 @@ package ua.carcassone.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -36,9 +37,12 @@ public class MainMenuScreen implements Screen {
 
         skin = new Skin(Gdx.files.internal("skins/comic-ui.json"));
 
+        Image backgroundImage = makeBackground();
+        stage.addActor(backgroundImage);
+
         Label carcassoneLabel = new Label("Carcassone Game", skin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
-        carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
+        carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT*1.2f, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
 
         Label connectionLabel = new Label("NOT Connected", skin, "default");
@@ -69,6 +73,15 @@ public class MainMenuScreen implements Screen {
         Button exitButton = makeExitButton("Exit");
         stage.addActor(exitButton);
 
+    }
+
+    private Image makeBackground(){
+        Image backgroundImage = new Image(new Texture("skins/images/volk.jpg"));
+        float hwCoefficient = backgroundImage.getHeight()/backgroundImage.getWidth();
+        backgroundImage.setHeight(Gdx.graphics.getDisplayMode().height);
+        backgroundImage.setWidth(backgroundImage.getHeight()/hwCoefficient);
+        backgroundImage.setPosition(Gdx.graphics.getDisplayMode().width - backgroundImage.getWidth(), 0);
+        return (backgroundImage);
     }
 
     private Button makeCreateTableButton(String name){
