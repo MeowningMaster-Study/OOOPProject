@@ -91,9 +91,11 @@ public class GameHud {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                gameScreen.isPaused = true;
-                pause();
-                updateStage();
+                Gdx.app.postRunnable(()->{
+                    gameScreen.isPaused = true;
+                    pause();
+                    updateStage();
+                });
             }
         });
         return menuButton;
@@ -111,14 +113,16 @@ public class GameHud {
 
             @Override
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                if(gameScreen.currentTile.isPut()){
-                    gameScreen.gameLogic.confirmSelectedTilePosition();
+                Gdx.app.postRunnable(()->{
+                    if(gameScreen.currentTile.isPut()){
+                        gameScreen.gameLogic.confirmSelectedTilePosition();
 
-                    cancelButton.setDisabled(false);
-                    cancelButton.setVisible(true);
-                } else if(gameScreen.currentTile.isPlaceMeeple()) {
-                    gameScreen.gameLogic.confirmSelectedTileMeeples();
-                }
+                        cancelButton.setDisabled(false);
+                        cancelButton.setVisible(true);
+                    } else if(gameScreen.currentTile.isPlaceMeeple()) {
+                        gameScreen.gameLogic.confirmSelectedTileMeeples();
+                    }
+                });
             }
         });
 
@@ -140,10 +144,12 @@ public class GameHud {
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                gameScreen.gameLogic.disproveSelectedTileMeeples();
+                Gdx.app.postRunnable(()->{
+                    gameScreen.gameLogic.disproveSelectedTileMeeples();
 
-                cancelButton.setDisabled(true);
-                cancelButton.setVisible(false);
+                    cancelButton.setDisabled(true);
+                    cancelButton.setVisible(false);
+                });
             }
         });
 
