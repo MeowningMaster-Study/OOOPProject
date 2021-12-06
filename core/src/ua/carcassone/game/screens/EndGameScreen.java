@@ -73,11 +73,11 @@ public class EndGameScreen {
 
         wantedPaper = new Image(new Texture("skins/icons/wantedPaper.png"));
         wantedPaper.setSize(600, 800);
-        wantedPaper.setPosition(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT * 2);
+        wantedPaper.setPosition(ELEMENT_WIDTH_UNIT, (Gdx.graphics.getHeight() - wantedPaper.getHeight())/2 );
 
         scorePaper = new Image(new Texture("skins/icons/simplePaper.png"));
         scorePaper.setSize(600, 800);
-        scorePaper.setPosition(Utils.fromRight(ELEMENT_WIDTH_UNIT + scorePaper.getWidth()), ELEMENT_HEIGHT_UNIT * 2);
+        scorePaper.setPosition(Utils.fromRight(ELEMENT_WIDTH_UNIT + scorePaper.getWidth()), (Gdx.graphics.getHeight() - scorePaper.getHeight())/2 );
 
         buttonTable = new Table(skin);
 
