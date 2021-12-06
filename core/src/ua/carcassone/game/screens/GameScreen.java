@@ -90,6 +90,12 @@ public class GameScreen implements Screen {
         currentTile.addPCLListener(hud.currentTileObserver);
         game.socketClient.setPCLCurrentTile(currentTile);
         game.socketClient.setMap(this.map);
+        game.socketClient.setRunOnGameEnd(
+                (java.util.Map<Player, Score> scores)->{
+                    this.endGameScores = scores;
+                    isGameOver = true;
+                }
+        );
 
         if (currentTile.getCurrentTile() == null){
             currentTile.setTile(new Tile(TileTypes.get(0), 0, 0));
@@ -164,10 +170,6 @@ public class GameScreen implements Screen {
         return result;
     }
 
-    public void gameEnded(java.util.Map<Player, Score> scores){
-        this.endGameScores = scores;
-        isGameOver = true;
-    }
 
     @Override
     public void resize(int width, int height) {

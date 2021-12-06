@@ -183,10 +183,10 @@ public class GameWebSocketClient extends WebSocketClient {
 
             GAME_ENDED response = jsonConverter.fromJson(GAME_ENDED.class, message);
             java.util.Map<Player, Score> scores = new HashMap<>();
-            for(java.util.Map.Entry<String, GAME_ENDED.Score> serverScore : response.scores.entrySet()){
-                GAME_ENDED.Score sc = serverScore.getValue();
+            for(com.badlogic.gdx.utils.ObjectMap.Entry <String, GAME_ENDED.Score> serverScore : response.scores.entries()){
+                GAME_ENDED.Score sc = serverScore.value;
                 Score score = new Score(sc.roads, sc.towns, sc.monasteries, sc.fields, sc.summary);
-                scores.put(pclPlayers.getPlayerOrClient(serverScore.getKey()), score);
+                scores.put(pclPlayers.getPlayerOrClient(serverScore.key), score);
             }
             this.runOnGameEnd.accept(scores);
 

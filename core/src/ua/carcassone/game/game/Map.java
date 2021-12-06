@@ -361,15 +361,12 @@ public class Map {
             Vector2 tilePos = stackElement.getKey();
             Tile tile = this.get(tilePos);
             int side = stackElement.getValue();
-            System.out.println("GOT "+tile+", side "+side+", =side: "+tile.type.getSide(side, tile.rotation));
 
             if (tilesDone.contains(tile)) {
-                System.out.println("already was");
                 continue;
             }
 
             if (tile.hasMeeple() && tile.getMeeple().getPosition() == tile.type.getSide(side, tile.rotation) && tile.purpose == Tile.TilePurpose.LEGIT){
-                System.out.println("HAS A MEEPLE");
                 hasMeeple = true;
                 break;
             }
@@ -377,7 +374,6 @@ public class Map {
             tilesDone.add(tile);
 
             for (int i = 0; i < 4; i++) {
-                System.out.println("Checking abs side "+tile.type.getSide(i, tile.rotation)+" == "+tile.type.getSide(side, tile.rotation));
                 if (tile.type.getSide(i, tile.rotation) == tile.type.getSide(side, tile.rotation)) {
                     Vector2 nextTilePos;
 
@@ -398,7 +394,6 @@ public class Map {
                             throw new IllegalStateException("Unexpected value: " + i);
                     }
                     if (this.get(nextTilePos) != null) {
-                        System.out.println("PUSHING "+this.get(nextTilePos)+", side "+(i + 2) % 4);
                         toCheck.push(new AbstractMap.SimpleImmutableEntry<>(nextTilePos, (i + 2) % 4));
                     }
 
@@ -429,15 +424,12 @@ public class Map {
             Vector2 tilePos = stackElement.getKey();
             Tile tile = this.get(tilePos);
             int side = stackElement.getValue();
-            System.out.println("GOT "+tile+", side "+side+", =side: "+tile.type.getHalfSide(side, tile.rotation));
 
             if (tilesDone.contains(tile)) {
-                System.out.println("already was");
                 continue;
             }
 
             if (tile.hasMeeple() && tile.getMeeple().getPosition() == tile.type.getHalfSide(side, tile.rotation) && tile.purpose == Tile.TilePurpose.LEGIT){
-                System.out.println("HAS A MEEPLE");
                 hasMeeple = true;
                 break;
             }
@@ -445,7 +437,6 @@ public class Map {
             tilesDone.add(tile);
 
             for (int i = 0; i < 8; i++) {
-                System.out.println("Checking abs side "+tile.type.getHalfSide(i, tile.rotation)+" == "+tile.type.getHalfSide(side, tile.rotation));
                 if (tile.type.getHalfSide(i, tile.rotation) == tile.type.getHalfSide(side, tile.rotation)) {
                     Vector2 nextTilePos;
                     switch (i/2){
@@ -466,7 +457,6 @@ public class Map {
                     }
 
                     if (this.get(nextTilePos) != null) {
-                        System.out.println("PUSHING "+this.get(nextTilePos)+", side "+(2*((i/2 + 2) % 4)+(i+1)%2));
                         toCheck.push(new AbstractMap.SimpleImmutableEntry<>(nextTilePos, 2*((i/2 + 2) % 4)+(i+1)%2 ));
                     }
 

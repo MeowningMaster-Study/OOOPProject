@@ -1,5 +1,6 @@
 package ua.carcassone.game.networking;
 
+import com.badlogic.gdx.utils.OrderedMap;
 import jdk.nashorn.internal.runtime.Scope;
 
 import java.util.List;
@@ -66,7 +67,7 @@ public class ServerQueries {
 
     public static class GAME_ENDED {
         public String action;
-        public Map<String, Score> scores;
+        public OrderedMap<String, Score> scores;
 
         public static class Score{
             int roads;

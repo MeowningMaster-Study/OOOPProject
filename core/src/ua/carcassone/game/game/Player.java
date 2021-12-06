@@ -7,7 +7,7 @@ public class Player {
     private final String code;
     private Color color;
 
-    private int meepleCount = 8;
+    private int meepleCount = 7;
     private int score = 0;
     private boolean isClient = false;
 
