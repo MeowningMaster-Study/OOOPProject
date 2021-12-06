@@ -198,28 +198,34 @@ public class GameHud {
 
             Player player = gameScreen.players.getPlayers().get(i);
 
-            Image pImage = new Image(textureManager.getTexture(0, 0));
-            pImage.setSize(iconWidth, iconHeight);
-
-            // длбавляем рамку для игрока, чей ход сейчас.
+            Image pImage;
             if(gameScreen.players.isTurnOf(player)){
-                Image borderImage = new Image(textureManager.getBorderSilverTexture());
-                borderImage.setSize(pImage.getWidth(), pImage.getHeight());
-
-                Stack stack = new Stack();
-                stack.add(pImage);
-                stack.add(borderImage);
-
-                playersTable.add(stack).width(pImage.getWidth()).height(pImage.getHeight());
+                pImage = new Image(textureManager.getProfileGolden(player.getColor()));
+            } else {
+                pImage = new Image(textureManager.getProfileSilver(player.getColor()));
             }
-            else {
-                playersTable.add(pImage).width(pImage.getWidth()).height(pImage.getHeight());
-            }
+
+            pImage.setSize(iconWidth, iconHeight);
+            playersTable.add(pImage).width(pImage.getWidth()).height(pImage.getHeight());
+
+//            // длбавляем рамку для игрока, чей ход сейчас.
+//            if(gameScreen.players.isTurnOf(player)){
+//                Image borderImage = new Image(textureManager.getBorderSilverTexture());
+//                borderImage.setSize(pImage.getWidth(), pImage.getHeight());
+//
+//                Stack stack = new Stack();
+//                stack.add(pImage);
+//                stack.add(borderImage);
+//
+//                playersTable.add(stack).width(pImage.getWidth()).height(pImage.getHeight());
+//            }
+//            else {
+//                playersTable.add(pImage).width(pImage.getWidth()).height(pImage.getHeight());
+//            }
 
 
 
             Label pName = new Label(
-                    (gameScreen.players.isTurnOf(player) ? "=> " : "") +
                             player.getName()
                     ,
                     skin

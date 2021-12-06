@@ -152,7 +152,7 @@ public class GameWebSocketClient extends WebSocketClient {
             CREATE_TABLE_SUCCESS response = jsonConverter.fromJson(CREATE_TABLE_SUCCESS.class, message);
             this.getPclPlayers().clearPlayers();
             // TODO get color from server
-            this.getPclPlayers().addPlayer("CLIENT", true, new Color(1, 1, 1, 1));
+            this.getPclPlayers().addPlayer("CLIENT", true, new Color(1, 0, 0, 1));
             this.state.set(
                     new ClientStateChange(
                             ClientStateEnum.CONNECTED_TO_TABLE,

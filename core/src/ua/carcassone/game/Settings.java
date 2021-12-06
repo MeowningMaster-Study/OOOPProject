@@ -52,7 +52,7 @@ public class Settings {
 
     public static final int minTileResolution = 400;
 
-    public static final Color meepleGreenscreenColor = new Color(0.0f, 1.0f, 0.0f, 1.0f);
+    public static final Color textureGreenscreenColor = new Color(0.0f, 1.0f, 0.0f, 1.0f);
 
 
 }

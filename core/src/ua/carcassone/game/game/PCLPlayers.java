@@ -48,7 +48,7 @@ public class PCLPlayers{
 
     public void addPlayer(String playerId, boolean isClient, Color color){
         if (isClient)
-            addPlayer(new Player("You", playerId, Color.WHITE, true));
+            addPlayer(new Player("You", playerId, color, true));
         else
             addPlayer(new Player(playerId, playerId, color, false));
     }

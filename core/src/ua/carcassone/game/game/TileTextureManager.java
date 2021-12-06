@@ -20,6 +20,7 @@ public class TileTextureManager {
     private final java.util.Map<MeeplePosition.INSTANCE, PreparableTexture> meepleTextures = new HashMap<>();
 
     private final PreparableTexture transparentTexture;
+    private final PreparableTexture profileGreenscreenSilver, profileGreenscreenGolden;
 
     public TileTextureManager() {
         for (int i = 0; i <= 24; i++){
@@ -39,6 +40,10 @@ public class TileTextureManager {
         this.pointDarkerTexture = new PreparableTexture("skins/icons/blue-point-darker.png");
         this.pointDarkTexture = new PreparableTexture("skins/icons/blue-point-dark.png");
         this.nullTileTexture = new PreparableTexture("skins/wildwest-tiles/Null.png");
+
+        this.profileGreenscreenSilver = new PreparableTexture("skins/icons/profile-greenscreen-silver.png");
+        this.profileGreenscreenGolden = new PreparableTexture("skins/icons/profile-greenscreen-gold.png");
+
 
         for (int i = 0; i < 4; i++) {
             this.rotateClockwiseTextures.add(new PreparableTexture("skins/icons/clockwiseRotate-"+i+".png"));
@@ -116,12 +121,26 @@ public class TileTextureManager {
     public Texture getMeepleTexture(Color color, int instance) {
         return TileTextureManager.fillTexture(
                 meepleTextures.get(MeeplePosition.getInstance(instance)).getTexture(),
-                Settings.meepleGreenscreenColor, color
+                Settings.textureGreenscreenColor, color
         );
     }
 
     public Texture getNullTileTexture() {
         return nullTileTexture.getTexture();
+    }
+
+    public Texture getProfileGolden(Color color) {
+        return TileTextureManager.fillTexture(
+                profileGreenscreenGolden.getTexture(),
+                Settings.textureGreenscreenColor, color
+        );
+    }
+
+    public Texture getProfileSilver(Color color) {
+        return TileTextureManager.fillTexture(
+                profileGreenscreenSilver.getTexture(),
+                Settings.textureGreenscreenColor, color
+        );
     }
 
     public static Texture fillTexture(Texture source, Color colorReplaced, Color newColor){
