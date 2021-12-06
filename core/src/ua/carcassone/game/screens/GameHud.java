@@ -204,7 +204,7 @@ public class GameHud {
 
         int iconWidth = 100;
         int iconHeight = 100;
-        int topPadding = 10;
+        int topPadding = 20;
 
         for (int i = 0; i < size; ++i) {
 
