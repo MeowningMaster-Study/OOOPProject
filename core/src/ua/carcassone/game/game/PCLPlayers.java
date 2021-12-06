@@ -46,16 +46,17 @@ public class PCLPlayers{
         addPlayer(new Player(playerName, playerId, new Color(new Random().nextInt())));
     }
 
-    public void addPlayer(String playerId, boolean isClient){
+    public void addPlayer(String playerId, boolean isClient, Color color){
         if (isClient)
             addPlayer(new Player("You", playerId, Color.WHITE, true));
         else
-            addPlayer(new Player(playerId, playerId, new Color(new Random().nextInt()), false));
+            addPlayer(new Player(playerId, playerId, color, false));
     }
 
-    public void addPlayer(String playerId){
-        addPlayer(playerId, false);
+    public void addPlayer(String playerId, Color color){
+        addPlayer(playerId, false, color);
     }
+
 
     public void removePlayer(String playerID){
         ArrayList<Player> newPlayers = new ArrayList<>();

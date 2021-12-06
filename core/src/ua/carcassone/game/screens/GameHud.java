@@ -37,7 +37,7 @@ public class GameHud {
     Button confirmationButton;
     Button cancelButton;
     boolean isOverThePlayers;
-
+    private Label tilesLeftLabel;
 
     TileTextureManager textureManager;
     CurrentTileObserver currentTileObserver;
@@ -67,6 +67,7 @@ public class GameHud {
         menuButton = makeMenuButton("Menu");
         confirmationButton = makeConfirmationButton("skins/icons/confirm.png");
         cancelButton = makeCancelButton("skins/icons/cancel.png");
+        tilesLeftLabel = makeTilesLeftLabel();
         updateStage();
     }
 
@@ -134,8 +135,21 @@ public class GameHud {
         return cancelButton;
     }
 
+    private Label makeTilesLeftLabel(){
+        Label tilesLeftLabel = new Label("Tiles left: "+this.gameScreen.tilesTotal, skin, "big");
+        tilesLeftLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        tilesLeftLabel.setPosition(ELEMENT_WIDTH_UNIT * 0.3f, (ELEMENT_HEIGHT_UNIT) * 0.5f);
+        return tilesLeftLabel;
+    }
+
+    private void updateTilesLeftLabel(int left){
+        tilesLeftLabel.setText("Tiles left: "+left);
+    }
+
     public void updateStage(){
         stage.clear();
+
+        stage.addActor(tilesLeftLabel);
 
         if(gameScreen.currentTile.isSet()){
             if(gameScreen.currentTile.isHanging()){
@@ -312,6 +326,8 @@ public class GameHud {
             if(Objects.equals(evt.getPropertyName(), "currentTile") ||
                     Objects.equals(evt.getPropertyName(), "state")) {
                 updateStage();
+            } else if(Objects.equals(evt.getPropertyName(), "tilesSet")) {
+                updateTilesLeftLabel(gameScreen.tilesTotal - (Integer) evt.getNewValue());
             }
         }
     }

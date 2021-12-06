@@ -1,12 +1,21 @@
 package ua.carcassone.game.networking;
 
+import jdk.nashorn.internal.runtime.Scope;
+
 import java.util.List;
+import java.util.Map;
 
 public class ServerQueries {
 
     public static class PLAYER_JOINED {
         public String action;
         public String playerId;
+        public Color color;
+
+        public static class Color{
+            public int r, g, b;
+        }
+
     }
 
     public static class PLAYER_LEFT {
@@ -22,7 +31,13 @@ public class ServerQueries {
     public static class JOIN_TABLE_SUCCESS {
         public String action;
         public String tableId;
+        public String tableName;
         public List<String> players;
+        public List<Color> colors;
+
+        public static class Color{
+            public int r, g, b;
+        }
     }
 
     public static class JOIN_TABLE_FAILURE {
@@ -46,7 +61,15 @@ public class ServerQueries {
 
     public static class GAME_ENDED {
         public String action;
-        // ...
+        public Map<String, Score> scores;
+
+        public static class Score{
+            int roads;
+            int towns;
+            int fields;
+            int monasteries;
+            int summary;
+        }
     }
 
     public static class TILE_DRAWN {

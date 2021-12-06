@@ -29,6 +29,7 @@ public class CreateTableScreen implements Screen {
     private OrthographicCamera camera;
     private Viewport viewport;
     private Stage stage;
+    private final TextField createTableField;
 
     private Skin mySkin;
 
@@ -50,7 +51,7 @@ public class CreateTableScreen implements Screen {
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
 
-        final TextField createTableField = makeCreateTableField("Table name...");
+        createTableField = makeCreateTableField("Table name...");
         stage.addActor(createTableField);
 
         Button createButton = makeCreateButton("Create");
@@ -104,7 +105,7 @@ public class CreateTableScreen implements Screen {
                                 PCLPlayers pclPlayers = (PCLPlayers) stateChange.additionalInfo[1];
                                 System.out.println("Got PCL creating: "+pclPlayers);
                                 Gdx.app.postRunnable(() -> game.setScreen(
-                                        new LobbyScreen(game, tableId, pclPlayers))
+                                        new LobbyScreen(game, tableId, createTableField.getText(), pclPlayers))
                                 );
                             }
                         }
@@ -112,7 +113,7 @@ public class CreateTableScreen implements Screen {
                 game.socketClient.addStateObserver(changeObserver);
 
                 try {
-                    game.socketClient.createTable("someTableName");
+                    game.socketClient.createTable(createTableField.getText());
                 } catch (IncorrectClientActionException e) {
                     e.printStackTrace();
                 }

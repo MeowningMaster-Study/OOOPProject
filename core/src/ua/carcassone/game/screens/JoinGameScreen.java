@@ -102,12 +102,11 @@ public class JoinGameScreen implements Screen {
                         (stateChange)->{
                             if ( stateChange.newState == GameWebSocketClient.ClientStateEnum.CONNECTED_TO_TABLE) {
                                 Gdx.app.postRunnable(() -> {
-                                    System.out.println(1);
-                                    String tableId = (String) stateChange.additionalInfo[0];
-                                    PCLPlayers pclPlayers = (PCLPlayers) stateChange.additionalInfo[1];
-                                    System.out.println(2);
 
-                                    game.setScreen(new LobbyScreen(game, tableId, pclPlayers));
+                                    String tableId = (String) stateChange.additionalInfo[0];
+                                    String tableName = (String) stateChange.additionalInfo[1];
+                                    PCLPlayers pclPlayers = (PCLPlayers) stateChange.additionalInfo[2];
+                                    game.setScreen(new LobbyScreen(game, tableId, tableName, pclPlayers));
                                 });
                             }
                             else {

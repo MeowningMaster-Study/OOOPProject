@@ -126,9 +126,15 @@ public class GameWebSocketClient extends WebSocketClient {
             JOIN_TABLE_SUCCESS response = jsonConverter.fromJson(JOIN_TABLE_SUCCESS.class, message);
             this.getPclPlayers().clearPlayers();
             for (int i = 0; i < response.players.size(); i++) {
-                this.getPclPlayers().addPlayer(response.players.get(i), i == response.players.size() - 1);
+                JOIN_TABLE_SUCCESS.Color color = response.colors.get(i);
+
+                this.getPclPlayers().addPlayer(
+                        response.players.get(i),
+                        i == response.players.size() - 1,
+                        new Color(color.r/255f, color.g/255f, color.b/255f, 1f)
+                );
             }
-            this.state.set(new ClientStateChange(ClientStateEnum.CONNECTED_TO_TABLE, response.tableId, this.getPclPlayers()));
+            this.state.set(new ClientStateChange(ClientStateEnum.CONNECTED_TO_TABLE, response.tableId, response.tableName, this.getPclPlayers()));
         }
 
         else if (Objects.equals(action, JOIN_TABLE_FAILURE.class.getSimpleName())){
@@ -144,12 +150,16 @@ public class GameWebSocketClient extends WebSocketClient {
                 System.out.println("! Server sent wrong response: \n\tstate is "+this.state.string()+"\n\tserver sent: "+message);
 
             CREATE_TABLE_SUCCESS response = jsonConverter.fromJson(CREATE_TABLE_SUCCESS.class, message);
+            this.getPclPlayers().clearPlayers();
+            // TODO get color from server
+            this.getPclPlayers().addPlayer("CLIENT", true, new Color(1, 1, 1, 1));
             this.state.set(
                     new ClientStateChange(
                             ClientStateEnum.CONNECTED_TO_TABLE,
                             response.tableId,
                             this.getPclPlayers()
-                    ));
+                    )
+            );
         }
 
         else if (Objects.equals(action, GAME_STARTED.class.getSimpleName())) {
@@ -169,7 +179,13 @@ public class GameWebSocketClient extends WebSocketClient {
             if(this.pclPlayers == null){
                 System.out.println("! WARNING: New player arrived, but not handled");
             } else {
-                Gdx.app.postRunnable(() -> pclPlayers.addPlayer(response.playerId));
+                PLAYER_JOINED.Color color = response.color;
+                Gdx.app.postRunnable(
+                        () -> pclPlayers.addPlayer(
+                                response.playerId,
+                                new Color(color.r/255f, color.g/255f, color.b/255f, 1f)
+                        )
+                );
 
             }
         }
@@ -192,6 +208,7 @@ public class GameWebSocketClient extends WebSocketClient {
                 System.out.println("! Server sent wrong response: \n\tstate is " + this.state.string() + "\n\tserver sent: " + message);
 
             TILE_DRAWN response = jsonConverter.fromJson(TILE_DRAWN.class, message);
+
             Tile tileGot = new Tile(TileTypes.get(response.tile.type), 0, response.tile.seed);
             if(this.pclCurrentTile == null){
                 System.out.println("! WARNING: Tile drawn, but not handled, caching");
@@ -278,7 +295,7 @@ public class GameWebSocketClient extends WebSocketClient {
     private PCLPlayers getPclPlayers(){
         if(this.pclPlayers == null) {
             this.pclPlayers = new PCLPlayers();
-            this.pclPlayers.addPlayer("CLIENT", true);
+            // this.pclPlayers.addPlayer("CLIENT", true);
         }
         return this.pclPlayers;
     }

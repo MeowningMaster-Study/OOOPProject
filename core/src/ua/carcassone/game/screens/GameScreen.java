@@ -15,7 +15,6 @@ import ua.carcassone.game.CarcassoneGame;
 import ua.carcassone.game.Utils;
 import ua.carcassone.game.game.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -32,7 +31,7 @@ public class GameScreen implements Screen {
     public final GameHud hud;
     public final GameField field;
     private final String tableId;
-    private int tilesLeft;
+    public int tilesTotal;
     public PauseGameScreen pauseScreen;
     private EndGameScreen endGameScreen;
 
@@ -49,7 +48,7 @@ public class GameScreen implements Screen {
     public GameScreen(final CarcassoneGame game, String tableId, int tilesLeft, PCLPlayers players) {
         this.game = game;
         this.tableId = tableId;
-        this.tilesLeft = tilesLeft;
+        this.tilesTotal = tilesLeft;
         this.map = new Map();
         this.players = players;
         this.currentTile = new PCLCurrentTile();
@@ -78,11 +77,7 @@ public class GameScreen implements Screen {
         tableIdLabel.setPosition(ELEMENT_WIDTH_UNIT * 2, Utils.fromTop(ELEMENT_HEIGHT_UNIT));
         stage.addActor(tableIdLabel);
 
-        // TODO move to hud and link to game logic
-        Label tilesLeftLabel = new Label("Tiles left: "+this.tilesLeft, mySkin, "default");
-        tilesLeftLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
-        tilesLeftLabel.setPosition(ELEMENT_WIDTH_UNIT * 6, (ELEMENT_HEIGHT_UNIT));
-        stage.addActor(tilesLeftLabel);
+
 
 
         hud = new GameHud(this);

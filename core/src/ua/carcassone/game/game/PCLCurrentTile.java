@@ -9,6 +9,7 @@ public class PCLCurrentTile{
     private TileState state;
     private Tile currentTile;
     private final PropertyChangeSupport support;
+    private int tilesSet = 0;
 
     public PCLCurrentTile(){
         support = new PropertyChangeSupport(this);
@@ -27,6 +28,10 @@ public class PCLCurrentTile{
         Tile prevTile = this.currentTile;
         this.currentTile = newTile;
         support.firePropertyChange("currentTile", prevTile, newTile);
+        if(TileTypes.isGamingTile(currentTile)){
+            support.firePropertyChange("tilesSet", tilesSet, tilesSet+1);
+            tilesSet++;
+        }
     }
 
     public Tile getCurrentTile() {

@@ -47,18 +47,21 @@ public class LobbyScreen implements Screen {
     private Viewport viewport;
     private Stage stage;
     private String tableId;
+    private String tableName;
 
     private Skin mySkin;
     private PCLPlayers players;
     private PlayersObserver playersObserver;
 
-    Label carcassoneLabel;
-    Label codeLabel;
+    private Label carcassoneLabel;
+    private Label codeLabel;
+    private Label code;
 
 
-    public LobbyScreen(final CarcassoneGame game, String tableId, PCLPlayers pclPlayers) {
+    public LobbyScreen(final CarcassoneGame game, String tableId, String tableName, PCLPlayers pclPlayers) {
         this.game = game;
         this.tableId = tableId;
+        this.tableName = tableName;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
@@ -109,8 +112,9 @@ public class LobbyScreen implements Screen {
         Drawable copyDrawableCl = new TextureRegionDrawable(new TextureRegion(copyTextureCl));
         ImageButton copyButton = new ImageButton(copyDrawable, copyDrawableCl);
 
-        copyButton.setPosition(3* ELEMENT_WIDTH_UNIT + 40, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         copyButton.setSize(50, 50);
+        copyButton.setPosition(code.getX()+code.getWidth()+20, code.getY()+code.getHeight()/2-copyButton.getHeight()/2);
+
 
 
         copyButton.addListener(new InputListener(){
@@ -228,7 +232,7 @@ public class LobbyScreen implements Screen {
 
         addImages();
 
-        carcassoneLabel = new Label("Lobby", mySkin, "title");
+        carcassoneLabel = new Label((this.tableName.isEmpty() ? "Lobby" : "Lobby of \""+this.tableName+"\""), mySkin, "title");
         carcassoneLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         carcassoneLabel.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(ELEMENT_HEIGHT_UNIT * 2));
         stage.addActor(carcassoneLabel);
@@ -238,7 +242,7 @@ public class LobbyScreen implements Screen {
         codeLabel.setPosition(carcassoneLabel.getX(), carcassoneLabel.getY()-ELEMENT_HEIGHT_UNIT);
         stage.addActor(codeLabel);
 
-        Label code = new Label(this.tableId, mySkin, "half-tone");
+        code = new Label(this.tableId, mySkin, "half-tone");
         code.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
         code.setPosition(codeLabel.getX()+codeLabel.getWidth()+20, codeLabel.getY());
         stage.addActor(code);
