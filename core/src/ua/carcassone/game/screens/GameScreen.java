@@ -45,6 +45,7 @@ public class GameScreen implements Screen {
     public boolean isGameOver;
     private java.util.Map<Player, Score> endGameScores;
     public GameLogic gameLogic;
+    private GameControls gameControls;
 
     public GameScreen(final CarcassoneGame game, String tableId, int tilesLeft, PCLPlayers players) {
         this.game = game;
@@ -80,7 +81,7 @@ public class GameScreen implements Screen {
 
 
 
-
+        gameControls = new GameControls(this);
         hud = new GameHud(this);
         field = new GameField(this);
 

@@ -30,6 +30,8 @@ public class Settings {
 
     public static float maxZoomSpeed = 4;
     public static float zoomSpeedDecrease = maxZoomSpeed*4.2f;
+    public static float mouseScrollSpeed = 9f;
+
 
     // чем больше тем больше можно будет отдалить
     public static float maxCameraZoom = 5.0f;
