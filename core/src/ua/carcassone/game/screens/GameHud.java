@@ -36,6 +36,7 @@ public class GameHud {
     Button menuButton;
     Button confirmationButton;
     Button cancelButton;
+    Table ccButtons;
     boolean isOverThePlayers;
     private Label tilesLeftLabel;
 
@@ -44,7 +45,7 @@ public class GameHud {
     CurrentPlayerObserver currentPlayerObserver;
 
     final float CURR_TILE_X = Gdx.graphics.getWidth() - (float) (ELEMENT_WIDTH_UNIT * 1.5);
-    final float CURR_TILE_Y = (float) (ELEMENT_HEIGHT_UNIT * 1.3);
+    final float CURR_TILE_Y = (float) (ELEMENT_HEIGHT_UNIT * 0.5);
 
     public GameHud(GameScreen gameScreen){
         this.gameScreen = gameScreen;
@@ -67,7 +68,14 @@ public class GameHud {
         menuButton = makeMenuButton("Menu");
         confirmationButton = makeConfirmationButton("skins/icons/confirm.png");
         cancelButton = makeCancelButton("skins/icons/cancel.png");
+
+        ccButtons = new Table(skin);
+        ccButtons.row().fillX().expandX().height(cancelButton.getHeight());
+        ccButtons.add(cancelButton).width(cancelButton.getWidth()).padRight(20);
+        ccButtons.add(confirmationButton).width(confirmationButton.getWidth());
+
         tilesLeftLabel = makeTilesLeftLabel();
+
         updateStage();
     }
 
@@ -94,7 +102,6 @@ public class GameHud {
     private Button makeConfirmationButton(String path){
         ImageButton confirmationButton = getImageButton(path);
         confirmationButton.setSize(150, 150);
-        confirmationButton.setPosition(CURR_TILE_X, CURR_TILE_Y);
 
         confirmationButton.addListener(new InputListener(){
             @Override
@@ -106,6 +113,9 @@ public class GameHud {
             public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
                 if(gameScreen.currentTile.isPut()){
                     gameScreen.gameLogic.confirmSelectedTilePosition();
+
+                    cancelButton.setDisabled(false);
+                    cancelButton.setVisible(true);
                 } else if(gameScreen.currentTile.isPlaceMeeple()) {
                     gameScreen.gameLogic.confirmSelectedTileMeeples();
                 }
@@ -118,7 +128,9 @@ public class GameHud {
     private Button makeCancelButton(String path) {
         ImageButton cancelButton = getImageButton(path);
         cancelButton.setSize(150, 150);
-        cancelButton.setPosition(CURR_TILE_X - confirmationButton.getWidth() - 10, CURR_TILE_Y);
+
+        cancelButton.setDisabled(true);
+        cancelButton.setVisible(false);
 
         cancelButton.addListener(new InputListener() {
             @Override
@@ -129,6 +141,9 @@ public class GameHud {
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                 gameScreen.gameLogic.disproveSelectedTileMeeples();
+
+                cancelButton.setDisabled(true);
+                cancelButton.setVisible(false);
             }
         });
 
@@ -137,8 +152,8 @@ public class GameHud {
 
     private Label makeTilesLeftLabel(){
         Label tilesLeftLabel = new Label("Tiles left: "+this.gameScreen.tilesTotal, skin, "big");
-        tilesLeftLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
-        tilesLeftLabel.setPosition(ELEMENT_WIDTH_UNIT * 0.3f, (ELEMENT_HEIGHT_UNIT) * 0.5f);
+        //tilesLeftLabel.setSize(ELEMENT_WIDTH_UNIT, ELEMENT_HEIGHT_UNIT);
+        //tilesLeftLabel.setPosition(ELEMENT_WIDTH_UNIT * 0.3f, (ELEMENT_HEIGHT_UNIT) * 0.5f);
         return tilesLeftLabel;
     }
 
@@ -149,19 +164,15 @@ public class GameHud {
     public void updateStage(){
         stage.clear();
 
-        stage.addActor(tilesLeftLabel);
-
         if(gameScreen.currentTile.isSet()){
-            if(gameScreen.currentTile.isHanging()){
-                drawCurrentTile();
-            }
-            else{
-                stage.addActor(confirmationButton);
+            drawCurrentTile();
 
-                if(gameScreen.currentTile.isPlaceMeeple()){
-                    drawMeeples();
-                    stage.addActor(cancelButton);
-                }
+            if(!gameScreen.currentTile.isHanging()){
+                drawButtons();
+            }
+
+            if(gameScreen.currentTile.isPlaceMeeple()){
+                drawMeeples();
             }
         }
 
@@ -208,22 +219,6 @@ public class GameHud {
             pImage.setSize(iconWidth, iconHeight);
             playersTable.add(pImage).width(pImage.getWidth()).height(pImage.getHeight());
 
-//            // длбавляем рамку для игрока, чей ход сейчас.
-//            if(gameScreen.players.isTurnOf(player)){
-//                Image borderImage = new Image(textureManager.getBorderSilverTexture());
-//                borderImage.setSize(pImage.getWidth(), pImage.getHeight());
-//
-//                Stack stack = new Stack();
-//                stack.add(pImage);
-//                stack.add(borderImage);
-//
-//                playersTable.add(stack).width(pImage.getWidth()).height(pImage.getHeight());
-//            }
-//            else {
-//                playersTable.add(pImage).width(pImage.getWidth()).height(pImage.getHeight());
-//            }
-
-
 
             Label pName = new Label(
                             player.getName()
@@ -257,7 +252,7 @@ public class GameHud {
         Container<Table> playersTableContainer = new Container<>();
         playersTableContainer.setActor(playersTable);
         playersTableContainer.setSize(iconWidth, size * (iconWidth + topPadding));
-        playersTableContainer.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(playersTableContainer.getHeight() + 50));
+        playersTableContainer.setPosition(ELEMENT_WIDTH_UNIT * 0.3f, Utils.fromTop(playersTableContainer.getHeight() + 50));
 
         playersTableContainer.addListener(new ClickListener(){
 
@@ -278,8 +273,6 @@ public class GameHud {
             }
         });
 
-        //playersTableContainer.setDebug(true);
-
         stage.addActor(playersTableContainer);
 
         infoTable.setVisible(false);
@@ -292,24 +285,35 @@ public class GameHud {
                 playersTableContainer.getY()
         );
 
-        //infoTable.setDebug(true);
-        //infoTableContainer.setDebug(true);
-
         stage.addActor(infoTableContainer);
     }
 
     private void drawCurrentTile(){
-        final float tileSize = 150;
+        final float tileSize = 130;
+
+        Image rectanglePlank = new Image(new Texture("skins/icons/rectangle-plank.png"));
+        rectanglePlank.setSize(tileSize * 2 + 170, tileSize + 35);
+        rectanglePlank.setPosition(ELEMENT_WIDTH_UNIT * 0.3f, (ELEMENT_HEIGHT_UNIT) * 0.5f);
+
+        stage.addActor(rectanglePlank);
 
         Tile currentTile = gameScreen.currentTile.getCurrentTile();
         Group toDraw = new Group();
-        toDraw.setPosition(CURR_TILE_X, CURR_TILE_Y);
         toDraw.setSize(tileSize, tileSize);
 
         Image currentTileImage = new Image(textureManager.getTexture(currentTile));
-        currentTileImage.setPosition(0,0);
         currentTileImage.setSize(tileSize, tileSize);
-        toDraw.addActor(currentTileImage);
+
+        Image border = new Image(textureManager.getBorderSilverTexture());
+        border.setSize(tileSize, tileSize);
+
+        Stack stack = new Stack();
+        stack.setSize(tileSize, tileSize);
+        stack.add(currentTileImage);
+        stack.add(border);
+
+
+        toDraw.addActor(stack);
 
         List<PointTypeSprite> generatedSprites =
                 TileTypeSpritesGenerator.generatePointTypeSprites(currentTile.type, currentTile.getSeed(), tileSize);
@@ -328,34 +332,70 @@ public class GameHud {
             toDraw.addActor(spriteImage);
         }
 
-        stage.addActor(toDraw);
+        Table tileTable = new Table(skin);
+        tileTable.row().fillX().expandX().height(currentTileImage.getHeight());
+        tileTable.add(toDraw).padRight(20);
+        tileTable.add(tilesLeftLabel);
+
+        Container<Table> angleContainer = new Container<>();
+        angleContainer.setActor(tileTable);
+        angleContainer.setPosition(rectanglePlank.getX(), rectanglePlank.getY());
+        angleContainer.setSize(rectanglePlank.getWidth(), rectanglePlank.getHeight());
+
+        stage.addActor(angleContainer);
     }
 
     private void drawMeeples(){
+        Image rectanglePlank = new Image(new Texture("skins/icons/rectangle-plank.png"));
+        rectanglePlank.setSize(cancelButton.getWidth() * 2 + 170, 100);
+        rectanglePlank.setPosition(Utils.fromRight(rectanglePlank.getWidth() + 40), CURR_TILE_Y + 200);
+
+        stage.addActor(rectanglePlank);
+
         Image mImage = new Image(
                 new TextureRegionDrawable(new TextureRegion(
                         textureManager.getMeepleTexture(gameScreen.players.getCurrentPlayer().getColor(), 0)
                 ))
         );
-        mImage.setSize(50, 50);
+        mImage.setSize(70, 70);
 
         Label mCount = new Label(
                 "x " + gameScreen.players.getCurrentPlayer().getMeepleCount(),
                 skin,
                 "big"
-                );
-
-        Stack stack = new Stack();
-        stack.add(mCount);
+        );
 
         Table mTable = new Table(skin);
-        mTable.setSize(100, 50);
-        mTable.add(mImage).colspan(3).expand().width(mImage.getWidth()).height(mImage.getHeight());
-        mTable.add(stack).colspan(5).expand();
+        mTable.row().fillX().expandX().height(mImage.getHeight());
+        mTable.add(mImage).width(mImage.getWidth()).padRight(20);
+        mTable.add(mCount).width(mCount.getWidth());
 
-        mTable.setPosition(CURR_TILE_X, CURR_TILE_Y + 200);
+        Container<Table> angleContainer = new Container<>();
+        angleContainer.setActor(mTable);
+        angleContainer.setPosition(rectanglePlank.getX(), rectanglePlank.getY());
+        angleContainer.setSize(rectanglePlank.getWidth(), rectanglePlank.getHeight());
 
-        stage.addActor(mTable);
+        stage.addActor(angleContainer);
+    }
+
+    private void drawButtons(){
+        Image anglePlank = new Image(new Texture("skins/icons/angle-plank.png"));
+        anglePlank.setSize(cancelButton.getWidth() * 2 + 170, cancelButton.getWidth() + 30);
+        anglePlank.setPosition(Utils.fromRight(anglePlank.getWidth() + 40), CURR_TILE_Y);
+
+        stage.addActor(anglePlank);
+
+        Container<Table> angleContainer = new Container<>();
+        angleContainer.setActor(ccButtons);
+        angleContainer.setPosition(anglePlank.getX(), anglePlank.getY());
+        angleContainer.setSize(anglePlank.getWidth(), anglePlank.getHeight());
+
+        if(!gameScreen.currentTile.isPlaceMeeple()){
+            cancelButton.setDisabled(true);
+            cancelButton.setVisible(false);
+        }
+
+        stage.addActor(angleContainer);
     }
 
     private class CurrentPlayerObserver implements PropertyChangeListener{

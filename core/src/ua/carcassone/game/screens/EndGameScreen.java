@@ -263,15 +263,15 @@ public class EndGameScreen {
         public Table getPlayerTable(Skin skin){
             Table table = new Table(skin);
 
-            Image pImage = new Image(textureManager.getTexture(0, 0));
-            pImage.setSize(150, 150);
+            Image pImage = new Image(textureManager.getProfileTransparent(player.getColor()));
+            pImage.setSize(250, 250);
             Label pName = new Label(player.getName(), skin, "big");
 
-            table.row().expandX().padTop(220).fillX();
+            table.row().expandX().padTop(150).fillX();
             table.add(pImage).height(pImage.getHeight()).width(pImage.getWidth());
             table.row().expandX().padTop(50).fillX();
             table.add(pName).height(pName.getHeight()).width(pName.getWidth());
-            table.row().expandX().fillX().padTop(150).padLeft(150).padRight(150).height(70).width(100);
+            table.row().expandX().fillX().padTop(120).padLeft(150).padRight(150).height(70).width(100);
 
             table.setSize(220, 240);
 

@@ -20,7 +20,7 @@ public class TileTextureManager {
     private final java.util.Map<MeeplePosition.INSTANCE, PreparableTexture> meepleTextures = new HashMap<>();
 
     private final PreparableTexture transparentTexture;
-    private final PreparableTexture profileGreenscreenSilver, profileGreenscreenGolden;
+    private final PreparableTexture profileGreenscreenTransparent, profileGreenscreenSilver, profileGreenscreenGolden;
 
     public TileTextureManager() {
         for (int i = 0; i <= 24; i++){
@@ -43,6 +43,7 @@ public class TileTextureManager {
 
         this.profileGreenscreenSilver = new PreparableTexture("skins/icons/profile-greenscreen-silver.png");
         this.profileGreenscreenGolden = new PreparableTexture("skins/icons/profile-greenscreen-gold.png");
+        this.profileGreenscreenTransparent = new PreparableTexture("skins/icons/profile-greenscreen-transparent.png");
 
 
         for (int i = 0; i < 4; i++) {
@@ -139,6 +140,13 @@ public class TileTextureManager {
     public Texture getProfileSilver(Color color) {
         return TileTextureManager.fillTexture(
                 profileGreenscreenSilver.getTexture(),
+                Settings.textureGreenscreenColor, color
+        );
+    }
+
+    public Texture getProfileTransparent(Color color) {
+        return TileTextureManager.fillTexture(
+                profileGreenscreenTransparent.getTexture(),
                 Settings.textureGreenscreenColor, color
         );
     }
