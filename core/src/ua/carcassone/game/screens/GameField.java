@@ -42,6 +42,9 @@ public class GameField {
 
     private final int tileSize;
     private final Vector2 fieldSize;
+
+
+
     private final Vector2 translationSpeed;
     private float zoomSpeed;
     private CurrentPlayerObserver currentPlayerObserver;
@@ -314,12 +317,12 @@ public class GameField {
         // new input
         if(Gdx.input.isKeyPressed(Input.Keys.E)) {
             if(this.zoomSpeed == 0) {
-
                 this.zoomSpeed = -Settings.maxZoomSpeed / 3;
             }
             else
                 this.zoomSpeed = -Settings.maxZoomSpeed;
         }
+
         if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
             if(this.zoomSpeed == 0) {
                 this.zoomSpeed = Settings.maxZoomSpeed / 3;
@@ -343,25 +346,7 @@ public class GameField {
             this.translationSpeed.y = maxTranslationSpeed * (1 + shift);
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.Z)) {
-            this.setZoomToSeeTiles(2);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.X)) {
-            this.setZoomToSeeTiles(3);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.C)) {
-            this.setZoomToSeeTiles(4);
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.V)) {
-            this.setZoomToSeeTiles(5);
-        }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
-            if(gameScreen.currentTile.isPut())
-                gameScreen.gameLogic.confirmSelectedTilePosition();
-            else if(gameScreen.currentTile.isPlaceMeeple())
-                gameScreen.gameLogic.confirmSelectedTileMeeples();
-        }
     }
 
     private void calculateCamera(float delta){
@@ -445,6 +430,15 @@ public class GameField {
         camera.zoom = tileSize/neededTileSize;
     }
 
+    public void alterZoom(float v) {
+        this.camera.zoom += v;
+    }
+
+    public void translateCamera(Vector2 sub) {
+        this.camera.position.x += sub.x * this.camera.zoom;
+        this.camera.position.y += sub.y * this.camera.zoom;
+    }
+
     private class CurrentPlayerObserver implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent evt){
             if (Objects.equals(evt.getPropertyName(), "currentPlayer"))
@@ -460,5 +454,16 @@ public class GameField {
         }
     }
 
+    public Vector2 getTranslationSpeed() {
+        return translationSpeed;
+    }
+
+    public float getZoomSpeed() {
+        return zoomSpeed;
+    }
+
+    public void setZoomSpeed(float zoomSpeed) {
+        this.zoomSpeed = zoomSpeed;
+    }
 
 }
