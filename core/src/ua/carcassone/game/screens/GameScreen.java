@@ -43,6 +43,7 @@ public class GameScreen implements Screen {
     private final Label debugLabel;
     public boolean isPaused;
     public boolean isGameOver;
+    private java.util.Map<Player, Score> endGameScores;
     public GameLogic gameLogic;
 
     public GameScreen(final CarcassoneGame game, String tableId, int tilesLeft, PCLPlayers players) {
@@ -130,8 +131,7 @@ public class GameScreen implements Screen {
 
         if(isGameOver){
             if(endGameScreen == null){
-                // test
-                endGameScreen = new EndGameScreen(this, playersAndScore(5));
+                endGameScreen = new EndGameScreen(this, endGameScores);
             }
             endGameScreen.stage.act(Gdx.graphics.getDeltaTime());
             endGameScreen.stage.draw();
@@ -162,6 +162,11 @@ public class GameScreen implements Screen {
             result.put(player, score);
         }
         return result;
+    }
+
+    public void gameEnded(java.util.Map<Player, Score> scores){
+        this.endGameScores = scores;
+        isGameOver = true;
     }
 
     @Override

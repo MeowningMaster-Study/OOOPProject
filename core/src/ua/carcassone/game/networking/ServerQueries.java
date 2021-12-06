@@ -26,6 +26,11 @@ public class ServerQueries {
     public static class CREATE_TABLE_SUCCESS {
         public String action;
         public String tableId;
+        public Color color;
+
+        public static class Color{
+            public int r, g, b;
+        }
     }
 
     public static class JOIN_TABLE_SUCCESS {

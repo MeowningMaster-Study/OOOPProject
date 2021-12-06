@@ -23,6 +23,7 @@ public class GameWebSocketClient extends WebSocketClient {
     private Map relatedMap;
     private Tile cachedCurrentTile;
     private final Queue<ServerQueries.TILE_PUTTED.Tile> cachedPuttedTiles = new ArrayDeque<>();
+    private Consumer<java.util.Map<Player, Score>> runOnGameEnd;
 
     static class ClientState extends Observable{
         private ClientStateEnum state = ClientStateEnum.NOT_CONNECTED;
@@ -152,7 +153,13 @@ public class GameWebSocketClient extends WebSocketClient {
             CREATE_TABLE_SUCCESS response = jsonConverter.fromJson(CREATE_TABLE_SUCCESS.class, message);
             this.getPclPlayers().clearPlayers();
             // TODO get color from server
-            this.getPclPlayers().addPlayer("CLIENT", true, new Color(1, 0, 0, 1));
+            CREATE_TABLE_SUCCESS.Color color = response.color;
+            this.getPclPlayers().addPlayer(
+                    "CLIENT",
+                    true,
+                    new Color(color.r/255f, color.g/255f, color.b/255f, 1f)
+            );
+
             this.state.set(
                     new ClientStateChange(
                             ClientStateEnum.CONNECTED_TO_TABLE,
@@ -168,6 +175,21 @@ public class GameWebSocketClient extends WebSocketClient {
 
             GAME_STARTED response = jsonConverter.fromJson(GAME_STARTED.class, message);
             this.state.set(new ClientStateChange(ClientStateEnum.IN_GAME, response.tiles));
+        }
+
+        else if (Objects.equals(action, GAME_ENDED.class.getSimpleName())) {
+            if (!this.state.is(ClientStateEnum.IN_GAME))
+                System.out.println("! Server sent wrong response: \n\tstate is " + this.state.string() + "\n\tserver sent: " + message);
+
+            GAME_ENDED response = jsonConverter.fromJson(GAME_ENDED.class, message);
+            java.util.Map<Player, Score> scores = new HashMap<>();
+            for(java.util.Map.Entry<String, GAME_ENDED.Score> serverScore : response.scores.entrySet()){
+                GAME_ENDED.Score sc = serverScore.getValue();
+                Score score = new Score(sc.roads, sc.towns, sc.monasteries, sc.fields, sc.summary);
+                scores.put(pclPlayers.getPlayerOrClient(serverScore.getKey()), score);
+            }
+            this.runOnGameEnd.accept(scores);
+
         }
 
         else if (Objects.equals(action, PLAYER_JOINED.class.getSimpleName())) {
@@ -485,5 +507,8 @@ public class GameWebSocketClient extends WebSocketClient {
     }
     public boolean isConnected(){
         return !this.state.is(ClientStateEnum.NOT_CONNECTED);
+    }
+    public void setRunOnGameEnd(Consumer<java.util.Map<Player, Score>> runOnGameEnd) {
+        this.runOnGameEnd = runOnGameEnd;
     }
 }

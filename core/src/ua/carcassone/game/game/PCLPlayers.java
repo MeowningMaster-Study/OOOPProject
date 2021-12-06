@@ -84,6 +84,13 @@ public class PCLPlayers{
         return null;
     }
 
+    public Player getPlayerOrClient(String playerId){
+        for (Player player : this.players) {
+            if (Objects.equals(player.getCode(), playerId)) return player;
+        }
+        return getClient();
+    }
+
     public Player getClient(){
         for (Player player :
                 this.players) {

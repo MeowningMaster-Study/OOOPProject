@@ -355,12 +355,12 @@ public class GameField {
         if(Gdx.input.isKeyPressed(Input.Keys.V)) {
             this.setZoomToSeeTiles(5);
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.NUMPAD_0)){
-            this.gameScreen.isGameOver = true;
-        }
 
         if(Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
-            gameScreen.gameLogic.confirmSelectedTilePosition();
+            if(gameScreen.currentTile.isPut())
+                gameScreen.gameLogic.confirmSelectedTilePosition();
+            else if(gameScreen.currentTile.isPlaceMeeple())
+                gameScreen.gameLogic.confirmSelectedTileMeeples();
         }
     }
 
