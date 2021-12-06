@@ -181,20 +181,19 @@ public class GameHud {
 
     private void drawPlayers(){
         float size = gameScreen.players.getPlayers().size();
+
         Table playersTable = new Table(skin);
+        Table infoTable = new Table(skin);
+
         int iconWidth = 100;
         int iconHeight = 100;
-        int infoHeight = 60;
-        int padding = 10;
-
-        playersTable.setWidth(iconWidth);
-        playersTable.setHeight((iconHeight + iconWidth + infoHeight + padding)* size);
+        int topPadding = 10;
 
         for (int i = 0; i < size; ++i) {
 
+            playersTable.row().fillX();
             if(i != 0){
-                playersTable.row();
-                playersTable.pad(padding);
+                playersTable.padTop(topPadding);
             }
 
             Player player = gameScreen.players.getPlayers().get(i);
@@ -211,11 +210,13 @@ public class GameHud {
                 stack.add(pImage);
                 stack.add(borderImage);
 
-                playersTable.add(stack).fillX().width(pImage.getWidth()).height(pImage.getHeight());
+                playersTable.add(stack).width(pImage.getWidth()).height(pImage.getHeight());
             }
             else {
-                playersTable.add(pImage).fillX();
+                playersTable.add(pImage).width(pImage.getWidth()).height(pImage.getHeight());
             }
+
+
 
             Label pName = new Label(
                     (gameScreen.players.isTurnOf(player) ? "=> " : "") +
@@ -234,23 +235,61 @@ public class GameHud {
                     skin
             );
 
-            Table labelsTable = new Table(skin);
-            labelsTable.setWidth(iconWidth);
-            labelsTable.setHeight(infoHeight);
 
-            labelsTable.add(pName).expandX().fillX().height(20);
-            labelsTable.row();
-            labelsTable.add(pMeeples).expandX().fillX().height(20);
-            labelsTable.row();
-            labelsTable.add(pScore).expandX().fillX().height(20);
+            infoTable.row().fillX();
+            if(i != 0){
+                infoTable.padTop(topPadding + iconHeight % 3);
+            }
 
-            playersTable.row();
-            playersTable.add(labelsTable).fillX();
+            infoTable.add(pName).expandX().fillX().height(iconHeight / 3).width(iconWidth);
+            infoTable.row().height(iconHeight / 3).width(iconWidth);
+            infoTable.add(pMeeples).expandX().fillX();
+            infoTable.row().height(iconHeight / 3).width(iconWidth);
+            infoTable.add(pScore).expandX().fillX();
         }
 
-        playersTable.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(playersTable.getHeight() + 40));
-        stage.addActor(playersTable);
+        Container<Table> playersTableContainer = new Container<>();
+        playersTableContainer.setActor(playersTable);
+        playersTableContainer.setSize(iconWidth, size * (iconWidth + topPadding));
+        playersTableContainer.setPosition(ELEMENT_WIDTH_UNIT, Utils.fromTop(playersTableContainer.getHeight() + 50));
 
+        playersTableContainer.addListener(new ClickListener(){
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                super.enter(event, x, y, pointer, fromActor);
+                if(!infoTable.isVisible() && isOver()){
+                    infoTable.setVisible(true);
+                }
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                super.exit(event, x, y, pointer, fromActor);
+                if(infoTable.isVisible() && !isOver()){
+                    infoTable.setVisible(false);
+                }
+            }
+        });
+
+        //playersTableContainer.setDebug(true);
+
+        stage.addActor(playersTableContainer);
+
+        infoTable.setVisible(false);
+
+        Container<Table> infoTableContainer = new Container<>();
+        infoTableContainer.setActor(infoTable);
+        infoTableContainer.setSize(playersTableContainer.getWidth(),playersTableContainer.getHeight());
+        infoTableContainer.setPosition(
+                playersTableContainer.getX() + playersTableContainer.getWidth() + 5,
+                playersTableContainer.getY()
+        );
+
+        //infoTable.setDebug(true);
+        //infoTableContainer.setDebug(true);
+
+        stage.addActor(infoTableContainer);
     }
 
     private void drawCurrentTile(){
